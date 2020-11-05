@@ -1,0 +1,14 @@
+:host{
+    ::ng-deep .ui-dropdown-label-container {
+        color: #333333;
+        width: 100%;
+    }
+    ::ng-deep .ui-dropdown.ui-dropdown-clearable .ui-dropdown-label {
+        text-overflow: ellipsis;
+        padding-right: 2em !important;
+    }
+    ::ng-deep .ui-dropdown .ui-dropdown-label {
+        text-overflow: ellipsis;
+        padding-right: 1em !important;
+    }
+}

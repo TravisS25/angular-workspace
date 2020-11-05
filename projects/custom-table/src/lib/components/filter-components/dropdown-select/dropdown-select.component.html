@@ -1,0 +1,10 @@
+<p-dropdown
+    #select
+    appendTo="body"
+    [(ngModel)]="selectedValue"
+    [style]="config.style"
+    [styleClass]="config.styleClass"
+    [options]="value"
+    [filter]="config.filter"
+    (onChange)="onChangeEvent($event)">
+</p-dropdown>

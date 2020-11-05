@@ -1,0 +1,20 @@
+.ui-multiselect-representative-option {
+    display: inline-block;
+    vertical-align: middle;
+
+    span {
+        margin-top: .125em;
+        vertical-align: middle;
+        margin-left: .5em
+    }
+}
+
+.ui-column-filter {
+    display: block;
+
+    input {
+        width: 100%;
+    }
+}
+
+

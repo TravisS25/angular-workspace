@@ -1,0 +1,14 @@
+<p-overlayPanel appendTo="body" #op>
+    <ng-container *ngFor="let item of config.options.values">
+        <p-radioButton 
+            name="groupName"
+            (onClick)="click($event)"
+            [(ngModel)]="value" 
+            [label]="item.label" 
+            [value]="item.value">
+        </p-radioButton>
+        <br />
+    </ng-container>
+</p-overlayPanel>
+<i *ngIf="config.type == 'textInput'" class="pi pi-ellipsis-v ellipse icon-hover" (click)="op.toggle($event)"></i>
+<i *ngIf="config.type == 'date'" class="pi pi-calendar date-icon icon-hover" (click)="op.toggle($event)"></i>

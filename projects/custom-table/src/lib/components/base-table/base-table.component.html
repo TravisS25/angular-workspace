@@ -1,0 +1,171 @@
+<p-toast></p-toast>
+<p-messages *ngIf="showMessage" [value]="msgs" [enableService]="false"></p-messages>
+<div>
+    <p-table #dt
+        (onPage)="onPageChange($event)"
+        (onSort)="onSortChange($event)"
+        (onRowExpand)="onRowExpand($event)"
+        (onRowCollapse)="onRowCollapse($event)"
+        [columns]="config.columns">
+        <ng-template *ngIf="config.showCaption" pTemplate="caption" let-rowData>
+            <div 
+                *ngIf="config.outerDataHeader" 
+                class="text-center" 
+                [innerHTML]="config.outerDataHeader(outerData)">
+            </div>
+            <div style="text-align: left">
+                <p-button 
+                    *ngIf="config.refreshButton"
+                    [styleClass]="config.refreshButton.options.styleClass"
+                    [iconPos]="config.refreshButton.options.iconPos"  
+                    [style]="config.refreshButton.options.style"  
+                    [icon]="config.refreshButton.options.icon"
+                    [label]="config.refreshButton.label"
+                    (click)="refresh()">
+                </p-button>
+                <p-button 
+                    *ngIf="config.createNewConfig"
+                    [styleClass]="config.createNewConfig.options.styleClass"
+                    [iconPos]="config.createNewConfig.options.iconPos"  
+                    [style]="config.createNewConfig.options.style"  
+                    [icon]="config.createNewConfig.options.icon"
+                    [label]="config.createNewConfig.label"
+                    (click)="create($event)">
+                </p-button>
+                <p-button 
+                    *ngIf="config.clearFilterButton"
+                    [styleClass]="config.clearFilterButton.options.styleClass"
+                    [iconPos]="config.clearFilterButton.options.iconPos"  
+                    [style]="config.clearFilterButton.options.style"  
+                    [icon]="config.clearFilterButton.options.icon"
+                    [label]="config.clearFilterButton.label"
+                    (click)="clearFilters()">
+                </p-button>
+                <p-button 
+                    *ngIf="config.collapseRowsButton"
+                    [styleClass]="config.collapseRowsButton.options.styleClass"
+                    [iconPos]="config.collapseRowsButton.options.iconPos"  
+                    [style]="config.collapseRowsButton.options.style"  
+                    [icon]="config.collapseRowsButton.options.icon"
+                    [label]="config.collapseRowsButton.label"
+                    (click)="closeExpandedRows()">
+                </p-button>
+                <p-menu #exportMenu appendTo="body" [popup]="true" [model]="exportItems"></p-menu>
+                <p-button 
+                    *ngIf="config.exportConfig"
+                    [styleClass]="config.exportConfig.buttonCfg.options.styleClass"
+                    [iconPos]="config.exportConfig.buttonCfg.options.iconPos"  
+                    [style]="config.exportConfig.buttonCfg.options.style"  
+                    [icon]="config.exportConfig.buttonCfg.options.icon"
+                    [label]="config.exportConfig.buttonCfg.label"
+                    (click)="exportMenu.toggle($event)">
+                </p-button>
+                <span class="column-header-section">
+                    <p-multiSelect
+                        *ngIf="config.columnSelect"
+                        appendTo="body"
+                        [(ngModel)]="selectedColumns"
+                        [options]="columnOptions"
+                        [styleClass]="config.columnSelect.styleClass"
+                        [style]="config.columnSelect.style"
+                        [maxSelectedLabels]="config.columnSelect.maxSelectedLabels"
+                        [selectedItemsLabel]="config.columnSelect.selectedItemsLabel"
+                        [showToggleAll]="config.columnSelect.showToggleAll"
+                        [resetFilterOnHide]="config.columnSelect.resetFilterOnHide"
+                        [defaultLabel]="config.columnSelect.defaultLabel"
+                        [showHeader]="config.columnSelect.showHeader"
+                        (onChange)="onColumnHeaderChange($event)">
+                    </p-multiSelect>
+                </span>
+                <ng-template
+                    *ngIf="config.caption"
+                    [appDynamicCaption]>
+                </ng-template>
+            </div>
+        </ng-template>
+        <ng-template *ngIf="config.hasColGroup" pTemplate="colgroup" let-columns>
+            <colgroup>
+                <col *ngFor="let col of columns;" [hidden]="col.hideColumn" [ngStyle]="col.colStyle">
+            </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns let-rowData>
+            <tr>
+                <th 
+                    *ngFor="let col of columns;" 
+                    [ngStyle]="col.headerStyle"
+                    [ngClass]="col.headerClass" 
+                    [hidden]="col.hideColumn"
+                    pResizableColumn
+                    [pSortableColumn]="sortField(col)"
+                    [pSortableColumnDisabled]="isSortDisabled(col)">
+                        {{ col.header }}
+                        <app-sort-icon
+                            *ngIf="col.sort && !col.sort.disableSort"
+                            [sortField]="col.sort.sortField"
+                            [sortOrder]="col.sort.sortOrder">
+                        </app-sort-icon>
+                </th>
+            </tr>
+            <tr>
+                <th 
+                    *ngFor="let col of columns; let idx = index" 
+                    [ngStyle]="col.headerFilterStyle"
+                    [ngClass]="col.headerFilterClass" 
+                    pResizableColumn
+                    [hidden]="col.hideColumn">
+                        <ng-container *ngIf="col.columnFilter">
+                            <span [hidden]="col.hideColumnFilter">
+                                <ng-template
+                                [appDynamicColumnFilter]
+                                [colIdx]="idx">   
+                                </ng-template>
+                            </span>
+                        </ng-container>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-expanded="expanded" let-columns="columns" let-rowData>
+            <tr>
+                <td *ngFor="let col of columns; let idx = index" 
+                    [ngStyle]="col.bodyCellStyle" 
+                    [ngClass]="col.bodyCellClass" 
+                    [hidden]="col.hideColumn">
+                    <ng-container *ngIf="col.renderColumnContent; else noContent">
+                        <ng-container *ngIf="col.bodyCell; else block1">
+                            <ng-template 
+                                [appDynamicBodyCell]
+                                [colIdx]="idx" 
+                                [rowData]="rowData">
+                            </ng-template>
+                        </ng-container>
+                        <ng-template #block1>
+                            <ng-container *ngIf="col.bodyCellHTML && rowData != null">
+                                <span [innerHTML]="col.bodyCellHTML(rowData)"></span>
+                            </ng-container>
+                        </ng-template>
+                    </ng-container>
+                    <ng-template #noContent>
+                        <ng-container *ngIf="showNoRecordsLabel">
+                            <h3>No Records...</h3>
+                        </ng-container>
+                    </ng-template>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template 
+            let-i="rowIndex" 
+            pTemplate="rowexpansion" 
+            let-columns
+            let-rowData>
+            <tr>
+                <td [attr.colspan]="visibleColumns">
+                    <ng-template 
+                        [appDynamicExpansion]
+                        [renderCallback]="renderCallback"
+                        [outerData]="rowData">       
+                    </ng-template>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

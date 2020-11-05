@@ -1,0 +1,24 @@
+:host {
+    ::ng-deep .ui-table {
+        .ui-sortable-column.ui-state-highlight{
+            background-color: white !important;
+            color: #333333;
+        }
+        // .ui-table-scrollable-body{
+        //     scrollbar-width: none;
+        //     -ms-overflow-style: none;
+        //     //overflow-x: scroll !important;
+        // }
+        // .ui-table-scrollable-body::-webkit-scrollbar{
+        //     display: none;
+        //     //overflow-x: scroll !important;
+        // }
+    }    
+}
+
+@-moz-document url-prefix() { 
+    .column-header-section{
+        position: relative;
+        top: 6px;
+    }
+} 
