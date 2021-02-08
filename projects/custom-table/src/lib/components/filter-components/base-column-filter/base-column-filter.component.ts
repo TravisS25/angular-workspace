@@ -18,11 +18,7 @@ export interface BaseColumnFilterConfig{
   styleUrls: ['./base-column-filter.component.scss']
 })
 export class BaseColumnFilterComponent extends BaseColumnFilterItems implements OnInit, OnDestroy {  
-  constructor(
-    public http: HttpClient,
-    public cfr: ComponentFactoryResolver,
-    public cdr: ChangeDetectorRef, 
-  ) {
+  constructor() {
     super();
     //this.initBaseColumnProcessFunctions();
   }

@@ -1,8 +1,4 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BaseBodyCellComponent } from '../base-body-cell/base-body-cell.component';
-import { StringDecoder } from 'string_decoder';
-import { Checkbox } from 'primeng/checkbox';
 import { BaseBodyCellItems } from '../../../table-api';
 
 export interface CheckboxConfig{

@@ -15,7 +15,7 @@ export interface BaseTableModal{
 
   // type is a placeholder and will be overriden if set manually
   // This will be set by the CrudButtonsComponent
-  type?: 'details' | 'delete';
+  type?: 'details' | 'delete' | 'update';
 
   // rowData is row data that will be set by CrudButtonsComponent
   // and will be overwritten if value set
@@ -38,7 +38,11 @@ export interface DeleteTableModal extends BaseTableModal{
   // successSummary is the toast message that will be displayed upon
   // successful deletion
   successSummary?: string;
+
+
 }
+
+export interface ActionTableModal extends DeleteTableModal{}
 
 export interface DynamicDeleteTableModalConfig{
   modalConfig: BaseModalConfig;

@@ -1,6 +1,4 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { BaseColumnFilterComponent } from '../base-column-filter/base-column-filter.component'
 import * as moment from 'moment';
 import { DefaultConsts } from '../../../config';
 import { BaseColumnFilterItems, BaseTableEvent } from '../../../table-api';

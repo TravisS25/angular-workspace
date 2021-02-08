@@ -5,7 +5,6 @@
 // Components
 export * from './lib/components/base-caption/base-caption.component';
 export * from './lib/components/base-table/base-table.component';
-export * from './lib/components/body-cell-components/base-body-cell/base-body-cell.component';
 export * from './lib/components/body-cell-components/base-tab-view/base-tab-view.component';
 export * from './lib/components/body-cell-components/bool-body-cell/bool-body-cell.component';
 export * from './lib/components/body-cell-components/checkbox/checkbox.component';
@@ -13,8 +12,6 @@ export * from './lib/components/body-cell-components/row-options/row-options.com
 export * from './lib/components/body-cell-components/table-expansion/table-expansion.component';
 export * from './lib/components/body-cell-components/table-modal/table-modal.component';
 
-
-export * from './lib/components/filter-components/base-column-filter/base-column-filter.component'
 export * from './lib/components/filter-components/date-picker/date-picker.component';
 export * from './lib/components/filter-components/dropdown-select/dropdown-select.component';
 export * from './lib/components/filter-components/filter-option/filter-option.component';
@@ -23,6 +20,10 @@ export * from './lib/components/filter-components/input-text/input-text.componen
 export * from './lib/components/filter-components/multi-select/multi-select.component';
 export * from './lib/components/filter-components/sort-icon/sort-icon.component';
 
+export * from './lib/components/filter-components/material-components/material-dropdown-select/material-dropdown-select.component';
+export * from './lib/components/filter-components/material-components/material-input-text/material-input-text.component';
+
+export * from './lib/components/body-cell-components/material/material-row-options/material-row-options.component';
 
 // Directives
 export * from './lib/directives/column-checkbox.directive';
@@ -48,6 +49,10 @@ export * from './lib/modules/row-options.module';
 export * from './lib/modules/sort-icon.module';
 export * from './lib/modules/table-dynamic-component.module';
 export * from './lib/modules/table-modal.module';
+
+export * from './lib/modules/material/material-dropdown-select.module';
+export * from './lib/modules/material/material-input-text.module';
+export * from './lib/modules/material/material-row-options.module';
 
 // Utils
 export * from './lib/config';

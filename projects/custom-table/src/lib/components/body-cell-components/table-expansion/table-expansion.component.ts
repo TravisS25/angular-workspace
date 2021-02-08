@@ -1,7 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { BaseBodyCellItems, Column, FilterDescriptor } from '../../../table-api';
-import { Observable, Subscription } from 'rxjs';
-import { BaseBodyCellComponent } from '../base-body-cell/base-body-cell.component';
 import { RowToggler } from 'primeng/table';
 
 @Component({

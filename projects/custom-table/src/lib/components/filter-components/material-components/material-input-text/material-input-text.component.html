@@ -1,0 +1,8 @@
+<mat-form-field appearance="fill">
+    <mat-label *ngIf="config.label"></mat-label>
+    <input matInput (ngModelChange)='changed($event)' [style]="config.style" [ngModel]="selectedValue" placeholder="{{ config.placeHolder }}">
+</mat-form-field>
+<lib-material-filter-option 
+    [config]="config.filterCfg"
+    (onChange)="onFilterChange($event)">
+</lib-material-filter-option>

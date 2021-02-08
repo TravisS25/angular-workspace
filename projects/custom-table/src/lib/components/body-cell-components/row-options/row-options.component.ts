@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, EventEmitter } from '@angular/core';
-import { BaseBodyCellComponent } from '../base-body-cell/base-body-cell.component';
 import { BaseBodyCellItems, BaseModalConfig, BaseTableEvent } from '../../../table-api';
 import { DynamicDetailsTableModalConfig, DynamicDeleteTableModalConfig } from '../table-modal/table-modal.component';
 import { MenuItem } from 'primeng/api';
@@ -12,8 +11,6 @@ export interface RowOptionsConfig extends BaseTableEvent{
 }
 
 export interface RowOptionsChangeConfig extends BaseTableEvent{
-  event?: any;
-  rowData?: any;
   baseTable?: BaseTableComponent
 }
 
@@ -23,7 +20,7 @@ export interface RowOptionsChangeConfig extends BaseTableEvent{
   styleUrls: ['./row-options.component.scss']
 })
 export class RowOptionsComponent extends BaseBodyCellItems implements OnInit, OnDestroy {
-  private _config: RowOptionsConfig;
+  private _roConfig: RowOptionsConfig;
 
   public newList: MenuItem[] = [];
 
@@ -38,7 +35,7 @@ export class RowOptionsComponent extends BaseBodyCellItems implements OnInit, On
       } else{
         items[i].command = (event: any) => {
           let cfg: RowOptionsChangeConfig = {
-            columnField: this._config.columnField,
+            columnField: this._roConfig.columnField,
             event: event,
             rowData: this.rowData,
             baseTable: this.baseTable,
@@ -51,9 +48,9 @@ export class RowOptionsComponent extends BaseBodyCellItems implements OnInit, On
 
   private initConfig(){
     if(this.config != undefined){
-      this._config = this.config
+      this._roConfig = this.config
 
-      this._config.items.forEach(item => {
+      this._roConfig.items.forEach(item => {
         this.newList.push(deepCopyMenuItem(item))
       });
 

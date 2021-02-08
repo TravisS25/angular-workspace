@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { BaseBodyCellItems } from '../../../table-api';
-import { BaseBodyCellComponent } from '../base-body-cell/base-body-cell.component';
 
 @Component({
   selector: 'app-bool-body-cell',

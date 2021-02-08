@@ -8,6 +8,7 @@ import { FilterConfig } from './components/filter-components/filter-option/filte
 import { DatePickerConfig } from './components/filter-components/date-picker/date-picker.component';
 import { InputTextConfig } from './components/filter-components/input-text/input-text.component';
 import { MultiSelectConfig } from './components/filter-components/multi-select/multi-select.component';
+import { MaterialDropdownSelectConfig } from './components/filter-components/material-components/material-dropdown-select/material-dropdown-select.component';
 
 export function getDefaultDynamicDialogCfg(): DynamicDialogConfig{
     let cfg: DynamicDialogConfig = {
@@ -315,6 +316,15 @@ export function getDefaultColumnSelectOpts(): MultiSelectOptions{
         defaultLabel: 'Columns',
         selectedItemsLabel: 'Columns',
         maxSelectedLabels: 0,
+    }
+    return cfg;
+}
+
+export function getDefaultMaterialDropdownConfig(): MaterialDropdownSelectConfig{
+    let cfg: MaterialDropdownSelectConfig = {
+        label: '--Select--',
+        multipleSelect: true,
+        style: {'width': '90%'},
     }
     return cfg;
 }

@@ -1,5 +1,4 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild, OnDestroy } from '@angular/core';
-import { BaseColumnFilterComponent } from '../base-column-filter/base-column-filter.component';
 import { HttpClient } from '@angular/common/http';
 import { Checkbox } from 'primeng/checkbox';
 import { CheckboxConfig } from '../../body-cell-components/checkbox/checkbox.component';

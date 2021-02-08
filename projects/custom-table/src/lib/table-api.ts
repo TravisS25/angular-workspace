@@ -1,4 +1,4 @@
-import { Type, EventEmitter, SimpleChanges, OnInit, OnDestroy, Component } from '@angular/core';
+import { Type, EventEmitter, SimpleChanges, OnInit, OnDestroy, Component, Input } from '@angular/core';
 import { Observable, of, Subscription } from 'rxjs';
 import { Table } from 'primeng/table/table'
 import { HttpClient, HttpResponse, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
@@ -156,13 +156,9 @@ export const BoolList: SelectItem[] = [
 // HTTPOptions is just a type safe way of applying api options
 // to HTTPClient#get parameter
 export interface HTTPOptions{
-    headers?: HttpHeaders | {
-        [header: string]: string | string[];
-    };
+    headers?: HttpHeaders
     observe?: 'body' | 'response' | 'events';
-    params?: HttpParams | {
-        [param: string]: string | string[];
-    };
+    params?: HttpParams
     reportProgress?: boolean;
     responseType?: 'json' | 'blob';
     withCredentials?: boolean;
@@ -313,7 +309,7 @@ export interface BaseModalConfig{
     component: Type<any>;
 
     // modalConfig is config for modal
-    dialogConfig: DynamicDialogConfig;
+    dialogConfig: any;
 
     // processOnClose takes in result from closing of modal
     // and updates table based on results
@@ -330,6 +326,8 @@ export interface BaseTableEvent{
     columnField?: string;
 
     rowData?: any;
+
+    event?: any;
 }
 
 // DataTableConfig is config used to set up initial state of data table
@@ -530,7 +528,7 @@ export interface BaseTableItemsI {
     template: '',
 })
 export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy{
-    public config: any;
+    @Input() public config: any;
     public onColumnFilterEvent: EventEmitter<any>;
     public onBodyCellEvent: EventEmitter<any>;
     public onCaptionEvent: EventEmitter<any>;
@@ -638,7 +636,7 @@ export class BaseColumnFilterItems extends BaseColumnItems implements BaseColumn
     public rowData: any;
 
     protected emitChange(val: any){
-        //console.log('emitting change')
+        console.log('emitting change')
         let filter: FilterDescriptor = {
           value: val,
           field: this.field,
@@ -844,38 +842,38 @@ export interface BaseEventOptions{
     processSortEvent?: (event: any, baseTable: BaseTableComponent) => void;
 }
 
-export interface BaseCaptionOptions extends BaseEventOptions{}
+// export interface BaseCaptionOptions extends BaseEventOptions{}
 
-export interface BaseColumnFilterOptions extends BaseEventOptions{
-    // field should be the json representation of column
-    field: string;
+// export interface BaseColumnFilterOptions extends BaseEventOptions{
+//     // field should be the json representation of column
+//     field: string;
 
-    // subComponents allows user ablity to create a cascade of components
-    // within a dynamically created component
-    subComponents?: SubComponentConfig[];
+//     // subComponents allows user ablity to create a cascade of components
+//     // within a dynamically created component
+//     subComponents?: SubComponentConfig[];
 
-    // operator is the operator used in filtering data from server
-    operator?: string;
+//     // operator is the operator used in filtering data from server
+//     operator?: string;
 
-    // selectedValue is the selected value(s) from the current column filter
-    selectedValue?: any;
+//     // selectedValue is the selected value(s) from the current column filter
+//     selectedValue?: any;
     
-    // value is the default value set for column filter (if filter is input type)
-    // or is list of items (for filter that is a dropdown)
-    value?: any;
+//     // value is the default value set for column filter (if filter is input type)
+//     // or is list of items (for filter that is a dropdown)
+//     value?: any;
 
-    // clearFilter should implement zeroing out current column value
-    // This function works in conjunction with BaseTableComponent#clearFilters
-    // This should NOT be set in configuration but within the column
-    // filter class that extends BaseColumnFilterItems
-    clearFilter?: ()=>void;
-}
+//     // clearFilter should implement zeroing out current column value
+//     // This function works in conjunction with BaseTableComponent#clearFilters
+//     // This should NOT be set in configuration but within the column
+//     // filter class that extends BaseColumnFilterItems
+//     clearFilter?: ()=>void;
+// }
 
-export interface BaseBodyCellOptions extends BaseEventOptions{
-    // processRowData should take in rowData, process and return some 
-    // type of config to modify how component body cell is displayed
-    processRowData?: (rowData: any)=>any;
-}
+// export interface BaseBodyCellOptions extends BaseEventOptions{
+//     // processRowData should take in rowData, process and return some 
+//     // type of config to modify how component body cell is displayed
+//     processRowData?: (rowData: any)=>any;
+// }
 
 // SubComponentConfig allows us to create cascading dynamic subcomponents
 export interface SubComponentConfig{
@@ -910,10 +908,10 @@ export interface Column extends BaseEventOptions{
     // hideColumn will hide column if set true
     hideColumn?: boolean,
 
-    // showColumnOption will hide current column from being displayed
+    // showColumnOption will show current column
     // in the dropdown list in caption
     //
-    // Default: false
+    // Default: true
     showColumnOption?: boolean;
 
     // hideColumnFilter will hide the filter for current column
@@ -970,7 +968,7 @@ export interface TabViewConfig{
     panels: TabPanelItem[];
 }
 
-// TabPanelItem is config used for each tab within a collection ob tab views
+// TabPanelItem is config used for each tab within a collection of tab views
 export interface TabPanelItem{
     // header is header for tab panel
     header?: string;

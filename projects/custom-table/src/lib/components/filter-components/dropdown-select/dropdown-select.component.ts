@@ -1,6 +1,4 @@
 import { Component, ViewChild, ComponentFactoryResolver, ChangeDetectorRef, OnInit } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { BaseColumnFilterComponent } from '../base-column-filter/base-column-filter.component';
 import { Dropdown } from 'primeng/dropdown';
 import { BaseColumnFilterItems, BaseTableEvent } from '../../../table-api';
 import { GalleriaThumbnails } from 'primeng';

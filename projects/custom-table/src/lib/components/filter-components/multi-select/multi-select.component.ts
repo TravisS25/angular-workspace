@@ -1,7 +1,5 @@
 import { Component, OnInit, Input, ViewChildren, ViewChild, Output, EventEmitter, ComponentFactoryResolver, ChangeDetectorRef } from '@angular/core';
 import { MultiSelect, MultiSelectItem } from 'primeng/multiselect';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { BaseColumnFilterComponent } from '../base-column-filter/base-column-filter.component';
 import { BaseColumnFilterItems, MultiSelectOptions } from '../../../table-api';
 
 export interface MultiSelectConfig extends MultiSelectOptions{
