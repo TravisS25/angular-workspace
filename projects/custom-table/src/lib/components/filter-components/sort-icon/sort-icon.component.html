@@ -1,4 +1,4 @@
-<i 
+<!-- <i 
 *ngIf="sortOrder == 'none'; else asc"
 class="pi pi-sort-alt">
 </i>
@@ -12,5 +12,22 @@ class="pi pi-sort-alt">
     <i 
     *ngIf="sortOrder == 'desc'" 
     class="pi pi-sort-amount-down">
+    </i>
+</ng-template> -->
+
+<i 
+*ngIf="sortOrder == 'none'; else asc"
+class="fas fa-sort">
+</i>
+<ng-template #asc>
+    <i 
+    *ngIf="sortOrder == 'asc'; else desc" 
+    class="fas fa-sort-up">
+    </i>
+</ng-template>
+<ng-template #desc>
+    <i 
+    *ngIf="sortOrder == 'desc'" 
+    class="fas fa-sort-down">
     </i>
 </ng-template>

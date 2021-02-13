@@ -22,6 +22,8 @@ export * from './lib/components/filter-components/sort-icon/sort-icon.component'
 
 export * from './lib/components/filter-components/material-components/material-dropdown-select/material-dropdown-select.component';
 export * from './lib/components/filter-components/material-components/material-input-text/material-input-text.component';
+export * from './lib/components/filter-components/material-components/material-autocomplete/material-autocomplete.component';
+export * from './lib/components/filter-components/material-components/material-date-picker/material-date-picker.component';
 
 export * from './lib/components/body-cell-components/material/material-row-options/material-row-options.component';
 
@@ -53,6 +55,8 @@ export * from './lib/modules/table-modal.module';
 export * from './lib/modules/material/material-dropdown-select.module';
 export * from './lib/modules/material/material-input-text.module';
 export * from './lib/modules/material/material-row-options.module';
+export * from './lib/modules/material/material-date-picker.module';
+//export * from './lib/modules/material/material-autocomplete.module';
 
 // Utils
 export * from './lib/config';

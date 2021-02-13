@@ -5,66 +5,68 @@ import { SelectItem } from 'primeng';
 import { BaseColumnFilterItems } from '../../../../table-api';
 
 @Directive({
-  selector: '[matOptionDirective]'
+    selector: '[matOptionDirective]'
 })
 class MatOptionDirective {
-	constructor(public viewContainerRef: MatOption) { }
+    constructor(public viewContainerRef: MatOption) { }
 }
 
-export interface MaterialDropdownSelectConfig{
-  multipleSelect?: boolean;
-  selectAllLabel?: string;
-  style?: Object;
-  label?: string;
+export interface MaterialDropdownSelectConfig {
+    multipleSelect?: boolean;
+    selectAllLabel?: string;
+    style?: Object;
+    label?: string;
 }
 
 @Component({
-  selector: 'lib-material-dropdown-select',
-  templateUrl: './material-dropdown-select.component.html',
-  styleUrls: ['./material-dropdown-select.component.scss']
+    selector: 'lib-material-dropdown-select',
+    templateUrl: './material-dropdown-select.component.html',
+    styleUrls: ['./material-dropdown-select.component.scss']
 })
 export class MaterialDropdownSelectComponent extends BaseColumnFilterItems implements OnInit {
-  @ViewChild('selectAll') public selectAll: MatOption;
-  @ViewChildren(MatOptionDirective) public options: QueryList<MatOptionDirective>;
-  
-  public cfg: MaterialDropdownSelectConfig;
+    @ViewChild('selectAll') public selectAll: MatOption;
+    @ViewChildren(MatOptionDirective) public options: QueryList<MatOptionDirective>;
 
-  constructor() { 
-    super();
-  }
+    public cfg: MaterialDropdownSelectConfig;
 
-  private initConfig(){
-    if(this.config == undefined){
-      this.cfg = {
-        multipleSelect: false,
-        selectAllLabel: 'Select All',
-      };
-    } else{
-      this.cfg = this.config;
+    constructor() {
+        super();
     }
-  }
 
-  public ngOnInit(): void {
-    this.initConfig();
-  }
+    private initConfig() {
+        if (this.config == undefined) {
+            this.cfg = {
+                multipleSelect: false,
+                selectAllLabel: 'Select All',
+            };
+        } else {
+            this.cfg = this.config;
+        }
+    }
 
-  public toggle(){ 
-    if(this.selectAll.selected) {  
-    	this.selectAll.deselect();
-    } else if(this.selectedValue.length == this.value.length) {
-		this.selectAll.select();
-	}
-	this.onChangeEvent(null);
- }
-  public toggleAll() {
-	this.options.forEach(x => {
-		if(this.selectAll.selected){
-			x.viewContainerRef.deselect();
-		} else{
-			x.viewContainerRef.select();
-		}
-	})
-	
-	this.onChangeEvent(null);
-  }
+    public ngOnInit(): void {
+        super.ngOnInit();
+        this.initConfig();
+    }
+
+    public toggle() {
+        console.log('toggle');
+        if (this.selectAll && this.selectAll.selected) {
+            this.selectAll.deselect();
+        } else if (this.selectedValue && this.selectedValue.length == this.value.length) {
+            this.selectAll.select();
+        }
+        this.onChangeEvent(null);
+    }
+    public toggleAll() {
+        this.options.forEach(x => {
+            if (this.selectAll.selected) {
+                x.viewContainerRef.deselect();
+            } else {
+                x.viewContainerRef.select();
+            }
+        })
+
+        this.onChangeEvent(null);
+    }
 }

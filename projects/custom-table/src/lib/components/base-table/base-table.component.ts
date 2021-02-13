@@ -1278,7 +1278,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         for (let i = 0; i < columns.length; i++) {
             if (columns[i].field == field) {
-                //this._hiddenColumns.push(field);
                 this.visibleColumns--;
                 columns[i].hideColumn = true;
             }
@@ -1319,9 +1318,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // event.first = Index of the first record
     // event.rows = Number of rows to display in new page
     public onPageChange(event: any) {
-        // console.log('page event');
-        // console.log(event);
-
         this.state.skip = event.first;
         this.state.take = event.rows;
         this.update();
@@ -1383,6 +1379,28 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
             });
         }
+    }
+
+    public columnHeaderChange(values: any[]){
+        let columns: Column[] = this.dt.columns;
+
+        columns.forEach(x => {
+            if(x.showColumnOption){
+                let found = false;
+
+                values.forEach(t => {
+                    if(x.field == t){
+                        found = true
+                    }
+                })
+
+                if(found){
+                    this.removeHiddenColumn(x.field)
+                } else{
+                    this.addHiddenColumn(x.field);
+                }
+            }
+        })
     }
 
     // toast adds ability to have a toast message based on message passed

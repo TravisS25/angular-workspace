@@ -1,4 +1,4 @@
-<mat-form-field [style]="cfg.style" appearance="fill">
+<mat-form-field [style]="cfg.style">
     <mat-label *ngIf="cfg.label">{{ cfg.label }}</mat-label>
     <mat-select [(ngModel)]="selectedValue" [multiple]="cfg.multipleSelect">
         <mat-option *ngIf="cfg.multipleSelect && cfg.selectAllLabel" #selectAll (click)="toggleAll()">

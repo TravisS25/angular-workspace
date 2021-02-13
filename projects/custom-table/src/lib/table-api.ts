@@ -9,7 +9,7 @@ import { MultiSelectModule } from 'primeng';
 
 //---------------- FILTERS ----------------------- 
 
-export interface FilterData{
+export interface FilterData {
     data: any[],
     total: number,
 }
@@ -28,7 +28,7 @@ export interface SortDescriptor {
      */
     dir?: 'asc' | 'desc';
 }
-  
+
 export interface CompositeFilterDescriptor {
     /**
      * The logical operation to use when the `filter.filters` option is set.
@@ -132,7 +132,7 @@ export interface AggregateDescriptor {
 
 //---------------- MISC ----------------------- 
 
-export interface FieldName{
+export interface FieldName {
     oldName: string;
     newName: string;
 }
@@ -155,7 +155,7 @@ export const BoolList: SelectItem[] = [
 
 // HTTPOptions is just a type safe way of applying api options
 // to HTTPClient#get parameter
-export interface HTTPOptions{
+export interface HTTPOptions {
     headers?: HttpHeaders
     observe?: 'body' | 'response' | 'events';
     params?: HttpParams
@@ -165,13 +165,13 @@ export interface HTTPOptions{
 }
 
 // ButtonOptions is configuration for basic styling of a button
-export interface ButtonOptions{
+export interface ButtonOptions {
     // icon represents icon for button
     icon?: string;
-    
+
     // iconPos is which side the icon will appear
     iconPos?: 'left' | 'right';
-    
+
     // styleClass should be space seperated classes to apply to class
     styleClass?: string;
 
@@ -180,7 +180,7 @@ export interface ButtonOptions{
 }
 
 // BaseButton is basic styling options for button
-export interface BaseButton{
+export interface BaseButton {
     // label displays text for button
     label: string;
 
@@ -192,7 +192,7 @@ export interface BaseButton{
 // This is mainly used for our "Show Columns" and "Hide Columns"
 // buttons but can be used for any type of toggle buttons
 // This does NOT implement any type of functionality, just styling
-export interface ToggleButton{
+export interface ToggleButton {
     onButton: BaseButton;
     offButton: BaseButton;
 }
@@ -220,7 +220,7 @@ export interface ExportMenuItem extends MenuItem {
 // BaseTableComponent#exportButton function
 //
 // It determines which file type to export to with current table info
-export enum ExportType{
+export enum ExportType {
     // csv will export to the .csv file type
     csv = 1,
 
@@ -234,13 +234,13 @@ export enum ExportType{
 // ExportConfig is config used in BaseTableConfig to construct
 // settings to use for the export button like styling, file name,
 // file format etc.
-export interface ExportConfig{
+export interface ExportConfig {
     // fieldsParam is the name of the parameter that will be sent to server 
     // with the selected checkbox column values to export to selected format
     // 
     // Default value: "headers"
     fieldsParam?: string;
-    
+
     // buttonCfg is config options to style the button
     buttonCfg: BaseButton;
 
@@ -250,7 +250,7 @@ export interface ExportConfig{
 }
 
 // ExportFormats is configuration used to determine which file types to export to
-export interface ExportFormats{
+export interface ExportFormats {
     // csv's "exportAPI" function should return url that will download .csv file
     // for current table info
     csv?: ExportMenuItem;
@@ -266,7 +266,7 @@ export interface ExportFormats{
 
 // SortOperation is configuration used to determine how a column is sorted, if 
 // it is disabled and which column field is sortable
-export interface SortOperation{
+export interface SortOperation {
     // sortField should be json representation of the field to sort
     sortField: string;
 
@@ -280,8 +280,8 @@ export interface SortOperation{
 
 // BaseButtonConfig is base config used to determine which page to
 // navigate to based on the rowData/outerData passed to function
-export interface BaseButtonConfig{
-    pageURL?: (rowData: any)=>string;
+export interface BaseButtonConfig {
+    pageURL?: (rowData: any) => string;
 }
 
 // CreateActionConfig is config used in BaseTableConfig to determine 
@@ -293,18 +293,18 @@ export interface BaseButtonConfig{
 // If CreateActionConfig#createConfig is set then a modal will be used when 
 // the create button is click, else we will be redirected to another page if clicked
 // If both are set, modal will be used
-export interface CreateActionConfig extends BaseButtonConfig, BaseButton{
+export interface CreateActionConfig extends BaseButtonConfig, BaseButton {
     createConfig?: BaseModalConfig;
 }
 
-export interface EditActionConfig extends BaseButtonConfig{
+export interface EditActionConfig extends BaseButtonConfig {
     editConfig?: BaseModalConfig;
 }
 
 //---------------- MODAL CONFIGS ----------------------- 
 
 // BaseModalConfig is config used to set up for modal settings
-export interface BaseModalConfig{
+export interface BaseModalConfig {
     // component is component to generate within modal view
     component: Type<any>;
 
@@ -313,7 +313,7 @@ export interface BaseModalConfig{
 
     // processOnClose takes in result from closing of modal
     // and updates table based on results
-    processOnClose?: (result: any, baseTable: BaseTableComponent)=>void
+    processOnClose?: (result: any, baseTable: BaseTableComponent) => void
 }
 
 // ------------------ TABLE INTERFACES -----------------------
@@ -321,7 +321,7 @@ export interface BaseModalConfig{
 // BaseTableEvent should be the base interface that every component in the table
 // extends when emitting a change event so BaseTableComponent's various processing event
 // functions can determine which column it is coming from
-export interface BaseTableEvent{
+export interface BaseTableEvent {
     // columnField should be the name of a column the event is triggered from
     columnField?: string;
 
@@ -331,12 +331,12 @@ export interface BaseTableEvent{
 }
 
 // DataTableConfig is config used to set up initial state of data table
-export interface DataTableConfig{
+export interface DataTableConfig {
     // Height of the scroll viewport in fixed pixels or the "flex" keyword for a dynamic size.
     // 
     // Default: '550px'
     scrollHeight?: string;
-    
+
     // A property to uniquely identify a record in data
     //
     // Default: 'id'
@@ -356,7 +356,7 @@ export interface DataTableConfig{
     //
     // Default: [20, 50, 100]
     rowsPerPageOptions?: number[];
-    
+
     // Displays a loader to indicate data load is in progress
     //
     // Default: true
@@ -389,7 +389,7 @@ export interface DataTableConfig{
 }
 
 // BaseTableConfig is the main config that is used against our table api
-export interface BaseTableConfig{
+export interface BaseTableConfig {
     // dt is used to override the defaults given within base table api
     dtConfig?: DataTableConfig;
 
@@ -527,7 +527,7 @@ export interface BaseTableItemsI {
 @Component({
     template: '',
 })
-export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy{
+export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
     @Input() public config: any;
     public onColumnFilterEvent: EventEmitter<any>;
     public onBodyCellEvent: EventEmitter<any>;
@@ -535,15 +535,15 @@ export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy{
     public onTableFilterEvent: EventEmitter<any>;
     public onClearFiltersEvent: EventEmitter<any>;
     public onSortEvent: EventEmitter<any>;
-    public baseTable: BaseTableComponent; 
+    public baseTable: BaseTableComponent;
 
     protected _subs: Subscription[] = [];
 
-    constructor(){}
+    constructor() { }
 
-    public ngOnInit(){}
+    public ngOnInit() { }
 
-    public ngOnDestroy(){
+    public ngOnDestroy() {
         this._subs.forEach(item => {
             item.unsubscribe()
         })
@@ -551,41 +551,41 @@ export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy{
     }
 }
 
-export interface BaseCaptionItemsI extends BaseTableItemsI{
+export interface BaseCaptionItemsI extends BaseTableItemsI {
     outerData?: any;
 }
 
 @Component({
     template: '',
 })
-export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItemsI, OnInit, OnDestroy{
+export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItemsI, OnInit, OnDestroy {
     public outerData: any;
 
     protected _createSub: Subscription;
 
-    constructor(){
+    constructor() {
         super()
     }
 
-    public ngOnInit(){
+    public ngOnInit() {
 
     }
 
-    public ngOnDestroy(){
-        if(this._createSub != undefined && !this._createSub.closed){
-          this._createSub.unsubscribe();
+    public ngOnDestroy() {
+        if (this._createSub != undefined && !this._createSub.closed) {
+            this._createSub.unsubscribe();
         }
-    
+
         this._subs.forEach(item => {
-          item.unsubscribe()
+            item.unsubscribe()
         })
-    
+
         this._createSub = null;
         this._subs = null;
     }
 }
 
-export interface BaseColumnItemsI extends BaseTableItemsI, BaseEventOptions{
+export interface BaseColumnItemsI extends BaseTableItemsI, BaseEventOptions {
     field?: string;
     colIdx?: number;
 }
@@ -593,7 +593,7 @@ export interface BaseColumnItemsI extends BaseTableItemsI, BaseEventOptions{
 @Component({
     template: '',
 })
-export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI, OnInit, OnDestroy{
+export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI, OnInit, OnDestroy {
     public field: string;
     public colIdx: number;
 
@@ -604,12 +604,12 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
     public processClearFiltersEvent: (event: any, baseTable: BaseTableComponent) => void;
     public processSortEvent: (event: any, baseTable: BaseTableComponent) => void;
 
-    constructor(){
+    constructor() {
         super();
     }
 
-    public ngOnInit(){
-       super.ngOnInit();
+    public ngOnInit() {
+        super.ngOnInit();
     }
 }
 
@@ -627,7 +627,7 @@ export interface BaseColumnFilterItemsI extends BaseColumnItemsI {
 @Component({
     template: '',
 })
-export class BaseColumnFilterItems extends BaseColumnItems implements BaseColumnFilterItemsI, OnInit, OnDestroy{
+export class BaseColumnFilterItems extends BaseColumnItems implements BaseColumnFilterItemsI, OnInit, OnDestroy {
     public value: any;
     public subComponents: SubComponentConfig[];
     public selectedValue: any;
@@ -635,43 +635,44 @@ export class BaseColumnFilterItems extends BaseColumnItems implements BaseColumn
     public rowIdx: number;
     public rowData: any;
 
-    protected emitChange(val: any){
+    protected emitChange(val: any) {
         console.log('emitting change')
+        console.log(val)
         let filter: FilterDescriptor = {
-          value: val,
-          field: this.field,
-          operator: this.operator,
+            value: val,
+            field: this.field,
+            operator: this.operator,
         }
-       
+
         this.onColumnFilterEvent.emit(filter);
-    
-        if(this.config != undefined){
-          let cfg: BaseEventOptions = this.config;
-    
-          if(cfg.processColumnFilterEvent != undefined){
-            cfg.processColumnFilterEvent(filter, this.baseTable);
-          }
+
+        if (this.config != undefined) {
+            let cfg: BaseEventOptions = this.config;
+
+            if (cfg.processColumnFilterEvent != undefined) {
+                cfg.processColumnFilterEvent(filter, this.baseTable);
+            }
         }
     }
 
-    constructor(){
+    constructor() {
         super()
     }
-    
-    public clearFilter(){
+
+    public clearFilter() {
         this.selectedValue = null;
     }
 
-    public onChangeEvent(event: any){
+    public onChangeEvent(event: any) {
         this.emitChange(this.selectedValue)
     }
-    
-    public onFilterChange(event: string){
+
+    public onFilterChange(event: string) {
         this.operator = event;
         this.onChangeEvent(null);
     }
 
-    public ngOnInit(){
+    public ngOnInit() {
         this.operator = 'eq'
     }
 }
@@ -679,27 +680,27 @@ export class BaseColumnFilterItems extends BaseColumnItems implements BaseColumn
 export interface BaseBodyCellItemsI extends BaseColumnItemsI {
     rowIdx?: number;
     rowData?: any;
-    processRowData?: (rowData: any)=> any;
+    processRowData?: (rowData: any) => any;
 }
 
 @Component({
     template: '',
 })
-export class BaseBodyCellItems extends BaseColumnItems implements BaseBodyCellItemsI, OnInit, OnDestroy{
+export class BaseBodyCellItems extends BaseColumnItems implements BaseBodyCellItemsI, OnInit, OnDestroy {
     public rowIdx?: number;
     public rowData?: any;
-    public processRowData?: (rowData: any)=> any;
+    public processRowData?: (rowData: any) => any;
 
-    constructor(){
+    constructor() {
         super();
     }
 
-    public onChangeEvent(event: any){
+    public onChangeEvent(event: any) {
         this.onBodyCellEvent.emit(event)
     }
 }
 
-export interface RowExpansionItemsI{
+export interface RowExpansionItemsI {
     config?: any;
     renderCallback?: EventEmitter<any>
     outerData?: any;
@@ -713,26 +714,26 @@ export interface Caption extends BaseTableItemsI {
 }
 
 // ColumnFilter is used to display column filter component
-export interface ColumnFilter extends BaseColumnFilterItemsI{
+export interface ColumnFilter extends BaseColumnFilterItemsI {
     // component is the column filter component to generate
     component: Type<BaseColumnFilterItems>;
 }
 
 // BodyCell is used to display component in cell of table
-export interface BodyCell extends BaseBodyCellItemsI{
+export interface BodyCell extends BaseBodyCellItemsI {
     // component is component to generate in cell of table
     component: Type<BaseBodyCellItems>;
 }
 
 // RowExpansion is used to display expansion component of table
-export interface RowExpansion extends RowExpansionItemsI{
+export interface RowExpansion extends RowExpansionItemsI {
     // component is component to use for expansion of table
     component: Type<RowExpansionItemsI>;
 }
 
 // ------------------ COLUMN CONFIGS -----------------------
 
-export interface MultiSelectOptions{
+export interface MultiSelectOptions {
     // Inline style of the element
     style?: Object;
 
@@ -775,7 +776,7 @@ export interface MultiSelectOptions{
     defaultLabel?: string;
 }
 
-export interface ColumnHeaderConfig{
+export interface ColumnHeaderConfig {
     // headers should be a list of SelectItem where label is header name
     // and value should be name of column
     // Value of SelectItem should have the same value for each Column#field
@@ -792,10 +793,10 @@ export interface ColumnHeaderConfig{
 }
 
 // APIConfig is base config used when making an http request
-export interface APIConfig{
+export interface APIConfig {
     // apiURL should return url to make api based on rowData passed if possible
-    apiURL:(rowData: any)=>string
-    
+    apiURL: (rowData: any) => string
+
     // processResult processes successful response
     processResult?: (result: any, baseTable?: BaseTableComponent) => any;
 
@@ -803,7 +804,7 @@ export interface APIConfig{
     apiOptions?: HTTPOptions;
 
     // processError processes error response
-    processError?: (err: any)=>void
+    processError?: (err: any) => void
 }
 
 // BaseEventOptions is config that can be optionally be added to a config passed
@@ -811,7 +812,7 @@ export interface APIConfig{
 //
 // The purpose of BaseEventOptions is to be able to listen to events on a per 
 // column basis and should be used within the Column config
-export interface BaseEventOptions{
+export interface BaseEventOptions {
     // processBodyCellEvent processes an event from body cell for current column
     // This function will only activate if bodyCell#field property is set 
     // to field that is exposed when a body cell creates an event which
@@ -824,7 +825,7 @@ export interface BaseEventOptions{
     // processTableFilterEvent activates whenever the table changes data through
     // a column filter change, pagination etc.
     processTableFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
-    
+
     // processColumnFilterEvent processes an event from column filter for current column
     // There is no need to make explicit api request within this function as the table
     // api will do this for us
@@ -857,7 +858,7 @@ export interface BaseEventOptions{
 
 //     // selectedValue is the selected value(s) from the current column filter
 //     selectedValue?: any;
-    
+
 //     // value is the default value set for column filter (if filter is input type)
 //     // or is list of items (for filter that is a dropdown)
 //     value?: any;
@@ -876,7 +877,7 @@ export interface BaseEventOptions{
 // }
 
 // SubComponentConfig allows us to create cascading dynamic subcomponents
-export interface SubComponentConfig{
+export interface SubComponentConfig {
     // component will be component to be generated of a dynamic parent component
     component: Type<any>;
 
@@ -889,11 +890,11 @@ export interface SubComponentConfig{
 
 // Column is the base settings interface that is used with base table component
 // All settings that deal with columns should be set with this
-export interface Column extends BaseEventOptions{
+export interface Column extends BaseEventOptions {
     // field represents json name of field
     // WE NEED FIELD FOR ABILITY TO EXPORT COLUMN, DO NOT DELETE
     field: string,
-    
+
     // header represents display name of field
     header?: string,
 
@@ -904,7 +905,7 @@ export interface Column extends BaseEventOptions{
     //
     // Default: true
     renderColumnContent?: boolean;
-    
+
     // hideColumn will hide column if set true
     hideColumn?: boolean,
 
@@ -916,26 +917,26 @@ export interface Column extends BaseEventOptions{
 
     // hideColumnFilter will hide the filter for current column
     hideColumnFilter?: boolean;
-    
+
     // colStyle will style col group if set.  This style should
     // really only be used to set width of column
     colStyle?: Object,
-    
+
     // headerStyle styles header of column if set
     headerStyle?: Object;
-    
+
     // headerClass will set CSS class for column header if set
     headerClass?: string;
 
     // headerStyle styles header of column if set
     headerFilterStyle?: Object;
-    
+
     // headerClass will set CSS class for column header if set
     headerFilterClass?: string;
-    
+
     // bodyCellStyle will set style for cell of column if set
     bodyCellStyle?: Object;
-    
+
     // bodyCellClass will set CSS class for column cell if set
     bodyCellClass?: string;
 
@@ -960,7 +961,7 @@ export interface Column extends BaseEventOptions{
 // --------------------- TAB VIEW ----------------------
 
 // TabViewConfig is config used for row expansion having inner tabs
-export interface TabViewConfig{
+export interface TabViewConfig {
     // selectedIdx is the tab panel that should be opened when tab view is first created
     selectedIdx: number;
 
@@ -969,7 +970,7 @@ export interface TabViewConfig{
 }
 
 // TabPanelItem is config used for each tab within a collection of tab views
-export interface TabPanelItem{
+export interface TabPanelItem {
     // header is header for tab panel
     header?: string;
 

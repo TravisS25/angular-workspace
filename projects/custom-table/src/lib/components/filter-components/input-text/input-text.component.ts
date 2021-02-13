@@ -38,7 +38,7 @@ export class InputTextComponent extends BaseColumnFilterItems implements OnInit,
         super();
     }
 
-    private initValues() {
+    protected initConfig() {
         if (this.config == undefined || this.config == null) {
             throw ('MUST SET INPUT TEXT CONFIG');
         } else {
@@ -49,7 +49,7 @@ export class InputTextComponent extends BaseColumnFilterItems implements OnInit,
             }
 
             if (cfg.style == undefined) {
-                cfg.style = { 'width': '80%' };
+                cfg.style = { 'width': '80%'};
             }
             if (cfg.inputType == undefined) {
                 cfg.inputType = 'text';
@@ -62,7 +62,7 @@ export class InputTextComponent extends BaseColumnFilterItems implements OnInit,
 
     public ngOnInit(): void {
         super.ngOnInit();
-        this.initValues()
+        this.initConfig()
         this.operator = 'contains';
         this.modelChangeSubscription = this.modelChanged
             .pipe(

@@ -1,5 +1,5 @@
 import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, ButtonOptions, BaseButton, ToggleButton, BaseButtonConfig, MultiSelectOptions } from './table-api'
-import { HttpResponse, HttpErrorResponse, HttpClient } from '@angular/common/http';
+import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { TableModalComponent, BaseTableModal, DynamicDeleteTableModalConfig } from './components/body-cell-components/table-modal/table-modal.component';
 import { BaseTableComponent } from './components/base-table/base-table.component';
 import { defaultProcessTableResult, defaultProcessError } from './util';
@@ -9,6 +9,8 @@ import { DatePickerConfig } from './components/filter-components/date-picker/dat
 import { InputTextConfig } from './components/filter-components/input-text/input-text.component';
 import { MultiSelectConfig } from './components/filter-components/multi-select/multi-select.component';
 import { MaterialDropdownSelectConfig } from './components/filter-components/material-components/material-dropdown-select/material-dropdown-select.component';
+import { MaterialDatePickerConfig } from './components/filter-components/material-components/material-date-picker/material-date-picker.component';
+import { MaterialInputTextConfig } from './components/filter-components/material-components/material-input-text/material-input-text.component';
 
 export function getDefaultDynamicDialogCfg(): DynamicDialogConfig{
     let cfg: DynamicDialogConfig = {
@@ -16,6 +18,92 @@ export function getDefaultDynamicDialogCfg(): DynamicDialogConfig{
         closable: true,
         dismissableMask: false,
         data: {},
+    }
+    return cfg;
+}
+
+export function getDefaultMaterialTextInputConfig(): MaterialInputTextConfig{
+    let cfg: MaterialInputTextConfig = {
+        filterOptions: {
+            selectedValue: 'contains',
+            values: [
+                {
+                    label: 'Contains',
+                    value: 'contains',
+                },
+                {
+                    label: 'Does Not Contain',
+                    value: 'doesnotcontain',
+                },
+                {
+                    label: 'Equal',
+                    value: 'eq',
+                },
+                {
+                    label: 'Not Equal',
+                    value: 'neq',
+                },
+                {
+                    label: 'Begins With',
+                    value: 'startswith',
+                },
+                {
+                    label: 'Ends With',
+                    value: 'endswith',
+                },
+                {
+                    label: 'Null',
+                    value: 'isnull',
+                },
+                {
+                    label: 'Not Null',
+                    value: 'isnotnull',
+                },
+            ],
+        }
+    }
+    return cfg;
+}
+
+export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig{
+    let cfg: MaterialDatePickerConfig = {
+        filterOptions: {
+            selectedValue: 'eq',
+            values: [
+                {
+                    label: 'Equal',
+                    value: 'eq'
+                },
+                {
+                    label: 'Not Equal',
+                    value: 'neq'
+                },
+                {
+                    label: 'After',
+                    value: 'gt'
+                },
+                {
+                    label: 'After And Equal',
+                    value: 'gte'
+                },
+                {
+                    label: 'Before',
+                    value: 'lt'
+                },
+                {
+                    label: 'Before And Equal',
+                    value: 'lte'
+                },
+                {
+                    label: 'Null',
+                    value: 'isnull'
+                },
+                {
+                    label: 'Not Null',
+                    value: 'isnotnull'
+                },
+            ]
+        },
     }
     return cfg;
 }
@@ -122,6 +210,7 @@ export function getDefaultTableAPICfg(): APIConfig{
         apiOptions: {
             withCredentials: true,
             observe: 'response',
+            headers: new HttpHeaders(),
         },
         processResult: (result: any, baseTable: BaseTableComponent) => {
             defaultProcessTableResult(result, baseTable);

@@ -1,0 +1,20 @@
+@mixin base-icon {
+    position: relative;
+    display: inline-block;
+}
+
+.ellipse-icon{
+    @include base-icon();
+    left: 5%;
+}
+
+.x-icon{
+    @include base-icon();
+    left: 12%;
+}
+
+.icon-hover{
+    cursor: pointer;
+}
+
+button.mat-icon-button{ outline: none; }

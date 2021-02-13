@@ -1,11 +1,8 @@
-<i *ngIf="config.type == 'textInput'" class="pi pi-ellipsis-v ellipse icon-hover" [matMenuTriggerFor]="menu"></i>
-<i *ngIf="config.type == 'date'" class="pi pi-calendar date-icon icon-hover" [matMenuTriggerFor]="menu"></i>  
+<i class="fas fa-ellipsis-v icon-hover" [matMenuTriggerFor]="menu"></i>
 <mat-menu #menu="matMenu">
     <mat-radio-group aria-label="Select an option" [(ngModel)]="selectedValue">
-        <ng-container *ngFor="let item of config.options.values">
-            <mat-radio-button (change)="radioChange($event)" mat-menu-item value="{{ item.value }}">
-                {{ item.label }}
-            </mat-radio-button>
-        </ng-container>
+        <mat-radio-button *ngFor="let item of config.values" class="checkbox" (change)="radioChange($event)" value="{{ item.value }}">
+            {{ item.label }}
+        </mat-radio-button>
     </mat-radio-group>
 </mat-menu>

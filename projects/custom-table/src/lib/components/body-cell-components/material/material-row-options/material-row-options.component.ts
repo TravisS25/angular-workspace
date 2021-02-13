@@ -25,11 +25,7 @@ export class MaterialRowOptionsComponent extends BaseBodyCellItems implements On
         } else {
             if (this.config == undefined) {
                 throw ('MUST SET MATERIAL MENU CONFIG');
-            } else {
-                if (this.config.label == undefined || this.config.label == '') {
-                    throw ('IMPROPER CONFIG SET');
-                }
-            }
+            } 
         }
     }
 
