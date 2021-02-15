@@ -472,6 +472,73 @@ export interface BaseTableConfig {
     // caption is ability to inject component into table caption header
     caption?: Caption;
 
+    // Height of the scroll viewport in fixed pixels or the "flex" keyword for a dynamic size.
+    // 
+    // Default: '550px'
+    scrollHeight?: string;
+
+    // A property to uniquely identify a record in data
+    //
+    // Default: 'id'
+    dataKey?: string;
+
+    // Number of rows to display per page.
+    //
+    // Default: 20
+    rows?: number;
+
+    // Whether to display current page report
+    //
+    // Default: true
+    showCurrentPageReport?: boolean;
+
+    // Array of integer/object values to display inside rows per page dropdown of paginator
+    //
+    // Default: [20, 50, 100]
+    rowsPerPageOptions?: number[];
+
+    // Displays a loader to indicate data load is in progress
+    //
+    // Default: true
+    loading?: boolean;
+
+    // When specified as true, enables the pagination
+    //
+    // Default: true
+    paginator?: boolean;
+
+    // Position of the paginator, options are "top","bottom" or "both"
+    //
+    // Default: bottom
+    paginatorPosition?: 'top' | 'bottom' | 'both'
+
+    // Defines if data is loaded and interacted with in lazy manner
+    //
+    // Default: true
+    lazy?: boolean;
+
+    // When specifies, enables horizontal and/or vertical scrolling
+    //
+    // Default: true
+    scrollable?: boolean;
+
+    // Determines if columns are resizable by user
+    //
+    // Default: false
+    columnResizable?: boolean;
+
+    // columnResizeMode determines whether if the overall table expands
+    // when a column is resized or stays fit
+    // columnResizable must be set in roder for this to work
+    //
+    // Default: fit
+    columnResizeMode?: 'expand' | 'fit'
+
+    // Template of the current page report element. 
+    // Available placeholders are {currentPage},{totalPages},{rows},{first},{last} and {totalRecords} 
+    // Default: 'Showing {first} to {last} of {totalRecords} entries'
+    currentPageReportTemplate?: string;
+
     // processColumnFilterEvent allows us to hook into all column filter
     // events and change the component based on whatever condition we want
     processColumnFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
