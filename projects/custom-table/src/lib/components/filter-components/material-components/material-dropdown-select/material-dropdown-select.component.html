@@ -4,8 +4,18 @@
         <mat-option *ngIf="cfg.multipleSelect && cfg.selectAllLabel" #selectAll (click)="toggleAll()">
             {{ cfg.selectAllLabel }}
         </mat-option>
-        <mat-option matOptionDirective *ngFor="let item of value" (click)="toggle()" [value]="item.value">
-            {{ item.label }}
-        </mat-option>
+        <ng-container *ngIf="cfg.isGroupSelect; else block">
+            <mat-optgroup *ngFor="let group of value" [label]="group.groupName"
+                  [disabled]="group.disabled">
+            <mat-option *ngFor="let subgroup of group.subgroups" [value]="subgroup.value">
+                {{ subgroup.label }}
+            </mat-option>
+        </mat-optgroup>
+        </ng-container>
+        <ng-template #block>
+            <mat-option matOptionDirective *ngFor="let item of value" (click)="toggle()" [value]="item.value">
+                {{ item.label }}
+            </mat-option>
+        </ng-template>
     </mat-select>
 </mat-form-field>

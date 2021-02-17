@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { BaseColumnFilterItems } from '../../../../table-api'
 import { FilterConfig, FilterOptions } from '../../filter-option/filter-option.component';
 import * as moment from 'moment';
 import { DefaultConsts } from '../../../../config';
+import { MaterialFilterOptionComponent } from '../material-filter-option/material-filter-option.component';
 
 export interface MaterialDatePickerConfig {
     // dateLabel is label used for date input
@@ -37,6 +38,7 @@ export interface MaterialDatePickerConfig {
     styleUrls: ['./material-date-picker.component.scss']
 })
 export class MaterialDatePickerComponent extends BaseColumnFilterItems implements OnInit {
+    @ViewChild(MaterialFilterOptionComponent) public filterOption: MaterialFilterOptionComponent;
 
     constructor() {
         super()
@@ -46,7 +48,7 @@ export class MaterialDatePickerComponent extends BaseColumnFilterItems implement
         this.selectedValue = null;
 
         if(this.config == undefined || this.config == null){
-            throw('MUST SET MATERILA DATE PICKER CONFIG');
+            throw('MUST SET MATERIAL DATE PICKER CONFIG');
         } else{
             let cfg: MaterialDatePickerConfig = this.config;
 
@@ -78,6 +80,12 @@ export class MaterialDatePickerComponent extends BaseColumnFilterItems implement
 
     public clear(){
         this.selectedValue = null;
+
+        if(this.operator == 'isnull' || this.operator == 'isnotnull'){
+            this.filterOption.selectedValue = 'eq';
+            this.operator = 'eq';
+        }
+
         this.emitChange(this.selectedValue);
     }
 

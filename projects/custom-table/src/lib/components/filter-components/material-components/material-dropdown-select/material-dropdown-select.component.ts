@@ -11,11 +11,18 @@ class MatOptionDirective {
     constructor(public viewContainerRef: MatOption) { }
 }
 
+export interface GroupSelect{
+    groupName: string
+    disabled?: boolean;
+    subgroups: SelectItem[];
+}
+
 export interface MaterialDropdownSelectConfig {
     multipleSelect?: boolean;
     selectAllLabel?: string;
     style?: Object;
     label?: string;
+    isGroupSelect?: boolean;
 }
 
 @Component({

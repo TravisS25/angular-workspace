@@ -293,47 +293,39 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
 
-        // let csOpts: MultiSelectOptions;
-        // let isNewCS = false;
-
-        // if (this.config.columnSelect == undefined) {
-        //     isNewCS = true;
-        //     csOpts = {}
-        // } else {
-        //     csOpts = this.config.columnSelect;
-        // }
-
-        // if (csOpts.style == undefined) {
-        //     csOpts.style = {};
-        // }
-        // if (csOpts.scrollHeight == undefined) {
-        //     csOpts.scrollHeight = '200px';
-        // }
-        // if (csOpts.styleClass == undefined) {
-        //     csOpts.styleClass = '';
-        // }
-        // if (csOpts.maxSelectedLabels == undefined) {
-        //     csOpts.maxSelectedLabels = 3;
-        // }
-        // if (csOpts.selectedItemsLabel == undefined) {
-        //     csOpts.selectedItemsLabel = '{0} items selected';
-        // }
-        // if (csOpts.showToggleAll == undefined) {
-        //     csOpts.showToggleAll = true;
-        // }
-        // if (csOpts.resetFilterOnHide == undefined) {
-        //     csOpts.resetFilterOnHide = false;
-        // }
-        // if (csOpts.showHeader == undefined) {
-        //     csOpts.showHeader = true;
-        // }
-        // if (csOpts.defaultLabel == undefined) {
-        //     csOpts.defaultLabel = 'Choose';
-        // }
-
-        // if (isNewCS) {
-        //     this.config.columnSelect = csOpts;
-        // }
+        if (this.config.scrollHeight == undefined) {
+            this.config.scrollHeight = '550px';
+        }
+        if (this.config.dataKey == undefined) {
+            this.config.dataKey = this.defaultProperty;
+        }
+        if (this.config.rows == undefined) {
+            this.config.rows = 20;
+        }
+        if (this.config.showCurrentPageReport == undefined) {
+            this.config.showCurrentPageReport = true;
+        }
+        if (this.config.rowsPerPageOptions == undefined) {
+            this.config.rowsPerPageOptions = [20, 50, 100];
+        }
+        if (this.config.loading == undefined) {
+            this.config.loading = true;
+        }
+        if (this.config.paginator == undefined) {
+            this.config.paginator = true;
+        }
+        if (this.config.paginatorPosition == undefined) {
+            this.config.paginatorPosition = 'bottom';
+        }
+        if (this.config.lazy == undefined) {
+            this.config.lazy = true;
+        }
+        if (this.config.scrollable == undefined) {
+            this.config.scrollable = true;
+        }
+        if (this.config.currentPageReportTemplate == undefined) {
+            this.config.currentPageReportTemplate = 'Showing {first} to {last} of {totalRecords} entries';
+        }
     }
 
     private initLoad() {
@@ -348,58 +340,16 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // initDefaultTableValues initializes default values for table 
     // if not provided by config
     private initDefaultTableValues() {
-        let cfg: DataTableConfig;
-
-        if (this.config.dtConfig != null) {
-            cfg = this.config.dtConfig;
-        } else {
-            cfg = {}
-        }
-
-        if (cfg.scrollHeight == undefined) {
-            cfg.scrollHeight = '550px';
-        }
-        if (cfg.dataKey == undefined) {
-            cfg.dataKey = this.defaultProperty;
-        }
-        if (cfg.rows == undefined) {
-            cfg.rows = 20;
-        }
-        if (cfg.showCurrentPageReport == undefined) {
-            cfg.showCurrentPageReport = true;
-        }
-        if (cfg.rowsPerPageOptions == undefined) {
-            cfg.rowsPerPageOptions = [20, 50, 100];
-        }
-        if (cfg.loading == undefined) {
-            cfg.loading = true;
-        }
-        if (cfg.paginator == undefined) {
-            cfg.paginator = true;
-        }
-        if (cfg.paginatorPosition == undefined) {
-            cfg.paginatorPosition = 'bottom';
-        }
-        if (cfg.lazy == undefined) {
-            cfg.lazy = true;
-        }
-        if (cfg.scrollable == undefined) {
-            cfg.scrollable = true;
-        }
-        if (cfg.currentPageReportTemplate == undefined) {
-            cfg.currentPageReportTemplate = 'Showing {first} to {last} of {totalRecords} entries';
-        }
-
-        this.dt.scrollHeight = cfg.scrollHeight;
-        this.dt.dataKey = cfg.dataKey;
-        this.dt.rows = cfg.rows
-        this.dt.showCurrentPageReport = cfg.showCurrentPageReport;
-        this.dt.rowsPerPageOptions = cfg.rowsPerPageOptions;
-        this.dt.loading = cfg.loading;
-        this.dt.paginator = cfg.paginator;
-        this.dt.lazy = cfg.lazy;
-        this.dt.scrollable = cfg.scrollable;
-        this.dt.currentPageReportTemplate = cfg.currentPageReportTemplate;
+        this.dt.scrollHeight = this.config.scrollHeight;
+        this.dt.dataKey = this.config.dataKey;
+        this.dt.rows = this.config.rows
+        this.dt.showCurrentPageReport = this.config.showCurrentPageReport;
+        this.dt.rowsPerPageOptions = this.config.rowsPerPageOptions;
+        this.dt.loading = this.config.loading;
+        this.dt.paginator = this.config.paginator;
+        this.dt.lazy = this.config.lazy;
+        this.dt.scrollable = this.config.scrollable;
+        this.dt.currentPageReportTemplate = this.config.currentPageReportTemplate;
 
         let columns: Column[] = [];
 
@@ -1047,7 +997,12 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     public resetSortIcons() {
         this.sortIcons.forEach(item => {
             item.sortOrder = 'none';
+        });
+        this.dt.sortOrder = -1;
+        this._sortMap.forEach((v, k) => {
+            this._sortMap.set(k, 0)
         })
+        //this._sortMap = tmpMap;
     }
 
     // clearFilters will clear current object's filter state
