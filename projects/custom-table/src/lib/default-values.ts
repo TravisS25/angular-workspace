@@ -110,6 +110,7 @@ export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig{
 
 export function getDefaultDateFilterConfig(): DatePickerConfig{
     let cfg: DatePickerConfig = {
+        eventFieldName: 'DatePicker',
         filterCfg: {
             type: 'date',
             options: {

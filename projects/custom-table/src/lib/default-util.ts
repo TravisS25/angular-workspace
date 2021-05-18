@@ -148,7 +148,8 @@ export interface BaseTableParam{
     processClearFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
     outerDataHeader?: (outerData: any) => string;
 }
-  
+
+// TODO: Update this to take out dtConfig
 export function getDefaultBaseTableConfig(param: BaseTableParam): BaseTableConfig{
     let cfg: BaseTableConfig = {
         dtConfig: param.dtConfig,

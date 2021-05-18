@@ -7,7 +7,7 @@
         <ng-container *ngIf="cfg.isGroupSelect; else block">
             <mat-optgroup *ngFor="let group of value" [label]="group.groupName"
                   [disabled]="group.disabled">
-            <mat-option *ngFor="let subgroup of group.subgroups" [value]="subgroup.value">
+            <mat-option matOptionDirective *ngFor="let subgroup of group.subgroups" (click)="toggle()" [value]="subgroup.value">
                 {{ subgroup.label }}
             </mat-option>
         </mat-optgroup>

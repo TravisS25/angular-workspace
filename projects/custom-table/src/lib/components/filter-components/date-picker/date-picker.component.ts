@@ -1,13 +1,13 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef } from '@angular/core';
 import * as moment from 'moment';
 import { DefaultConsts } from '../../../config';
-import { BaseColumnFilterItems, BaseTableEvent } from '../../../table-api';
+import { BaseColumnFilterItems, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 import { FilterConfig } from '../filter-option/filter-option.component';
 
 // DatePickerConfig is config used for date picker option
 // It has a subset of options used for the <p-calender> component
 // mainly styling properties
-export interface DatePickerConfig extends BaseTableEvent{
+export interface DatePickerConfig extends BaseTableEventConfig{
   // showButtonBar determines whether to display today and clear buttons at the footer
   //
   // Default: true

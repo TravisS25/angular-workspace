@@ -70,10 +70,10 @@ export class TableExpansionComponent extends BaseBodyCellItems implements OnInit
     })
   }
 
-  public ngOnDestroy(){
-    this._subs.forEach(item => {
-      item.unsubscribe();
-    })
-    this._subs = null;
-  }
+  // public ngOnDestroy(){
+  //   this._subs.forEach(item => {
+  //     item.unsubscribe();
+  //   })
+  //   this._subs = null;
+  // }
 }

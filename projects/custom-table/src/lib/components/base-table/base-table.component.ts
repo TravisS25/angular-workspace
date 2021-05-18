@@ -11,7 +11,7 @@ import {
     ComponentRef,
     ChangeDetectorRef,
     OnDestroy,
-    OnChanges, SimpleChanges
+    OnChanges, SimpleChanges, ɵɵCopyDefinitionFeature
 } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -57,10 +57,6 @@ import { isNgTemplate } from '@angular/compiler';
     styleUrls: ['./base-table.component.scss'],
 })
 export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
-    // _initColumnOptions is used to keep the order of initial columns passed
-    // This is used when exporting data to a file, it keeps the order of the columns
-    private _initColumnOptions: any[] = [];
-
     // _rowExpandIdx is used to keep track of the experimental "expand all rows" functionality
     // This variable simply keeps track of which current row should be expanded
     private _rowExpandIdx: number = 0;
@@ -293,6 +289,9 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
 
+        if (this.config.autoSearch == undefined) {
+            this.config.autoSearch = true;
+        }
         if (this.config.scrollHeight == undefined) {
             this.config.scrollHeight = '550px';
         }
@@ -774,7 +773,9 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                         console.log('filter at the end')
                         console.log(filters)
 
-                        this.update();
+                        if(this.config.autoSearch){
+                            this.update();
+                        }
                     }
                 })
             );
@@ -804,7 +805,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                     let cfg: BaseTableEvent = r;
 
                     for (let i = 0; i < cols.length; i++) {
-                        if (cols[i].bodyCell != undefined && cols[i].bodyCell.field == cfg.columnField) {
+                        if (cols[i].bodyCell != undefined && cols[i].bodyCell.field == cfg.eventFieldName) {
                             if (cols[i].processBodyCellEvent != undefined) {
                                 cols[i].processBodyCellEvent(r, this);
                             }
@@ -984,16 +985,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         return url;
     }
 
-    // clearFilterState clears current object's state
-    // and clears any messages about table
-    protected clearFilterState() {
-        this.state.filter = {
-            logic: 'and',
-            filters: []
-        };
-        this.state.sort = [];
-    }
-
     public resetSortIcons() {
         this.sortIcons.forEach(item => {
             item.sortOrder = 'none';
@@ -1009,16 +1000,16 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // of filter, sort and group by and then update the table
     // by making call to server
     public clearFilters() {
-        this.clearFilterState();
         this.resetSortIcons();
-        this.clearOnlyFilters();
+        this.clearFilterState();
     }
 
-    public clearOnlyFilters() {
+    private clearFilterState() {
         this.state.filter = {
             logic: 'and',
             filters: []
         };
+        this.state.sort = [];
 
         this._onClearFiltersEvent.emit(null);
         this.columnFilterCrs.forEach(item => {
@@ -1041,7 +1032,9 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
 
-        this.update();
+        if(this.config.autoSearch){
+            this.update();
+        }
     }
 
     // update takes the current state and applies to them to
@@ -1049,19 +1042,14 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     //
     // This function should be the default function called 
     // when manually calling for an update
-    public update(overrideURL?: string, fieldNames?: FieldName[]) {
-        let url;
-
-        this.dt.loading = true;
-
-        if (overrideURL != null && overrideURL != undefined && overrideURL != "") {
-            url = overrideURL;
-        } else {
-            url = this.config.tableAPIConfig.apiURL(this.outerData) + this.applyFilters(fieldNames);
+    public update() {
+        if(this.config.customSearch != undefined){
+            this.config.customSearch(this);
+        } else{
+            let url = this.config.tableAPIConfig.apiURL(this.outerData) + this.applyFilters();
+            this.dt.loading = true;
+            this.getGridInfo(url);
         }
-
-        //this.closeExpandedRows();
-        this.getGridInfo(url);
     }
 
     // updateSettings updates a table's column filters if they are dynamic based
@@ -1220,7 +1208,9 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         })
 
-        this.update();
+        if(this.config.autoSearch){
+            this.update();
+        }
     }
 
     // addHiddenColumn adds field to "_hiddenColumns" variable

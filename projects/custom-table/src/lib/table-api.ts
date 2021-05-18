@@ -242,7 +242,7 @@ export interface ExportConfig {
     fieldsParam?: string;
 
     // buttonCfg is config options to style the button
-    buttonCfg: BaseButton;
+    buttonCfg?: BaseButton;
 
     // exportFormats is for configuring which formats the table is able 
     // to export to
@@ -308,8 +308,13 @@ export interface BaseModalConfig {
     // component is component to generate within modal view
     component: Type<any>;
 
-    // modalConfig is config for modal
-    dialogConfig: any;
+    // dialogConfig is config for modal
+    dialogConfig?: any;
+
+    // getDialogConfig is for creating config dynamically
+    // Parameter passed should be outerData if exists for
+    // whatever component you implement this function for
+    getDialogConfig?: (any) => any
 
     // processOnClose takes in result from closing of modal
     // and updates table based on results
@@ -318,15 +323,21 @@ export interface BaseModalConfig {
 
 // ------------------ TABLE INTERFACES -----------------------
 
-// BaseTableEvent should be the base interface that every component in the table
-// extends when emitting a change event so BaseTableComponent's various processing event
-// functions can determine which column it is coming from
-export interface BaseTableEvent {
-    // columnField should be the name of a column the event is triggered from
-    columnField?: string;
+// BaseTableEventConfig is config that should be extended by all component's configs
+// that emit an event
+export interface BaseTableEventConfig{
+    // eventFieldName should be unique name of event that is triggered by table component
+    eventFieldName: string;
+}
 
-    rowData?: any;
-
+// BaseTableEvent should be the interface that is emitted from every event
+// that occurs in table
+//
+// The eventFieldName that is extended from BaseTableEventConfig can be used
+// as identifier of what kind of event has been emitted and use that to
+// cast our "event" property to appropriate type
+export interface BaseTableEvent extends BaseTableEventConfig {
+    // event should be custom event type that can be used by event listeners
     event?: any;
 }
 
@@ -533,6 +544,18 @@ export interface BaseTableConfig {
     //
     // Default: fit
     columnResizeMode?: 'expand' | 'fit'
+
+    // autosearch enables/disables ability for table to automatically update
+    // whenever user changes any column filters without having to explicitly
+    // hit a search button
+    //
+    // Default: true
+    autoSearch?: boolean;
+
+    // customSearch is for overriding the default search functionality built into table itself
+    //
+    // Default: undefined
+    customSearch? (baseTable: BaseTableComponent): void;
 
     // Template of the current page report element. 
     // Available placeholders are {currentPage},{totalPages},{rows},{first},{last} and {totalRecords} 

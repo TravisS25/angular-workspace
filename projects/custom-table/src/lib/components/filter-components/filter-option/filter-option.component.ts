@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ChangeDetect
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { SelectItem } from 'primeng/api';
 import { RadioButton } from 'primeng/radiobutton';
+import { BaseTableEventConfig } from '../../../table-api'
 
 // FilterConfig is config used to determine what icon will be displayed
 // with FilterConfig#type along with values that will be displayed

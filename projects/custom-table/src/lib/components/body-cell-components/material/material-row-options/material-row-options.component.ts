@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { BaseBodyCellItems, BaseColumnItems, BaseTableEvent, BaseTableItems } from '../../../../table-api';
+import { BaseBodyCellItems, BaseColumnItems, BaseTableEvent, BaseTableEventConfig, BaseTableItems } from '../../../../table-api';
 
-export interface MaterialRowOptionItem {
+export interface MaterialRowOptionItem extends BaseTableEventConfig {
     label: string;
     value?: any;
     iconClass?: string;
     iconLabel?: string;
+    rowData?: any;
     subMenu?: MaterialRowOptionItem[];
 }
 
@@ -30,10 +31,11 @@ export class MaterialRowOptionsComponent extends BaseBodyCellItems implements On
     }
 
     public onClick(event: MaterialRowOptionItem) {
+        event.rowData = this.rowData;
+
         let bteCfg: BaseTableEvent = {
-            columnField: this.field,
+            eventFieldName: this.field,
             event: event,
-            rowData: this.rowData,
         }
         this.onBodyCellEvent.emit(bteCfg);
     }

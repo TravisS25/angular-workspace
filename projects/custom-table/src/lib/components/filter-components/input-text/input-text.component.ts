@@ -17,10 +17,6 @@ export interface InputTextConfig {
     // Default: text
     inputType?: string;
 
-    label?: string;
-
-    placeHolder?: string;
-
     // filterCfg is config used to determine filter options for input component
     filterCfg?: FilterConfig;
 }
@@ -54,9 +50,9 @@ export class InputTextComponent extends BaseColumnFilterItems implements OnInit,
             if (cfg.inputType == undefined) {
                 cfg.inputType = 'text';
             }
-            if (cfg.placeHolder == undefined) {
-                cfg.placeHolder = '';
-            }
+            // if (cfg.placeHolder == undefined) {
+            //     cfg.placeHolder = '';
+            // }
         }
     }
 
