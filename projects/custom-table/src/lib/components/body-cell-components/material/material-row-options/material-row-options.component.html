@@ -2,7 +2,7 @@
     <mat-icon>more_vert</mat-icon>
 </button>
 <mat-menu #menu="matMenu">
-    <ng-container *ngFor="let item of config">
+    <ng-container *ngFor="let item of config.items">
         <ng-container *ngIf="item.subMenu && item.subMenu.length > 0; else menuBlock">
             <button [value]="item.value" (click)="onClick(item)" mat-menu-item [matMenuTriggerFor]="sub_menu">
                 <i class="{{ item.iconClass }}">{{ item.iconLabel }}</i>

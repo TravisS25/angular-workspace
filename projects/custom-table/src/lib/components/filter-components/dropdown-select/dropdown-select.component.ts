@@ -27,9 +27,9 @@ export interface DropdownSelectConfig extends BaseTableEventConfig {
 })
 export class DropdownSelectComponent extends BaseColumnFilterItems implements OnInit {
     private initValues() {
-        if(this.config == undefined){
-            throw('MUST SET CONFIG');
-        } else{
+        if (this.config == undefined) {
+            throw ('MUST SET CONFIG FOR DROPDOWN SELECT');
+        } else {
             let cfg: DropdownSelectConfig = this.config;
 
             if (cfg.style == undefined) {

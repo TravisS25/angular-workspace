@@ -1,25 +1,34 @@
-import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { BaseBodyCellItems, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { Component, OnInit } from '@angular/core';
+import { BaseBodyCellItems, BaseTableEvent, BaseTableEventConfig } from '../../../../table-api';
+import { CheckboxEvent } from '../../checkbox/checkbox.component';
 
-export interface CheckboxEvent {
-    colIdx?: number;
-    rowIdx?: number;
-    rowData?: any;
-    checked?: boolean;
-    isHeaderCheckbox?: boolean;
+export interface MaterialCheckboxConfig extends BaseTableEventConfig {
+    ariaDescribedby?: string;
+    ariaLabel?: string;
+    ariaLabelledby?: string;
+    //checked?: boolean;
+    color?: any;
+    disableRipple?: boolean;
+    disabled?: boolean;
+    id?: string;
+    indeterminate?: boolean;
+    labelPosition?: 'left' | 'right',
+    name?: string;
+    required?: boolean;
+    value?: string;
 }
 
 @Component({
-    selector: 'app-checkbox',
-    templateUrl: './checkbox.component.html',
-    styleUrls: ['./checkbox.component.scss']
+    selector: 'lib-material-checkbox',
+    templateUrl: './material-checkbox.component.html',
+    styleUrls: ['./material-checkbox.component.scss']
 })
-export class CheckboxComponent extends BaseBodyCellItems implements OnInit {
+export class MaterialCheckboxComponent extends BaseBodyCellItems implements OnInit {
     public checked: boolean = false;
-    public _cbCfg: BaseTableEventConfig;
+    public cfg: MaterialCheckboxConfig
 
     constructor() {
-        super()
+        super();
     }
 
     private initColumnFilterEvent() {
@@ -39,9 +48,9 @@ export class CheckboxComponent extends BaseBodyCellItems implements OnInit {
 
     private initConfig() {
         if (this.config == undefined) {
-            throw ('MUST SET CONFIG FOR CHECKBOX')
+            throw ('MUST SET MATERIAL CHECKBOX CONFIG')
         } else {
-            this._cbCfg = this.config
+            this.cfg = this.config
         }
     }
 
@@ -62,7 +71,7 @@ export class CheckboxComponent extends BaseBodyCellItems implements OnInit {
         }
 
         let cfg: BaseTableEvent = {
-            eventFieldName: this._cbCfg.eventFieldName,
+            eventFieldName: this.cfg.eventFieldName,
             event: cbe,
         }
 

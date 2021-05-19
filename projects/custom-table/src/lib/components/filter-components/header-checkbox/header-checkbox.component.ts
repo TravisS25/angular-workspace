@@ -22,9 +22,9 @@ export class HeaderCheckboxComponent extends BaseColumnFilterItems implements On
     }
 
     private initConfig() {
-        if(this.config == undefined){
-            throw('MUST SET CONFIG');
-        } else{
+        if (this.config == undefined) {
+            throw ('MUST SET CONFIG FOR HEADER CHECKBOX');
+        } else {
             this._hcbCfg = this.config;
         }
     }
@@ -52,6 +52,7 @@ export class HeaderCheckboxComponent extends BaseColumnFilterItems implements On
 
     public ngOnInit(): void {
         super.ngOnInit();
+        this.initConfig();
         this.initBodyCellEvent();
         this.initTableFilterEvent();
     }

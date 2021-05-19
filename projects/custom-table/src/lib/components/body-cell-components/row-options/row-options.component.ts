@@ -11,6 +11,7 @@ export interface RowOptionsConfig extends BaseTableEventConfig {
 }
 
 export interface RowOptionsChangeEvent extends BaseTableEvent {
+    rowData?: any;
     baseTable?: BaseTableComponent
 }
 

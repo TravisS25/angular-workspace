@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseBodyCellItems, BaseColumnItems, BaseTableEvent, BaseTableEventConfig, BaseTableItems } from '../../../../table-api';
 
-export interface MaterialRowOptionItem extends BaseTableEventConfig {
+export interface MaterialRowOptionItem {
     label: string;
     value?: any;
     iconClass?: string;
@@ -10,12 +10,18 @@ export interface MaterialRowOptionItem extends BaseTableEventConfig {
     subMenu?: MaterialRowOptionItem[];
 }
 
+export interface MaterialRowOptionConfig extends BaseTableEventConfig{
+    items: MaterialRowOptionItem[];
+}
+
 @Component({
     selector: 'lib-material-row-options',
     templateUrl: './material-row-options.component.html',
     styleUrls: ['./material-row-options.component.scss']
 })
 export class MaterialRowOptionsComponent extends BaseBodyCellItems implements OnInit {
+    private _cfg: MaterialRowOptionConfig
+
     constructor() {
         super();
     }
@@ -23,10 +29,13 @@ export class MaterialRowOptionsComponent extends BaseBodyCellItems implements On
     public ngOnInit(): void {
         if (this.processRowData != undefined) {
             this.config = this.processRowData(this.rowData);
+            this._cfg = this.config
         } else {
             if (this.config == undefined) {
-                throw ('MUST SET MATERIAL MENU CONFIG');
+                throw ('MUST SET MATERIAL ROW OPTION CONFIG');
             } 
+
+            this._cfg = this.config
         }
     }
 
@@ -34,7 +43,7 @@ export class MaterialRowOptionsComponent extends BaseBodyCellItems implements On
         event.rowData = this.rowData;
 
         let bteCfg: BaseTableEvent = {
-            eventFieldName: this.field,
+            eventFieldName: this._cfg.eventFieldName,
             event: event,
         }
         this.onBodyCellEvent.emit(bteCfg);

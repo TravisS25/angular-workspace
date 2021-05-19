@@ -11,8 +11,9 @@ import { MultiSelectConfig } from './components/filter-components/multi-select/m
 import { MaterialDropdownSelectConfig } from './components/filter-components/material-components/material-dropdown-select/material-dropdown-select.component';
 import { MaterialDatePickerConfig } from './components/filter-components/material-components/material-date-picker/material-date-picker.component';
 import { MaterialInputTextConfig } from './components/filter-components/material-components/material-input-text/material-input-text.component';
+import { MaterialCheckboxConfig } from './components/body-cell-components/material/material-checkbox/material-checkbox.component';
 
-export function getDefaultDynamicDialogCfg(): DynamicDialogConfig{
+export function getDefaultDynamicDialogCfg(): DynamicDialogConfig {
     let cfg: DynamicDialogConfig = {
         width: '90%',
         closable: true,
@@ -22,7 +23,7 @@ export function getDefaultDynamicDialogCfg(): DynamicDialogConfig{
     return cfg;
 }
 
-export function getDefaultMaterialTextInputConfig(): MaterialInputTextConfig{
+export function getDefaultMaterialTextInputConfig(): MaterialInputTextConfig {
     let cfg: MaterialInputTextConfig = {
         filterOptions: {
             selectedValue: 'contains',
@@ -65,7 +66,7 @@ export function getDefaultMaterialTextInputConfig(): MaterialInputTextConfig{
     return cfg;
 }
 
-export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig{
+export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig {
     let cfg: MaterialDatePickerConfig = {
         filterOptions: {
             selectedValue: 'eq',
@@ -108,7 +109,7 @@ export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig{
     return cfg;
 }
 
-export function getDefaultDateFilterConfig(): DatePickerConfig{
+export function getDefaultDateFilterConfig(): DatePickerConfig {
     let cfg: DatePickerConfig = {
         eventFieldName: 'DatePicker',
         filterCfg: {
@@ -156,7 +157,7 @@ export function getDefaultDateFilterConfig(): DatePickerConfig{
     return cfg;
 }
 
-export function getDefaultInputTextConfig(): InputTextConfig{
+export function getDefaultInputTextConfig(): InputTextConfig {
     let cfg: InputTextConfig = {
         filterCfg: {
             type: 'textInput',
@@ -203,10 +204,10 @@ export function getDefaultInputTextConfig(): InputTextConfig{
     return cfg;
 }
 
-export function getDefaultTableAPICfg(): APIConfig{
+export function getDefaultTableAPICfg(): APIConfig {
     let cfg: APIConfig = {
         apiURL: (rowData: any): string => {
-            throw('need to implement apiURL!');
+            throw ('need to implement apiURL!');
         },
         apiOptions: {
             withCredentials: true,
@@ -224,17 +225,17 @@ export function getDefaultTableAPICfg(): APIConfig{
     return cfg;
 }
 
-export function getDefaultTableSettingsAPICfg(): APIConfig{
+export function getDefaultTableSettingsAPICfg(): APIConfig {
     let cfg: APIConfig = {
         apiURL: (rowData: any): string => {
-            throw('need to implement apiURL!');
+            throw ('need to implement apiURL!');
         },
         apiOptions: {
             withCredentials: true,
             observe: 'response',
         },
         processResult: (result: any, baseTable: BaseTableComponent): any => {
-            
+
         },
         processError: (err: HttpErrorResponse) => {
             defaultProcessError(err);
@@ -244,10 +245,10 @@ export function getDefaultTableSettingsAPICfg(): APIConfig{
     return cfg;
 }
 
-export function getDefaultLogTableSettingsAPICfg(): APIConfig{
+export function getDefaultLogTableSettingsAPICfg(): APIConfig {
     let cfg: APIConfig = {
         apiURL: (rowData: any): string => {
-            throw('need to implement apiURL!');
+            throw ('need to implement apiURL!');
         },
         apiOptions: {
             withCredentials: true,
@@ -258,9 +259,9 @@ export function getDefaultLogTableSettingsAPICfg(): APIConfig{
             console.log(result)
             let r = result as HttpResponse<any>;
             let users = r.body;
-        
-            for(let i = 0; i < baseTable.columnFilterCrs.length; i++){
-                if(baseTable.columnFilterCrs[i].instance.field == 'userProfile.id'){
+
+            for (let i = 0; i < baseTable.columnFilterCrs.length; i++) {
+                if (baseTable.columnFilterCrs[i].instance.field == 'userProfile.id') {
                     baseTable.columnFilterCrs[i].instance.value = users;
                 }
             }
@@ -273,7 +274,7 @@ export function getDefaultLogTableSettingsAPICfg(): APIConfig{
     return cfg;
 }
 
-export function getDefaultBaseModalCfg(): BaseModalConfig{
+export function getDefaultBaseModalCfg(): BaseModalConfig {
     let cfg: BaseModalConfig = {
         component: TableModalComponent,
         dialogConfig: getDefaultDynamicDialogCfg(),
@@ -282,110 +283,110 @@ export function getDefaultBaseModalCfg(): BaseModalConfig{
     return cfg;
 }
 
-export function getDefaultCSVExportBtnOpts(): ButtonOptions{
+export function getDefaultCSVExportBtnOpts(): ButtonOptions {
     let cfg: ButtonOptions = {
         icon: 'pi pi-file',
         iconPos: 'left',
-        style: {'margin': '0px 10px 0px 0px'},
+        style: { 'margin': '0px 10px 0px 0px' },
     }
     return cfg;
 }
 
-export function getDefaultExcelExportButtonOpts(): ButtonOptions{
+export function getDefaultExcelExportButtonOpts(): ButtonOptions {
     let cfg: ButtonOptions = {
         icon: 'pi pi-file-excel',
         iconPos: 'left',
         styleClass: 'ui-button-success',
-        style: {'margin': '0 0 0 10px'},
+        style: { 'margin': '0 0 0 10px' },
     }
 
     return cfg;
 }
 
-export function getDefaultClearFiltersOpts(): ButtonOptions{
+export function getDefaultClearFiltersOpts(): ButtonOptions {
     let cfg: ButtonOptions = {
         icon: 'pi pi-times',
         iconPos: 'left',
         styleClass: 'ui-button-danger',
-        style: {'margin': '0px 10px 0px 0px'},
+        style: { 'margin': '0px 10px 0px 0px' },
     }
 
     return cfg;
 }
 
-export function getDefaultCreateNewOpts(): ButtonOptions{
+export function getDefaultCreateNewOpts(): ButtonOptions {
     let cfg: ButtonOptions = {
         icon: 'pi pi-plus',
         iconPos: 'left',
         styleClass: 'ui-button-success',
-        style: {'margin': '0px 10px 0px 0px'},
+        style: { 'margin': '0px 10px 0px 0px' },
     }
 
     return cfg;
 }
 
-export function getDefaultRefreshBtn(): BaseButton{
+export function getDefaultRefreshBtn(): BaseButton {
     let cfg: BaseButton = {
         label: 'Refresh',
         options: {
             icon: 'pi pi-refresh',
             iconPos: 'left',
-            style: {'margin': '0px 10px 0px 0px'},
+            style: { 'margin': '0px 10px 0px 0px' },
         }
     }
 
     return cfg;
 }
 
-export function getDefaultExpandRowsBtn(): BaseButton{
+export function getDefaultExpandRowsBtn(): BaseButton {
     let cfg: BaseButton = {
         label: 'Expand Rows',
         options: {
             icon: 'pi pi-window-maximize',
             iconPos: 'left',
-            style: {'margin': '0px 10px 0px 0px'},
+            style: { 'margin': '0px 10px 0px 0px' },
         }
     }
 
     return cfg;
 }
 
-export function getDefaultCollapseRowsBtn(): BaseButton{
+export function getDefaultCollapseRowsBtn(): BaseButton {
     let cfg: BaseButton = {
         label: 'Collapse Rows',
         options: {
             icon: 'pi pi-window-minimize',
             iconPos: 'left',
-            style: {'margin': '0px 10px 0px 0px'},
+            style: { 'margin': '0px 10px 0px 0px' },
         }
     }
 
     return cfg;
 }
 
-export function getDefaultClearFilterBtn(): BaseButton{
+export function getDefaultClearFilterBtn(): BaseButton {
     let cfg: BaseButton = {
         label: 'Clear Filters',
         options: {
             icon: 'pi pi-times',
             iconPos: 'left',
             styleClass: 'ui-button-danger',
-            style: {'margin': '0px 10px 0px 0px'},
+            style: { 'margin': '0px 10px 0px 0px' },
         }
     }
 
     return cfg;
 }
 
-export function getDefaultToggleColumnsBtn(): ToggleButton{
+export function getDefaultToggleColumnsBtn(): ToggleButton {
     let cfg: ToggleButton = {
-        offButton:{
+        offButton: {
             label: 'Hide Columns',
             options: {
                 icon: 'pi pi-times',
                 iconPos: 'left',
                 styleClass: 'ui-button-danger',
-                style: {'margin': '0px 10px 0px 0px'},
+                style: { 'margin': '0px 10px 0px 0px' },
             }
         },
         onButton: {
@@ -393,7 +394,7 @@ export function getDefaultToggleColumnsBtn(): ToggleButton{
             options: {
                 icon: 'pi pi-check',
                 iconPos: 'left',
-                style: {'margin': '0px 10px 0px 0px'},
+                style: { 'margin': '0px 10px 0px 0px' },
             }
         }
     }
@@ -401,7 +402,7 @@ export function getDefaultToggleColumnsBtn(): ToggleButton{
     return cfg;
 }
 
-export function getDefaultColumnSelectOpts(): MultiSelectOptions{
+export function getDefaultColumnSelectOpts(): MultiSelectOptions {
     let cfg: MultiSelectOptions = {
         defaultLabel: 'Columns',
         selectedItemsLabel: 'Columns',
@@ -410,11 +411,12 @@ export function getDefaultColumnSelectOpts(): MultiSelectOptions{
     return cfg;
 }
 
-export function getDefaultMaterialDropdownConfig(): MaterialDropdownSelectConfig{
+export function getDefaultMaterialDropdownConfig(): MaterialDropdownSelectConfig {
     let cfg: MaterialDropdownSelectConfig = {
+        eventFieldName: 'MaterialDropdown',
         label: '--Select--',
         multipleSelect: true,
-        style: {'width': '90%'},
+        style: { 'width': '90%' },
     }
     return cfg;
 }
