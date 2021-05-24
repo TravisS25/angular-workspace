@@ -325,7 +325,7 @@ export interface BaseModalConfig {
 
 // BaseTableEventConfig is config that should be extended by all component's configs
 // that emit an event
-export interface BaseTableEventConfig{
+export interface BaseTableEventConfig {
     // eventFieldName should be unique name of event that is triggered by table component
     eventFieldName: string;
 }
@@ -555,7 +555,7 @@ export interface BaseTableConfig {
     // customSearch is for overriding the default search functionality built into table itself
     //
     // Default: undefined
-    customSearch? (baseTable: BaseTableComponent): void;
+    customSearch?(baseTable: BaseTableComponent): void;
 
     // Template of the current page report element. 
     // Available placeholders are {currentPage},{totalPages},{rows},{first},{last} and {totalRecords} 

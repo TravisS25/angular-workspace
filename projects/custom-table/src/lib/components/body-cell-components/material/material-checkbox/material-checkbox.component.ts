@@ -3,10 +3,6 @@ import { BaseBodyCellItems, BaseTableEvent, BaseTableEventConfig } from '../../.
 import { CheckboxEvent } from '../../checkbox/checkbox.component';
 
 export interface MaterialCheckboxConfig extends BaseTableEventConfig {
-    ariaDescribedby?: string;
-    ariaLabel?: string;
-    ariaLabelledby?: string;
-    //checked?: boolean;
     color?: any;
     disableRipple?: boolean;
     disabled?: boolean;
@@ -35,7 +31,7 @@ export class MaterialCheckboxComponent extends BaseBodyCellItems implements OnIn
         this._subs.push(
             this.onColumnFilterEvent.subscribe(r => {
                 let event = r as BaseTableEvent;
-                let cfg = event.eventFieldName as CheckboxEvent
+                let cfg = event.event as CheckboxEvent
 
                 if (cfg.checked) {
                     this.checked = true
@@ -55,12 +51,16 @@ export class MaterialCheckboxComponent extends BaseBodyCellItems implements OnIn
     }
 
     public ngOnInit(): void {
+        super.ngOnInit();
         this.initConfig();
         this.initColumnFilterEvent();
     }
 
     public onChangeEvent(event: any) {
-        console.log(event);
+        console.log('col idx');
+        console.log(this.colIdx);
+        console.log('row idx');
+        console.log(this.rowIdx)
 
         let cbe: CheckboxEvent = {
             colIdx: this.colIdx,

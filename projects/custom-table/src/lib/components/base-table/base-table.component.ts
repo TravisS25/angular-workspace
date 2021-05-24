@@ -496,7 +496,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                             const cr = item.viewContainerRef.createComponent(cf);
                             cr.instance.baseTable = this;
                             cr.instance.colIdx = item.colIdx;
-                            //cr.instance.rowIdx = item.rowIdx;
+                            cr.instance.rowIdx = item.rowIdx;
                             cr.instance.rowData = item.rowData;
 
                             // console.log('row idx')
@@ -773,7 +773,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                         console.log('filter at the end')
                         console.log(filters)
 
-                        if(this.config.autoSearch){
+                        if (this.config.autoSearch) {
                             this.update();
                         }
                     }
@@ -927,9 +927,9 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
 
-    // applyFilters takes current object's state and encodes it to be 
+    // getFilterParams takes current object's state and encodes it to be 
     // used in url parameter and returns the encoded value
-    public applyFilters(fieldNames?: FieldName[]): string {
+    public getFilterParams(fieldNames?: FieldName[]): string {
         //console.log(this.state);    
         let url = "?take=" + this.state.take + "&skip=" + this.state.skip;
 
@@ -1032,7 +1032,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
 
-        if(this.config.autoSearch){
+        if (this.config.autoSearch) {
             this.update();
         }
     }
@@ -1043,10 +1043,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // This function should be the default function called 
     // when manually calling for an update
     public update() {
-        if(this.config.customSearch != undefined){
+        if (this.config.customSearch != undefined) {
             this.config.customSearch(this);
-        } else{
-            let url = this.config.tableAPIConfig.apiURL(this.outerData) + this.applyFilters();
+        } else {
+            let url = this.config.tableAPIConfig.apiURL(this.outerData) + this.getFilterParams();
             this.dt.loading = true;
             this.getGridInfo(url);
         }
@@ -1208,7 +1208,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         })
 
-        if(this.config.autoSearch){
+        if (this.config.autoSearch) {
             this.update();
         }
     }
@@ -1326,22 +1326,22 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    public columnHeaderChange(values: any[]){
+    public columnHeaderChange(values: any[]) {
         let columns: Column[] = this.dt.columns;
 
         columns.forEach(x => {
-            if(x.showColumnOption){
+            if (x.showColumnOption) {
                 let found = false;
 
                 values.forEach(t => {
-                    if(x.field == t){
+                    if (x.field == t) {
                         found = true
                     }
                 })
 
-                if(found){
+                if (found) {
                     this.removeHiddenColumn(x.field)
-                } else{
+                } else {
                     this.addHiddenColumn(x.field);
                 }
             }
@@ -1402,7 +1402,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                 break;
         }
 
-        url += this.applyFilters() + "&" + this.config.exportConfig.fieldsParam + "=" +
+        url += this.getFilterParams() + "&" + this.config.exportConfig.fieldsParam + "=" +
             encodeURI(JSON.stringify(this.selectedColumns));
 
         // Make request with proper url for particular file type

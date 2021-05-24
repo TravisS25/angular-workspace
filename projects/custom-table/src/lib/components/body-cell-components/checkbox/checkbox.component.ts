@@ -51,7 +51,7 @@ export class CheckboxComponent extends BaseBodyCellItems implements OnInit {
     }
 
     public onChangeEvent(event: any) {
-        console.log(event);
+        //console.log(event);
 
         let cbe: CheckboxEvent = {
             colIdx: this.colIdx,

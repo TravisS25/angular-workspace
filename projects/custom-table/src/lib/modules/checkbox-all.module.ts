@@ -8,18 +8,18 @@ import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
-  declarations: [
-    CheckboxComponent,
-    HeaderCheckboxComponent,
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    CheckboxModule,
-  ],
-  exports: [
-    CheckboxComponent,
-    HeaderCheckboxComponent,
-  ]
+    declarations: [
+        CheckboxComponent,
+        HeaderCheckboxComponent,
+    ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        CheckboxModule,
+    ],
+    exports: [
+        CheckboxComponent,
+        HeaderCheckboxComponent,
+    ]
 })
 export class CheckboxAllModule { }

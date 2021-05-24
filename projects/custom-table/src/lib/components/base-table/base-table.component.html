@@ -1,10 +1,10 @@
 <p-toast></p-toast>
 <p-messages *ngIf="showMessage" [value]="msgs" [enableService]="false"></p-messages>
-<div>
+<div class="table-settings">
     <p-table #dt (onPage)="onPageChange($event)" (onSort)="onSortChange($event)" (onRowExpand)="onRowExpand($event)"
         (onRowCollapse)="onRowCollapse($event)" [columns]="config.columns">
         <ng-template *ngIf="config.showCaption" pTemplate="caption" let-rowData>
-            <div *ngIf="config.outerDataHeader" class="text-center" [innerHTML]="config.outerDataHeader(outerData)">
+            <div *ngIf="config.outerDataHeader" [innerHTML]="config.outerDataHeader(outerData)">
             </div>
             <ng-template *ngIf="config.caption" [appDynamicCaption]>
             </ng-template>
@@ -37,13 +37,13 @@
                 </th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-expanded="expanded" let-columns="columns" let-rowData>
+        <ng-template pTemplate="body" let-expanded="expanded" let-columns="columns" let-rowData let-i="rowIdx">
             <tr>
                 <td *ngFor="let col of columns; let idx = index" [ngStyle]="col.bodyCellStyle"
                     [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn">
                     <ng-container *ngIf="col.renderColumnContent; else noContent">
                         <ng-container *ngIf="col.bodyCell; else block1">
-                            <ng-template [appDynamicBodyCell] [colIdx]="idx" [rowData]="rowData">
+                            <ng-template [appDynamicBodyCell] [colIdx]="idx" [rowIdx]="1" [rowData]="rowData">
                             </ng-template>
                         </ng-container>
                         <ng-template #block1>
