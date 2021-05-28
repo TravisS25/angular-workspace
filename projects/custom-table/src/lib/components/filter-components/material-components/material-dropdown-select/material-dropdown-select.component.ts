@@ -48,7 +48,7 @@ export class MaterialDropdownSelectComponent extends BaseColumnFilterItems imple
 
     private initConfig() {
         if (this.config == undefined) {
-            throw ('MUST SET MATERIAL DROPDOWN SELECT CONFIG');
+            throw ('MUST SET MATERIAL DROPDOWN SELECT CONFIG FOR COL IDX ' + this.colIdx);
         } else {
             this.cfg = this.config;
 

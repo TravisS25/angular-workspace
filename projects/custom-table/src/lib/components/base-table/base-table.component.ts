@@ -35,6 +35,7 @@ import {
     BaseTableEvent,
     MultiSelectOptions,
     DataTableConfig,
+    APIConfig,
 } from '../../table-api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DynamicBodyCellDirective } from '../../directives/dynamic-body-cell.directive';
@@ -50,6 +51,7 @@ import { SortIconComponent } from '../filter-components/sort-icon/sort-icon.comp
 import { ignoreElements } from 'rxjs/operators';
 import { GalleriaThumbnails } from 'primeng';
 import { isNgTemplate } from '@angular/compiler';
+import { MatOptionDirective } from '../filter-components/material-components/material-dropdown-select/material-dropdown-select.component';
 
 @Component({
     selector: 'app-base-table',
@@ -245,8 +247,9 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.initDefaultTableValues();
         this.saveHiddenColumns();
         this.saveHiddenColumnFilters();
-        this.updateSettings();
-        this.initLoad();
+        this.refresh();
+        //this.updateSettings();
+        //this.initLoad();
         this.cdr.detectChanges();
     }
 
@@ -327,14 +330,14 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    private initLoad() {
-        if (
-            this.config.tableAPIConfig.apiURL(this.outerData) != "" &&
-            this.config.tableAPIConfig.apiURL(this.outerData) != null
-        ) {
-            this.update();
-        }
-    }
+    // private initLoad() {
+    //     if (
+    //         this.config.tableAPIConfig.apiURL(this.outerData) != "" &&
+    //         this.config.tableAPIConfig.apiURL(this.outerData) != null
+    //     ) {
+    //         this.update();
+    //     }
+    // } 
 
     // initDefaultTableValues initializes default values for table 
     // if not provided by config
@@ -1043,12 +1046,20 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // This function should be the default function called 
     // when manually calling for an update
     public update() {
-        if (this.config.customSearch != undefined) {
-            this.config.customSearch(this);
+        if (this.config.customTableSearch != undefined) {
+            this.config.customTableSearch(this);
         } else {
-            let url = this.config.tableAPIConfig.apiURL(this.outerData) + this.getFilterParams();
-            this.dt.loading = true;
-            this.getGridInfo(url);
+            if (
+                this.config.tableSettingsAPIConfig != undefined &&
+                this.config.tableAPIConfig.apiURL(this.outerData) != "" &&
+                this.config.tableAPIConfig.apiURL(this.outerData) != null
+            ) {
+                let url = this.config.tableAPIConfig.apiURL(this.outerData) + this.getFilterParams();
+                //this.dt.loading = true;
+                this.getGridInfo(url);
+            } else {
+                this.dt.loading = false;
+            }
         }
     }
 
@@ -1080,6 +1091,18 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     public refresh() {
         this.update();
         this.updateSettings();
+    }
+
+    ///////////////////////////////////////////
+    // SET FUNCTIONS
+    ///////////////////////////////////////////
+
+    public setTableAPIConfig(cfg: APIConfig) {
+        this.config.tableAPIConfig = cfg;
+    }
+
+    public setTableSettingsAPIConfig(cfg: APIConfig) {
+        this.config.tableSettingsAPIConfig = cfg;
     }
 
     ///////////////////////////////////////////
@@ -1213,8 +1236,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    // addHiddenColumn adds field to "_hiddenColumns" variable
-    // and decreases our "visibleColumns" variable which is used for
+    // addHiddenColumn decreases our "visibleColumns" variable which is used for
     // row expansion
     // 
     // This function should be used instead of trying to override "visibleColumns" manually
@@ -1227,10 +1249,11 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                 columns[i].hideColumn = true;
             }
         }
+
+        console.log('add visible columns: ' + this.visibleColumns);
     }
 
-    // removeHiddenColumn removes field from "_hiddenColumns" variable if found
-    // and increases our "visibleColumns" variable which is used for
+    // removeHiddenColumn increases our "visibleColumns" variable which is used for
     // row expansion
     // 
     // This function should be used instead of trying to override "visibleColumns" manually
@@ -1243,6 +1266,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.visibleColumns++;
             }
         }
+
+        console.log('remove visible columns: ' + this.visibleColumns);
     }
 
     // create is used in template to either bring up a modal or redirect 

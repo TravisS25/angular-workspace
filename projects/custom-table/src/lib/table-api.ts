@@ -552,10 +552,17 @@ export interface BaseTableConfig {
     // Default: true
     autoSearch?: boolean;
 
-    // customSearch is for overriding the default search functionality built into table itself
+    // customTableSearch is for overriding the default search functionality built into the table itself
+    // when searching for entries of external datasource
     //
     // Default: undefined
-    customSearch?(baseTable: BaseTableComponent): void;
+    customTableSearch?(baseTable: BaseTableComponent): void;
+
+    // customTableSearch is for overriding the default search functionality built into the table itself
+    // when searching for table settings of external datasource
+    //
+    // Default: undefined
+    customTableSettingsSearch?(baseTable: BaseTableComponent): void;
 
     // Template of the current page report element. 
     // Available placeholders are {currentPage},{totalPages},{rows},{first},{last} and {totalRecords} 
@@ -575,10 +582,10 @@ export interface BaseTableConfig {
 
     // processTableFilterEvent allows us to hook into when the table is filtered
     // either by column filters or pagination
-    processTableFilterEvent?: (event: HttpResponse<FilterData>, baseTable: BaseTableComponent) => void;
+    processTableFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
 
     // processClearFilterEvent allows us to hook into when the table is cleared by user
-    processClearFilterEvent?: (event: HttpResponse<FilterData>, baseTable: BaseTableComponent) => void;
+    processClearFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
 
     // outerDataHeader is used for inner tables where outerData is the data passed
     // from the "above" table and can be used to display a header for the inner table
