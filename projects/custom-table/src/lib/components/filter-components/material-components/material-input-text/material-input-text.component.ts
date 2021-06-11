@@ -27,7 +27,7 @@ export class MaterialInputTextComponent extends InputTextComponent implements On
         super()
     }
 
-    protected initConfig(){
+    protected initConfig() {
         if (this.config == undefined || this.config == null) {
             throw ('MUST SET INPUT TEXT CONFIG');
         } else {
@@ -38,7 +38,7 @@ export class MaterialInputTextComponent extends InputTextComponent implements On
             }
 
             if (cfg.style == undefined) {
-                cfg.style = { 'width': '80%'};
+                cfg.style = { 'width': '80%' };
             }
             if (cfg.placeHolder == undefined) {
                 cfg.placeHolder = '';

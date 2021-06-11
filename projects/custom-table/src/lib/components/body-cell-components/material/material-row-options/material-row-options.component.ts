@@ -10,7 +10,7 @@ export interface MaterialRowOptionItem {
     subMenu?: MaterialRowOptionItem[];
 }
 
-export interface MaterialRowOptionConfig extends BaseTableEventConfig{
+export interface MaterialRowOptionConfig extends BaseTableEventConfig {
     items: MaterialRowOptionItem[];
 }
 
@@ -33,7 +33,7 @@ export class MaterialRowOptionsComponent extends BaseBodyCellItems implements On
         } else {
             if (this.config == undefined) {
                 throw ('MUST SET MATERIAL ROW OPTION CONFIG');
-            } 
+            }
 
             this._cfg = this.config
         }

@@ -476,7 +476,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this._subs.push(
             this.bodyCellDirs.changes.subscribe(val => {
                 if (this._updateBodyCellComponents) {
-                    console.log('body cell dirs')
+                    //console.log('body cell dirs')
 
                     // If table has already been initialized, destroy current component references
                     // and assign bodyCellCrs to empty array;
@@ -565,8 +565,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    // initCRSEvents is in charge of taking all of the initialized Components
-    // References and subscribing them all to each other's events and and having
+    // initCRSEvents is in charge of taking all of the initialized components
+    // references and subscribing them all to each other's events and having
     // ability for all parts of the table to listen to each other 
     private initCRSEvents() {
         let columns: Column[] = this.dt.columns;
@@ -1105,6 +1105,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.config.tableSettingsAPIConfig = cfg;
     }
 
+    public setScrollHeight(height: string) {
+        this.config.scrollHeight = height;
+    }
+
     ///////////////////////////////////////////
     // EVENTS
     ///////////////////////////////////////////
@@ -1250,7 +1254,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
 
-        console.log('add visible columns: ' + this.visibleColumns);
+        //console.log('add visible columns: ' + this.visibleColumns);
     }
 
     // removeHiddenColumn increases our "visibleColumns" variable which is used for
