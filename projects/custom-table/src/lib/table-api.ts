@@ -341,68 +341,24 @@ export interface BaseTableEvent extends BaseTableEventConfig {
     event?: any;
 }
 
-// DataTableConfig is config used to set up initial state of data table
-export interface DataTableConfig {
-    // Height of the scroll viewport in fixed pixels or the "flex" keyword for a dynamic size.
-    // 
-    // Default: '550px'
-    scrollHeight?: string;
-
-    // A property to uniquely identify a record in data
-    //
-    // Default: 'id'
-    dataKey?: string;
-
-    // Number of rows to display per page.
-    //
-    // Default: 20
-    rows?: number;
-
-    // Whether to display current page report
-    //
-    // Default: true
-    showCurrentPageReport?: boolean;
-
-    // Array of integer/object values to display inside rows per page dropdown of paginator
-    //
-    // Default: [20, 50, 100]
-    rowsPerPageOptions?: number[];
-
-    // Displays a loader to indicate data load is in progress
-    //
-    // Default: true
-    loading?: boolean;
-
-    // When specified as true, enables the pagination
-    //
-    // Default: true
-    paginator?: boolean;
-
-    // Position of the paginator, options are "top","bottom" or "both"
-    //
-    // Default: bottom
-    paginatorPosition?: 'top' | 'bottom' | 'both'
-
-    // Defines if data is loaded and interacted with in lazy manner
-    //
-    // Default: true
-    lazy?: boolean;
-
-    // When specifies, enables horizontal and/or vertical scrolling
-    //
-    // Default: true
-    scrollable?: boolean;
-
-    // Template of the current page report element. 
-    // Available placeholders are {currentPage},{totalPages},{rows},{first},{last} and {totalRecords} 
-    // Default: 'Showing {first} to {last} of {totalRecords} entries'
-    currentPageReportTemplate?: string;
+// ParamConfig is config used to determine different param names that will
+// be sent to server for filtering, sorting, and grouping
+export interface ParamConfig {
+    take?: string;
+    skip?: string;
+    filters?: string;
+    sorts?: string;
 }
 
 // BaseTableConfig is the main config that is used against our table api
 export interface BaseTableConfig {
-    // dt is used to override the defaults given within base table api
-    dtConfig?: DataTableConfig;
+    // state is the filter state of the table that will be sent to server
+    // Setting this will set the table with initial state when making
+    // first call to server
+    state?: State
+
+    // paramConfig set param names that will be sent to server
+    paramConfig?: ParamConfig;
 
     // tableAPIConfig makes api call based on given url and applies to table
     tableAPIConfig?: APIConfig;
@@ -552,6 +508,11 @@ export interface BaseTableConfig {
     // Default: true
     autoSearch?: boolean;
 
+    // Template of the current page report element. 
+    // Available placeholders are {currentPage},{totalPages},{rows},{first},{last} and {totalRecords} 
+    // Default: 'Showing {first} to {last} of {totalRecords} entries'
+    currentPageReportTemplate?: string;
+
     // customTableSearch is for overriding the default search functionality built into the table itself
     // when searching for entries of external datasource
     //
@@ -563,11 +524,6 @@ export interface BaseTableConfig {
     //
     // Default: undefined
     customTableSettingsSearch?(baseTable: BaseTableComponent): void;
-
-    // Template of the current page report element. 
-    // Available placeholders are {currentPage},{totalPages},{rows},{first},{last} and {totalRecords} 
-    // Default: 'Showing {first} to {last} of {totalRecords} entries'
-    currentPageReportTemplate?: string;
 
     // processColumnFilterEvent allows us to hook into all column filter
     // events and change the component based on whatever condition we want

@@ -34,8 +34,8 @@ import {
     BaseColumnFilterItemsI,
     BaseTableEvent,
     MultiSelectOptions,
-    DataTableConfig,
     APIConfig,
+    ParamConfig,
 } from '../../table-api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DynamicBodyCellDirective } from '../../directives/dynamic-body-cell.directive';
@@ -248,8 +248,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.saveHiddenColumns();
         this.saveHiddenColumnFilters();
         this.refresh();
-        //this.updateSettings();
-        //this.initLoad();
         this.cdr.detectChanges();
     }
 
@@ -328,16 +326,35 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.config.currentPageReportTemplate == undefined) {
             this.config.currentPageReportTemplate = 'Showing {first} to {last} of {totalRecords} entries';
         }
-    }
 
-    // private initLoad() {
-    //     if (
-    //         this.config.tableAPIConfig.apiURL(this.outerData) != "" &&
-    //         this.config.tableAPIConfig.apiURL(this.outerData) != null
-    //     ) {
-    //         this.update();
-    //     }
-    // } 
+        let pCfg: ParamConfig = {
+            take: 'take',
+            skip: 'skip',
+            filters: 'filters',
+            sorts: 'sorts',
+        }
+
+        if (this.config.paramConfig == undefined) {
+            this.config.paramConfig = pCfg;
+        } else {
+            if (this.config.paramConfig.skip == undefined) {
+                this.config.paramConfig.skip = pCfg.skip;
+            }
+            if (this.config.paramConfig.take == undefined) {
+                this.config.paramConfig.take = pCfg.take;
+            }
+            if (this.config.paramConfig.filters == undefined) {
+                this.config.paramConfig.filters = pCfg.filters;
+            }
+            if (this.config.paramConfig.sorts == undefined) {
+                this.config.paramConfig.sorts = pCfg.sorts;
+            }
+        }
+
+        if (this.config.state != undefined) {
+            this.state = this.config.state;
+        }
+    }
 
     // initDefaultTableValues initializes default values for table 
     // if not provided by config
@@ -934,7 +951,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // used in url parameter and returns the encoded value
     public getFilterParams(fieldNames?: FieldName[]): string {
         //console.log(this.state);    
-        let url = "?take=" + this.state.take + "&skip=" + this.state.skip;
+        let url = "?" + this.config.paramConfig.take + "=" + this.state.take + "&" + this.config.paramConfig.skip + "=" + this.state.skip;
 
         if (this.state.filter != undefined) {
             let filters = this.state.filter.filters as FilterDescriptor[];
@@ -948,7 +965,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
             }
 
-            url += "&filters=" + encodeURIComponent(JSON.stringify(filters));
+            url += "&" + this.config.paramConfig.filters + "=" + encodeURIComponent(JSON.stringify(filters));
         }
 
         if (this.state.sort != undefined) {
@@ -970,24 +987,15 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                     }
                 }
 
-                url += "&sorts=" + encodeURIComponent(JSON.stringify(sortsArray));
-
-                if (this.state.sort[0].dir != undefined) {
-                    if (fieldNames != null) {
-                        for (let k = 0; k < fieldNames.length; k++) {
-                            if (this.state.sort[0].field == fieldNames[k].oldName) {
-                                this.state.sort[0].field = fieldNames[k].newName;
-                            }
-                        }
-                    }
-                    url += "&sort=" + encodeURIComponent(JSON.stringify(this.state.sort[0]));
-                }
+                url += "&" + this.config.paramConfig.sorts + "=" + encodeURIComponent(JSON.stringify(sortsArray));
             }
         }
 
         return url;
     }
 
+    // resetSortIcons resets all columns that have sort enabled back to
+    // a neutral state and resets the icon
     public resetSortIcons() {
         this.sortIcons.forEach(item => {
             item.sortOrder = 'none';
@@ -996,7 +1004,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this._sortMap.forEach((v, k) => {
             this._sortMap.set(k, 0)
         })
-        //this._sortMap = tmpMap;
     }
 
     // clearFilters will clear current object's filter state
@@ -1254,7 +1261,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
 
-        //console.log('add visible columns: ' + this.visibleColumns);
+        console.log('add visible columns: ' + this.visibleColumns);
     }
 
     // removeHiddenColumn increases our "visibleColumns" variable which is used for
