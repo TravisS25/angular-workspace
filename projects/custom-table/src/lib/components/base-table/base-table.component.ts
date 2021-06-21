@@ -48,10 +48,6 @@ import { deepCopyColumn } from '../../copy-util';
 import { ColumnCheckboxDirective } from '../../directives/column-checkbox.directive';
 import { createNewModal } from '../../util';
 import { SortIconComponent } from '../filter-components/sort-icon/sort-icon.component';
-import { ignoreElements } from 'rxjs/operators';
-import { GalleriaThumbnails } from 'primeng';
-import { isNgTemplate } from '@angular/compiler';
-import { MatOptionDirective } from '../filter-components/material-components/material-dropdown-select/material-dropdown-select.component';
 
 @Component({
     selector: 'app-base-table',
@@ -351,8 +347,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
 
-        if (this.config.state != undefined) {
-            this.state = this.config.state;
+        if (this.config.getState != undefined) {
+            this.state = this.config.getState(this.outerData);
         }
     }
 

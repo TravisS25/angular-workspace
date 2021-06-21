@@ -355,7 +355,7 @@ export interface BaseTableConfig {
     // state is the filter state of the table that will be sent to server
     // Setting this will set the table with initial state when making
     // first call to server
-    state?: State
+    getState?: (outerData: any) => State;
 
     // paramConfig set param names that will be sent to server
     paramConfig?: ParamConfig;
