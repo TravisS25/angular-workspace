@@ -492,11 +492,11 @@ export interface BaseTableConfig {
     // Determines if columns are resizable by user
     //
     // Default: false
-    columnResizable?: boolean;
+    resizableColumns?: boolean;
 
     // columnResizeMode determines whether if the overall table expands
     // when a column is resized or stays fit
-    // columnResizable must be set in roder for this to work
+    // columnResizable must be set in order for this to work
     //
     // Default: fit
     columnResizeMode?: 'expand' | 'fit'

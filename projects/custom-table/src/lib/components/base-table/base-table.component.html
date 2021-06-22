@@ -2,7 +2,8 @@
 <p-messages *ngIf="showMessage" [value]="msgs" [enableService]="false"></p-messages>
 <div class="table-settings">
     <p-table #dt (onPage)="onPageChange($event)" (onSort)="onSortChange($event)" (onRowExpand)="onRowExpand($event)"
-        (onRowCollapse)="onRowCollapse($event)" [columns]="config.columns">
+        (onRowCollapse)="onRowCollapse($event)" [columnResizeMode]="config.columnResizeMode"
+        [resizableColumns]="config.resizableColumns" [columns]="config.columns">
         <ng-template *ngIf="config.showCaption" pTemplate="caption" let-rowData>
             <div *ngIf="config.outerDataHeader" [innerHTML]="config.outerDataHeader(outerData)">
             </div>

@@ -322,6 +322,12 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.config.currentPageReportTemplate == undefined) {
             this.config.currentPageReportTemplate = 'Showing {first} to {last} of {totalRecords} entries';
         }
+        if (this.config.resizableColumns == undefined) {
+            this.config.resizableColumns = false;
+        }
+        if (this.config.columnResizeMode == undefined) {
+            this.config.columnResizeMode = 'fit';
+        }
 
         let pCfg: ParamConfig = {
             take: 'take',
