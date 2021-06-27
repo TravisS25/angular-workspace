@@ -3,7 +3,6 @@
  */
 
 // Components
-export * from './lib/components/base-caption/base-caption.component';
 export * from './lib/components/base-table/base-table.component';
 export * from './lib/components/body-cell-components/base-tab-view/base-tab-view.component';
 export * from './lib/components/body-cell-components/bool-body-cell/bool-body-cell.component';

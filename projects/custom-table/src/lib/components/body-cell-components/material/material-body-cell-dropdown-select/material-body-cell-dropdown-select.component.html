@@ -1,0 +1,21 @@
+<mat-form-field [style]="cfg.style">
+    <mat-label *ngIf="cfg.label">{{ cfg.label }}</mat-label>
+    <mat-select [(ngModel)]="selectedValue" [multiple]="cfg.multipleSelect">
+        <mat-option *ngIf="cfg.multipleSelect && cfg.selectAllLabel" #selectAll (click)="toggleAll()">
+            {{ cfg.selectAllLabel }}
+        </mat-option>
+        <ng-container *ngIf="cfg.isGroupSelect; else block">
+            <mat-optgroup *ngFor="let group of value" [label]="group.groupName" [disabled]="group.disabled">
+                <mat-option matOptionDirective *ngFor="let subgroup of group.subgroups" (click)="toggle()"
+                    [value]="subgroup.value">
+                    {{ subgroup.label }}
+                </mat-option>
+            </mat-optgroup>
+        </ng-container>
+        <ng-template #block>
+            <mat-option matOptionDirective *ngFor="let item of value" [value]="item.value" (click)="toggle()">
+                {{ item.label }}
+            </mat-option>
+        </ng-template>
+    </mat-select>
+</mat-form-field>

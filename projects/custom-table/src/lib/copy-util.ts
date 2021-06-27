@@ -1,10 +1,9 @@
-import { 
-    Column, 
-    BodyCell, 
-    ColumnFilter, 
-    SubComponentConfig, 
-    BaseModalConfig, 
-    APIConfig, 
+import {
+    Column,
+    BodyCell,
+    ColumnFilter,
+    BaseModalConfig,
+    APIConfig,
 } from './table-api';
 import _ from "lodash" // Import the entire lodash library
 import { DeleteTableModal, DynamicDetailsTableModalConfig, DynamicDeleteTableModalConfig } from './components/body-cell-components/table-modal/table-modal.component';
@@ -45,7 +44,7 @@ import { MenuItem } from 'primeng/api';
 // 									config: _.cloneDeep(sc.config),
 // 									subComponents: _.cloneDeep(sc.subComponents)
 // 								}
-	
+
 // 								if(
 // 									newSC.subComponents != undefined && 
 // 									newSC.subComponents != null && 
@@ -55,20 +54,20 @@ import { MenuItem } from 'primeng/api';
 // 										console.log(newSC.subComponents[i])
 // 										newSC.subComponents[i] = scFn(newSC.subComponents[i]);
 // 									}
-	
+
 // 									return newSC
 // 								} else{
 // 									return newSC;
 // 								}
 // 							}
-	
+
 // 							let scs = val2 as SubComponentConfig[]
 // 							let newSCs: SubComponentConfig[] = [];
-	
+
 // 							for(let i = 0; i < scs.length; i++){
 // 								newSCs.push(scFn(scs[i]))
 // 							}
-	
+
 // 							return newSCs;
 // 						}
 
@@ -103,107 +102,107 @@ import { MenuItem } from 'primeng/api';
 // 	return c
 // }
 
-export function deepCopyColumn(column: Column): Column{
-	let c: Column = _.cloneDeep(column);
-	c.sort = _.cloneDeep(column.sort);
-	c.colStyle = _.cloneDeep(column.colStyle);
-	c.headerStyle = _.cloneDeep(column.headerStyle);
-	c.headerFilterStyle = _.cloneDeep(column.headerFilterStyle);
-	c.bodyCellStyle = _.cloneDeep(column.bodyCellStyle);
-	c.columnFilter = _.cloneDeepWith(column.columnFilter, function(val1){
-		if(val1 != undefined && val1 != null){
-			let cf = val1 as ColumnFilter;
-			let newCF: ColumnFilter = _.cloneDeep(cf);
-			newCF.component = _.cloneDeep(cf.component);
-			newCF.config = _.cloneDeep(cf.config);
-			newCF.selectedValue = cf.selectedValue;
-			newCF.subComponents = _.cloneDeepWith(cf.subComponents, function(val2){
-				if(val2 != undefined && val2 != null){
-					let scFn = function(sc: SubComponentConfig): SubComponentConfig{
-						let newSC: SubComponentConfig = {
-							component: _.cloneDeep(sc.component),
-							config: _.cloneDeep(sc.config),
-							subComponents: _.cloneDeep(sc.subComponents)
-						}
+export function deepCopyColumn(column: Column): Column {
+    let c: Column = _.cloneDeep(column);
+    c.sort = _.cloneDeep(column.sort);
+    c.colStyle = _.cloneDeep(column.colStyle);
+    c.headerStyle = _.cloneDeep(column.headerStyle);
+    c.headerFilterStyle = _.cloneDeep(column.headerFilterStyle);
+    c.bodyCellStyle = _.cloneDeep(column.bodyCellStyle);
+    c.columnFilter = _.cloneDeepWith(column.columnFilter, function (val1) {
+        if (val1 != undefined && val1 != null) {
+            let cf = val1 as ColumnFilter;
+            let newCF: ColumnFilter = _.cloneDeep(cf);
+            newCF.component = _.cloneDeep(cf.component);
+            newCF.config = _.cloneDeep(cf.config);
+            newCF.selectedValue = cf.selectedValue;
+            // newCF.subComponents = _.cloneDeepWith(cf.subComponents, function(val2){
+            // 	if(val2 != undefined && val2 != null){
+            // 		let scFn = function(sc: SubComponentConfig): SubComponentConfig{
+            // 			let newSC: SubComponentConfig = {
+            // 				component: _.cloneDeep(sc.component),
+            // 				config: _.cloneDeep(sc.config),
+            // 				subComponents: _.cloneDeep(sc.subComponents)
+            // 			}
 
-						if(
-							newSC.subComponents != undefined && 
-							newSC.subComponents != null && 
-							newSC.subComponents.length != 0
-						){
-							for(let i = 0; i < newSC.subComponents.length; i++){
-								console.log(newSC.subComponents[i])
-								newSC.subComponents[i] = scFn(newSC.subComponents[i]);
-							}
+            // 			if(
+            // 				newSC.subComponents != undefined && 
+            // 				newSC.subComponents != null && 
+            // 				newSC.subComponents.length != 0
+            // 			){
+            // 				for(let i = 0; i < newSC.subComponents.length; i++){
+            // 					console.log(newSC.subComponents[i])
+            // 					newSC.subComponents[i] = scFn(newSC.subComponents[i]);
+            // 				}
 
-							return newSC
-						} else{
-							return newSC;
-						}
-					}
+            // 				return newSC
+            // 			} else{
+            // 				return newSC;
+            // 			}
+            // 		}
 
-					let scs = val2 as SubComponentConfig[]
-					let newSCs: SubComponentConfig[] = [];
+            // 		let scs = val2 as SubComponentConfig[]
+            // 		let newSCs: SubComponentConfig[] = [];
 
-					for(let i = 0; i < scs.length; i++){
-						newSCs.push(scFn(scs[i]))
-					}
+            // 		for(let i = 0; i < scs.length; i++){
+            // 			newSCs.push(scFn(scs[i]))
+            // 		}
 
-					return newSCs;
-				}
+            // 		return newSCs;
+            // 	}
 
-				return null;
-			});
+            // 	return null;
+            // });
 
-			return newCF;
-		}
-	});
-	c.bodyCell = _.cloneDeepWith(column.bodyCell, function(value){
-		if(value != undefined && value != null){
-			let bc = value as BodyCell;
-			let newBC: BodyCell = _.cloneDeep(bc);
-			newBC.component = _.cloneDeep(bc.component);
-			newBC.config =  _.cloneDeep(bc.config);
-			newBC.processRowData = bc.processRowData;
-			newBC.onBodyCellEvent = _.cloneDeep(bc.onBodyCellEvent);
-			return newBC;
-		}
+            return newCF;
+        }
+    });
+    c.bodyCell = _.cloneDeepWith(column.bodyCell, function (value) {
+        if (value != undefined && value != null) {
+            let bc = value as BodyCell;
+            let newBC: BodyCell = _.cloneDeep(bc);
+            newBC.component = _.cloneDeep(bc.component);
+            newBC.config = _.cloneDeep(bc.config);
+            newBC.processRowData = bc.processRowData;
+            newBC.onBodyCellEvent = _.cloneDeep(bc.onBodyCellEvent);
+            return newBC;
+        }
 
-		return null;
-	});
-	c.bodyCellHTML = column.bodyCellHTML;
+        return null;
+    });
+    c.bodyCellHTML = column.bodyCellHTML;
 
-	return c
+    return c
 }
 
-export function deepCopyBaseModalConfig(mc: BaseModalConfig): BaseModalConfig{
-	let m: BaseModalConfig = {
-		component: _.cloneDeep(mc.component),
-		dialogConfig: _.cloneDeep(mc.dialogConfig),
-		//processOnClose: mc.processOnClose,
-	}
+export function deepCopyBaseModalConfig(mc: BaseModalConfig): BaseModalConfig {
+    let m: BaseModalConfig = {
+        component: _.cloneDeep(mc.component),
+        dialogConfig: _.cloneDeep(mc.dialogConfig),
+        //processOnClose: mc.processOnClose,
+    }
 
-	return m;
+    return m;
 }
 
-export function deepCopyDynamicDeleteTableModalConfig(dtmc: DynamicDeleteTableModalConfig): DynamicDeleteTableModalConfig{
-	let modalConfigCopy = deepCopyBaseModalConfig(dtmc.modalConfig);
-	let d: DynamicDeleteTableModalConfig = {
-		modalConfig: modalConfigCopy,
-		tableModalConfig: _.cloneDeep(dtmc.tableModalConfig),
-	}
+export function deepCopyDynamicDeleteTableModalConfig(dtmc: DynamicDeleteTableModalConfig): DynamicDeleteTableModalConfig {
+    let modalConfigCopy = deepCopyBaseModalConfig(dtmc.modalConfig);
+    let d: DynamicDeleteTableModalConfig = {
+        modalConfig: modalConfigCopy,
+        tableModalConfig: _.cloneDeep(dtmc.tableModalConfig),
+    }
 
-	return d;
+    return d;
 }
 
-export function deepCopyDynamicDetailsModalConfig(dtmc: DynamicDetailsTableModalConfig): DynamicDetailsTableModalConfig{
-	let modalConfigCopy = deepCopyBaseModalConfig(dtmc.modalConfig);
-	let d: DynamicDetailsTableModalConfig = {
-		modalConfig: modalConfigCopy,
-		tableModalConfig: _.cloneDeep(dtmc.tableModalConfig),
-	}
+export function deepCopyDynamicDetailsModalConfig(dtmc: DynamicDetailsTableModalConfig): DynamicDetailsTableModalConfig {
+    let modalConfigCopy = deepCopyBaseModalConfig(dtmc.modalConfig);
+    let d: DynamicDetailsTableModalConfig = {
+        modalConfig: modalConfigCopy,
+        tableModalConfig: _.cloneDeep(dtmc.tableModalConfig),
+    }
 
-	return d;
+    return d;
 }
 
 // export function deepCopyEditModalConfig(dmc: EditModalConfig): EditModalConfig{
@@ -226,14 +225,14 @@ export function deepCopyDynamicDetailsModalConfig(dtmc: DynamicDetailsTableModal
 // 	return d;
 // }
 
-export function deepCopyAPIConfig(c: APIConfig): APIConfig{
-	let config: APIConfig = {
-		apiURL: c.apiURL,
-		processResult: c.processResult,
-		apiOptions: _.cloneDeep(c.apiOptions),
-		processError: c.processError,
-	}
-	return config;
+export function deepCopyAPIConfig(c: APIConfig): APIConfig {
+    let config: APIConfig = {
+        apiURL: c.apiURL,
+        processResult: c.processResult,
+        apiOptions: _.cloneDeep(c.apiOptions),
+        processError: c.processError,
+    }
+    return config;
 }
 
 // export function deepCopyRowOptionItem(item: RowOptionItem): RowOptionItem{
@@ -285,58 +284,58 @@ export function deepCopyAPIConfig(c: APIConfig): APIConfig{
 
 // 		return null;
 // 	})
-	
+
 // 	return copyItem;
 // }
 
-export function deepCopyMenuItem(item: MenuItem): MenuItem{
-	let copyBaseItemFn = function(baseItem: MenuItem): MenuItem{
-		let copyItem: MenuItem = _.cloneDeep(baseItem);
-		copyItem.routerLinkActiveOptions = _.cloneDeep(baseItem.routerLinkActiveOptions);
-		copyItem.style = _.cloneDeep(baseItem.style);
-		copyItem.state = _.cloneDeep(baseItem.state);
-		copyItem.automationId = _.cloneDeep(baseItem.automationId);
-		copyItem.routerLink = _.cloneDeep(baseItem.routerLink);
-		copyItem.queryParams = _.cloneDeep(baseItem.queryParams);
-		copyItem.queryParamsHandling = _.cloneDeep(baseItem.queryParamsHandling);
-		copyItem.command = baseItem.command;
-		return copyItem;
-	}
+export function deepCopyMenuItem(item: MenuItem): MenuItem {
+    let copyBaseItemFn = function (baseItem: MenuItem): MenuItem {
+        let copyItem: MenuItem = _.cloneDeep(baseItem);
+        copyItem.routerLinkActiveOptions = _.cloneDeep(baseItem.routerLinkActiveOptions);
+        copyItem.style = _.cloneDeep(baseItem.style);
+        copyItem.state = _.cloneDeep(baseItem.state);
+        copyItem.automationId = _.cloneDeep(baseItem.automationId);
+        copyItem.routerLink = _.cloneDeep(baseItem.routerLink);
+        copyItem.queryParams = _.cloneDeep(baseItem.queryParams);
+        copyItem.queryParamsHandling = _.cloneDeep(baseItem.queryParamsHandling);
+        copyItem.command = baseItem.command;
+        return copyItem;
+    }
 
-	let copyItem = copyBaseItemFn(item);
-	copyItem.items = _.cloneDeepWith(item.items, function(val){
-		if(val != undefined && val != null){
-			let itemFn = function(itemParam: MenuItem): MenuItem{
-				let innerItem: MenuItem = copyBaseItemFn(itemParam);
+    let copyItem = copyBaseItemFn(item);
+    copyItem.items = _.cloneDeepWith(item.items, function (val) {
+        if (val != undefined && val != null) {
+            let itemFn = function (itemParam: MenuItem): MenuItem {
+                let innerItem: MenuItem = copyBaseItemFn(itemParam);
 
-				if(
-					innerItem.items != undefined &&
-					innerItem.items != null &&
-					innerItem.items.length != 0
-				){
-					for(let i = 0; i < innerItem.items.length; i++){
-						console.log(innerItem.items[i])
-						innerItem.items[i] = itemFn(innerItem.items[i]);
-					}
+                if (
+                    innerItem.items != undefined &&
+                    innerItem.items != null &&
+                    innerItem.items.length != 0
+                ) {
+                    for (let i = 0; i < innerItem.items.length; i++) {
+                        console.log(innerItem.items[i])
+                        innerItem.items[i] = itemFn(innerItem.items[i]);
+                    }
 
-					return innerItem;
-				} else{
-					return innerItem;
-				}
-			}
+                    return innerItem;
+                } else {
+                    return innerItem;
+                }
+            }
 
-			let itemVals = val as MenuItem[];
-			let newRowOptions: MenuItem[] = [];
+            let itemVals = val as MenuItem[];
+            let newRowOptions: MenuItem[] = [];
 
-			for(let i = 0; i < itemVals.length; i++){
-				newRowOptions.push(itemFn(itemVals[i]))
-			}
+            for (let i = 0; i < itemVals.length; i++) {
+                newRowOptions.push(itemFn(itemVals[i]))
+            }
 
-			return newRowOptions;
-		}
+            return newRowOptions;
+        }
 
-		return null;
-	})
-	
-	return copyItem;
+        return null;
+    })
+
+    return copyItem;
 }

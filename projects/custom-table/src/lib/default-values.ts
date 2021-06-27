@@ -1,4 +1,4 @@
-import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, ButtonOptions, BaseButton, ToggleButton, BaseButtonConfig, MultiSelectOptions } from './table-api'
+import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, ButtonOptions, BaseButton, BaseButtonConfig, MultiSelectOptions } from './table-api'
 import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { TableModalComponent, BaseTableModal, DynamicDeleteTableModalConfig } from './components/body-cell-components/table-modal/table-modal.component';
 import { BaseTableComponent } from './components/base-table/base-table.component';
@@ -358,44 +358,6 @@ export function getDefaultCollapseRowsBtn(): BaseButton {
             icon: 'pi pi-window-minimize',
             iconPos: 'left',
             style: { 'margin': '0px 10px 0px 0px' },
-        }
-    }
-
-    return cfg;
-}
-
-export function getDefaultClearFilterBtn(): BaseButton {
-    let cfg: BaseButton = {
-        label: 'Clear Filters',
-        options: {
-            icon: 'pi pi-times',
-            iconPos: 'left',
-            styleClass: 'ui-button-danger',
-            style: { 'margin': '0px 10px 0px 0px' },
-        }
-    }
-
-    return cfg;
-}
-
-export function getDefaultToggleColumnsBtn(): ToggleButton {
-    let cfg: ToggleButton = {
-        offButton: {
-            label: 'Hide Columns',
-            options: {
-                icon: 'pi pi-times',
-                iconPos: 'left',
-                styleClass: 'ui-button-danger',
-                style: { 'margin': '0px 10px 0px 0px' },
-            }
-        },
-        onButton: {
-            label: 'Show Columns',
-            options: {
-                icon: 'pi pi-check',
-                iconPos: 'left',
-                style: { 'margin': '0px 10px 0px 0px' },
-            }
         }
     }
 

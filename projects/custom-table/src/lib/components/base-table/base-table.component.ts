@@ -36,6 +36,8 @@ import {
     MultiSelectOptions,
     APIConfig,
     ParamConfig,
+    BaseBodyCellItems,
+    BodyCell,
 } from '../../table-api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DynamicBodyCellDirective } from '../../directives/dynamic-body-cell.directive';
@@ -48,6 +50,7 @@ import { deepCopyColumn } from '../../copy-util';
 import { ColumnCheckboxDirective } from '../../directives/column-checkbox.directive';
 import { createNewModal } from '../../util';
 import { SortIconComponent } from '../filter-components/sort-icon/sort-icon.component';
+import { ComponentFactory } from '@angular/core';
 
 @Component({
     selector: 'app-base-table',
@@ -356,6 +359,15 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.config.getState != undefined) {
             this.state = this.config.getState(this.outerData);
         }
+        if (this.config.onEditInit == undefined) {
+            this.config.onEditInit = () => { }
+        }
+        if (this.config.onEditCancel == undefined) {
+            this.config.onEditCancel = () => { }
+        }
+        if (this.config.onEditComplete == undefined) {
+            this.config.onEditComplete = () => { }
+        }
     }
 
     // initDefaultTableValues initializes default values for table 
@@ -460,8 +472,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                             cr.instance.field = columns[item.colIdx].columnFilter.field;
                             cr.instance.value = columns[item.colIdx].columnFilter.value;
                             cr.instance.selectedValue = columns[item.colIdx].columnFilter.selectedValue;
-                            cr.instance.subComponents = columns[item.colIdx].columnFilter.subComponents;
                             cr.instance.config = columns[item.colIdx].columnFilter.config;
+                            cr.instance.isColumnFilter = true;
 
                             cr.instance.processCaptionEvent = columns[item.colIdx].columnFilter.processCaptionEvent;
                             cr.instance.processTableFilterEvent = columns[item.colIdx].columnFilter.processTableFilterEvent;
@@ -509,32 +521,47 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                     let results = val._results as DynamicBodyCellDirective[];
                     results.forEach(item => {
                         let columns: Column[] = this.dt.columns;
+                        let cf: ComponentFactory<BaseBodyCellItems>;
+                        let bc: BodyCell;
 
-                        if (columns[item.colIdx].bodyCell.component != undefined) {
-                            const cf = this.cfr.resolveComponentFactory(
+                        if (columns[item.colIdx].editModeConfig != undefined) {
+                            if (item.isInputTemplate) {
+                                cf = this.cfr.resolveComponentFactory(
+                                    columns[item.colIdx].editModeConfig.inputTemplate.component,
+                                );
+                                bc = columns[item.colIdx].editModeConfig.inputTemplate;
+                            } else {
+                                cf = this.cfr.resolveComponentFactory(
+                                    columns[item.colIdx].editModeConfig.outputTemplate.component,
+                                );
+                                bc = columns[item.colIdx].editModeConfig.outputTemplate;
+                            }
+                        } else if (columns[item.colIdx].bodyCell != undefined) {
+                            cf = this.cfr.resolveComponentFactory(
                                 columns[item.colIdx].bodyCell.component,
                             );
+                            bc = columns[item.colIdx].bodyCell;
+                        }
 
+                        if (cf != undefined) {
                             const cr = item.viewContainerRef.createComponent(cf);
                             cr.instance.baseTable = this;
                             cr.instance.colIdx = item.colIdx;
                             cr.instance.rowIdx = item.rowIdx;
                             cr.instance.rowData = item.rowData;
+                            cr.instance.isColumnFilter = false;
 
-                            // console.log('row idx')
-                            // console.log(item.rowIdx)
-
-                            if (columns[item.colIdx].bodyCell != undefined) {
-                                cr.instance.config = columns[item.colIdx].bodyCell.config;
-                                cr.instance.field = columns[item.colIdx].bodyCell.field;
-                                cr.instance.processRowData = columns[item.colIdx].bodyCell.processRowData;
-                                cr.instance.processCaptionEvent = columns[item.colIdx].bodyCell.processCaptionEvent;
-                                cr.instance.processTableFilterEvent = columns[item.colIdx].bodyCell.processTableFilterEvent;
-                                cr.instance.processColumnFilterEvent = columns[item.colIdx].bodyCell.processColumnFilterEvent;
-                                cr.instance.processBodyCellEvent = columns[item.colIdx].bodyCell.processBodyCellEvent;
-                                cr.instance.processClearFiltersEvent = columns[item.colIdx].bodyCell.processClearFiltersEvent;
-                                cr.instance.processSortEvent = columns[item.colIdx].bodyCell.processSortEvent;
-                            }
+                            cr.instance.config = bc.config;
+                            cr.instance.field = bc.field;
+                            cr.instance.value = bc.value;
+                            cr.instance.selectedValue = bc.value;
+                            cr.instance.processRowData = columns[item.colIdx].bodyCell.processRowData;
+                            cr.instance.processCaptionEvent = columns[item.colIdx].bodyCell.processCaptionEvent;
+                            cr.instance.processTableFilterEvent = columns[item.colIdx].bodyCell.processTableFilterEvent;
+                            cr.instance.processColumnFilterEvent = columns[item.colIdx].bodyCell.processColumnFilterEvent;
+                            cr.instance.processBodyCellEvent = columns[item.colIdx].bodyCell.processBodyCellEvent;
+                            cr.instance.processClearFiltersEvent = columns[item.colIdx].bodyCell.processClearFiltersEvent;
+                            cr.instance.processSortEvent = columns[item.colIdx].bodyCell.processSortEvent;
 
                             cr.instance.onBodyCellEvent = new EventEmitter<any>();
                             cr.instance.onColumnFilterEvent = new EventEmitter<any>();
@@ -645,8 +672,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.captionCr.instance.onClearFiltersEvent.emit(r);
                 }
 
-                if (this.config.processClearFilterEvent != undefined) {
-                    this.config.processClearFilterEvent(r, this);
+                if (this.config.processClearFiltersEvent != undefined) {
+                    this.config.processClearFiltersEvent(r, this);
                 }
             })
         )
@@ -674,8 +701,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.captionCr.instance.onClearFiltersEvent.emit(r);
                 }
 
-                if (this.config.processClearFilterEvent != undefined) {
-                    this.config.processClearFilterEvent(r, this);
+                if (this.config.processClearFiltersEvent != undefined) {
+                    this.config.processClearFiltersEvent(r, this);
                 }
             })
         )

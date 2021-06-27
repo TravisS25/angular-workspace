@@ -2,8 +2,10 @@
 <p-messages *ngIf="showMessage" [value]="msgs" [enableService]="false"></p-messages>
 <div class="table-settings">
     <p-table #dt (onPage)="onPageChange($event)" (onSort)="onSortChange($event)" (onRowExpand)="onRowExpand($event)"
-        (onRowCollapse)="onRowCollapse($event)" [columnResizeMode]="config.columnResizeMode"
-        [resizableColumns]="config.resizableColumns" [columns]="config.columns">
+        (onRowCollapse)="onRowCollapse($event)" (onEditInit)="config.onEditInit($event)"
+        (onEditComplete)="config.onEditComplete($event)" (onEditCancel)="config.onEditCancel($event)"
+        [columnResizeMode]="config.columnResizeMode" [resizableColumns]="config.resizableColumns"
+        [dataKey]="config.dataKey" [columns]="config.columns" [editMode]="config.editMode">
         <ng-template *ngIf="config.showCaption" pTemplate="caption" let-rowData>
             <div *ngIf="config.outerDataHeader" [innerHTML]="config.outerDataHeader(outerData)">
             </div>
@@ -39,7 +41,53 @@
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-expanded="expanded" let-columns="columns" let-rowData let-i="rowIdx">
-            <tr>
+            <tr [pEditableRow]="rowData">
+                <ng-container *ngFor="let col of columns; let idx = index">
+                    <ng-container *ngIf="col.renderColumnContent; else noContent">
+                        <ng-container *ngIf="col.editModeConfig; else nonEdit">
+                            <td [ngStyle]="col.bodyCellStyle" [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn">
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <ng-template [appDynamicBodyCell] [isInputTemplate]="true" [colIdx]="idx"
+                                            [rowIdx]="rowIdx" [rowData]="rowData">
+                                        </ng-template>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        <ng-template [appDynamicBodyCell] [isInputTemplate]="false" [colIdx]="idx"
+                                            [rowIdx]="rowIdx" [rowData]="rowData">
+                                        </ng-template>
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                        </ng-container>
+                        <ng-template #nonEdit>
+                            <td [ngStyle]="col.bodyCellStyle" [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn">
+                                <ng-container *ngIf="col.renderColumnContent; else noContent">
+                                    <ng-container *ngIf="col.bodyCell; else block1">
+                                        <ng-template [appDynamicBodyCell] [colIdx]="idx" [rowIdx]="rowIdx"
+                                            [rowData]="rowData">
+                                        </ng-template>
+                                    </ng-container>
+                                    <ng-template #block1>
+                                        <ng-container *ngIf="col.bodyCellHTML && rowData != null">
+                                            <span [innerHTML]="col.bodyCellHTML(rowData)"></span>
+                                        </ng-container>
+                                    </ng-template>
+                                </ng-container>
+                            </td>
+                        </ng-template>
+                    </ng-container>
+                    <ng-template #noContent>
+                        <td>
+                            <ng-container *ngIf="showNoRecordsLabel">
+                                <h3>No Records...</h3>
+                            </ng-container>
+                        </td>
+                    </ng-template>
+                </ng-container>
+            </tr>
+
+            <!-- <tr [pEditableRow]="rowData">
                 <td *ngFor="let col of columns; let idx = index" [ngStyle]="col.bodyCellStyle"
                     [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn">
                     <ng-container *ngIf="col.renderColumnContent; else noContent">
@@ -59,7 +107,7 @@
                         </ng-container>
                     </ng-template>
                 </td>
-            </tr>
+            </tr> -->
         </ng-template>
         <ng-template let-i="rowIndex" pTemplate="rowexpansion" let-columns let-rowData>
             <tr>

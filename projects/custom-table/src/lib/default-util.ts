@@ -1,7 +1,7 @@
 import { Type } from '@angular/core';
 import { DynamicDialogConfig, DialogService } from 'primeng/dynamicdialog';
-import { CreateActionConfig, ExportConfig, ExportFormats, APIConfig, Column, RowExpansion, BaseTableConfig, Caption, ColumnHeaderConfig, MultiSelectOptions } from './table-api';
-import { getDefaultCreateNewOpts, getDefaultRefreshBtn, getDefaultToggleColumnsBtn, getDefaultClearFilterBtn, getDefaultDynamicDialogCfg, getDefaultCollapseRowsBtn } from './default-values';
+import { CreateActionConfig, ExportConfig, ExportFormats, APIConfig, Column, RowExpansion, BaseTableConfig, Caption, MultiSelectOptions } from './table-api';
+import { getDefaultCreateNewOpts, getDefaultRefreshBtn, getDefaultDynamicDialogCfg, getDefaultCollapseRowsBtn } from './default-values';
 import _ from "lodash" // Import the entire lodash library
 import { BaseTableComponent } from './components/base-table/base-table.component';
 import { DefaultConsts } from './config';
@@ -144,7 +144,7 @@ export interface BaseTableParam {
     processBodyCellEvent?: (event: any, baseTable: BaseTableComponent) => void;
     processCaptionEvent?: (event: any, baseTable: BaseTableComponent) => void;
     processTableFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
-    processClearFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
+    processClearFiltersEvent?: (event: any, baseTable: BaseTableComponent) => void;
     outerDataHeader?: (outerData: any) => string;
 }
 
@@ -155,16 +155,13 @@ export function getDefaultBaseTableConfig(param: BaseTableParam): BaseTableConfi
         tableSettingsAPIConfig: param.tableSettingsAPIConfig,
         columnSelect: param.columnSelect,
         columns: param.columns,
-        refreshButton: getDefaultRefreshBtn(),
-        clearFilterButton: getDefaultClearFilterBtn(),
-        collapseRowsButton: getDefaultCollapseRowsBtn(),
         caption: param.caption,
         rowExpansion: param.rowExpansion,
         processColumnFilterEvent: param.processColumnFilterEvent,
         processBodyCellEvent: param.processBodyCellEvent,
         processCaptionEvent: param.processCaptionEvent,
         processTableFilterEvent: param.processTableFilterEvent,
-        processClearFilterEvent: param.processClearFilterEvent,
+        processClearFiltersEvent: param.processClearFiltersEvent,
         outerDataHeader: param.outerDataHeader,
     }
 

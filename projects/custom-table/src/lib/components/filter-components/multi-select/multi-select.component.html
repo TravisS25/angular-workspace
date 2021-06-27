@@ -1,14 +1,5 @@
-<p-multiSelect
-    #select
-    appendTo="body"
-    [(ngModel)]="selectedValue"
-    [options]="value"
-    [styleClass]="config.styleClass"
-    [style]="config.style"
-    [maxSelectedLabels]="config.maxSelectedLabels"
-    [selectedItemsLabel]="config.selectedItemsLabel"
-    [showToggleAll]="config.showToggleAll"
-    [resetFilterOnHide]="config.resetFilterOnHide"
-    [showHeader]="config.showHeader"
-    (onChange)="onChangeEvent($event)">
+<p-multiSelect #select appendTo="body" [(ngModel)]="selectedValue" [options]="value" [styleClass]="config.styleClass"
+    [style]="config.style" [maxSelectedLabels]="config.maxSelectedLabels"
+    [selectedItemsLabel]="config.selectedItemsLabel" [showToggleAll]="config.showToggleAll"
+    [resetFilterOnHide]="config.resetFilterOnHide" [showHeader]="config.showHeader" (onChange)="onChangeEvent($event)">
 </p-multiSelect>

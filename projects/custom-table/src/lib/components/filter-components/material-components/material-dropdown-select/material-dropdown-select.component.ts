@@ -75,37 +75,6 @@ export class MaterialDropdownSelectComponent extends BaseColumnFilterItems imple
         this.initConfig();
     }
 
-    public onSelectChange(changeEvent: any) {
-        console.log('is selected')
-        console.log(this.selectAll.selected)
-
-        let isSelectAll = false;
-
-        if (this.selectAll.selected) {
-            isSelectAll = true
-        }
-
-        if (this.cfg.multipleSelect) {
-            this.options.forEach(x => {
-                if (isSelectAll) {
-                    x.viewContainerRef.select();
-                } else {
-                    x.viewContainerRef.deselect();
-                }
-            })
-        }
-
-        let sEvent: MaterialDropdownSelectEvent = {
-            isSelectAll: isSelectAll
-        }
-        let event: BaseTableEvent = {
-            eventFieldName: this.cfg.eventFieldName,
-            event: sEvent
-        }
-
-        //this.onChangeEvent(event);
-    }
-
     public toggle() {
         let sEvent: MaterialDropdownSelectEvent = {
             isSelectAll: false
@@ -120,10 +89,11 @@ export class MaterialDropdownSelectComponent extends BaseColumnFilterItems imple
         } else if (this.selectedValue && this.selectedValue.length == this.value.length) {
             this.selectAll.select();
             let vals = this.selectedValue as any[];
-            vals = this.removeNulls(vals);
+            this.removeNulls(vals);
         }
         this.onChangeEvent(event);
     }
+
     public toggleAll() {
         let sEvent: MaterialDropdownSelectEvent = {
             isSelectAll: true
@@ -142,7 +112,7 @@ export class MaterialDropdownSelectComponent extends BaseColumnFilterItems imple
         })
 
         let vals = this.selectedValue as any[];
-        vals = this.removeNulls(vals);
+        this.removeNulls(vals);
         this.onChangeEvent(event);
     }
 }
