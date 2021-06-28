@@ -3,12 +3,6 @@ import _ from "lodash" // Import the entire lodash library
 import { Subscription } from 'rxjs';
 import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { BaseTableComponent } from './components/base-table/base-table.component';
-import { FilterData, Column, CreateActionConfig } from './table-api';
-import { DialogService } from 'primeng/dynamicdialog';
-
-export function defaultProcessTableResult(result: any, baseTable: BaseTableComponent) {
-
-}
 
 export function setColumnFilterValue(baseTable: BaseTableComponent, fieldMap: Map<string, SelectItem[]>) {
     for (let i = 0; i < baseTable.columnFilterCrs.length; i++) {

@@ -1,7 +1,7 @@
-import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, ButtonOptions, BaseButton, BaseButtonConfig, MultiSelectOptions } from './table-api'
+import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, ButtonOptions, BaseButtonConfig, MultiSelectOptions } from './table-api'
 import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { BaseTableComponent } from './components/base-table/base-table.component';
-import { defaultProcessTableResult, defaultProcessError } from './util';
+import { defaultProcessError } from './util';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { DatePickerConfig } from './components/primeng/date-picker/date-picker.component';
 import { InputTextConfig } from './components/primeng/input-text/input-text.component';
@@ -211,7 +211,7 @@ export function getDefaultTableAPICfg(): APIConfig {
             headers: new HttpHeaders(),
         },
         processResult: (result: any, baseTable: BaseTableComponent) => {
-            defaultProcessTableResult(result, baseTable);
+
         },
         processError: (err: HttpErrorResponse) => {
             defaultProcessError(err);

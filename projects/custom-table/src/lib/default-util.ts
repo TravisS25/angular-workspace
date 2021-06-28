@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
 import { DynamicDialogConfig, DialogService } from 'primeng/dynamicdialog';
-import { CreateActionConfig, ExportConfig, ExportFormats, APIConfig, Column, RowExpansion, BaseTableConfig, Caption, MultiSelectOptions } from './table-api';
+import { ExportConfig, ExportFormats, APIConfig, Column, RowExpansion, BaseTableConfig, Caption, MultiSelectOptions } from './table-api';
 import _ from "lodash" // Import the entire lodash library
 import { BaseTableComponent } from './components/base-table/base-table.component';
 import { DefaultConsts } from './config';
@@ -15,19 +15,6 @@ export interface BaseModalParam {
 export interface BaseTableButtonParam {
     modal?: BaseModalParam,
     pageURL?: (data: any) => string;
-}
-
-export function getDefaultProcessOnClose(successSummary: string): (result: any, baseTable: BaseTableComponent) => void {
-    return (result: any, baseTable: BaseTableComponent): void => {
-        if (result == DefaultConsts.SuccessCloseResult) {
-            baseTable.toast({
-                severity: DefaultConsts.SucessSeverity,
-                summary: successSummary,
-            });
-
-            baseTable.refresh();
-        }
-    }
 }
 
 export interface ExportFormatOptions {
