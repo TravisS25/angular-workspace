@@ -29,15 +29,14 @@ import {
     BoolList,
     ExportType,
     RowExpansionItemsI,
-    BaseBodyCellItemsI,
     BaseTableItemsI,
-    BaseColumnFilterItemsI,
     BaseTableEvent,
     MultiSelectOptions,
     APIConfig,
     ParamConfig,
-    BaseBodyCellItems,
-    BodyCell,
+    BaseColumnItems,
+    ColumnEntity,
+    BaseColumnItemsI,
 } from '../../table-api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DynamicBodyCellDirective } from '../../directives/dynamic-body-cell.directive';
@@ -48,7 +47,6 @@ import { Subscription, Subscribable, Subject } from 'rxjs';
 import { DynamicColumnFilterDirective } from '../../directives/dynamic-column-filter.directive';
 import { deepCopyColumn } from '../../copy-util';
 import { ColumnCheckboxDirective } from '../../directives/column-checkbox.directive';
-import { createNewModal } from '../../util';
 import { SortIconComponent } from '../filter-components/sort-icon/sort-icon.component';
 import { ComponentFactory } from '@angular/core';
 
@@ -133,7 +131,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // columnFilterCrs keeps a list of references to dynamically created column filters
     // components which can be modified through different events and will be destroyed on 
     // component destruction
-    public columnFilterCrs: ComponentRef<BaseColumnFilterItemsI>[] = [];
+    public columnFilterCrs: ComponentRef<BaseColumnItemsI>[] = [];
 
     // rowExpansionCrs keeps a list of references to dynamically created expanded row
     // components which can be modified through different events and will be destroyed on 
@@ -143,7 +141,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // bodyCellCrs keeps a list of references to dynamically created body Cell 
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    public bodyCellCrs: ComponentRef<BaseBodyCellItemsI>[] = [];
+    public bodyCellCrs: ComponentRef<BaseColumnItemsI>[] = [];
 
     // captionCr keeps a reference to dynamically created caption component which can be 
     // modified through different events and will be destroyed on component destruction
@@ -521,8 +519,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                     let results = val._results as DynamicBodyCellDirective[];
                     results.forEach(item => {
                         let columns: Column[] = this.dt.columns;
-                        let cf: ComponentFactory<BaseBodyCellItems>;
-                        let bc: BodyCell;
+                        let cf: ComponentFactory<BaseColumnItems>;
+                        let bc: ColumnEntity;
 
                         if (columns[item.colIdx].editModeConfig != undefined) {
                             if (item.isInputTemplate) {
@@ -1308,18 +1306,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         console.log('remove visible columns: ' + this.visibleColumns);
-    }
-
-    // create is used in template to either bring up a modal or redirect 
-    // to a new page depending on configuration 
-    public create(event: any) {
-        if (this.config.createNewConfig.createConfig != undefined) {
-            createNewModal(this.outerData, this.dialog, this.config.createNewConfig, this, this._createSub);
-        } else {
-            this.router.navigateByUrl(
-                this.config.createNewConfig.pageURL(this.outerData),
-            );
-        }
     }
 
     // onPageChange is callback function used whenever our table

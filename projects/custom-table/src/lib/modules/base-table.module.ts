@@ -21,34 +21,34 @@ import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
-  declarations: [
-    BaseTableComponent,
-    TableExpansionComponent,
-    ColumnCheckboxDirective,  
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
-    TableModule,
-    ButtonModule,
-    MessagesModule,
-    CheckboxModule,
-    MultiSelectModule,
-    DynamicDialogModule,
-    TableDynamicComponentModule,
-    ToggleButtonModule,
-    SortIconModule,
-    MenuModule,
-    // BlockUIModule,
-    ToastModule,
-  ],
-  exports: [
-    BaseTableComponent,
-  ],
-  providers: [
-    DialogService,
-    MessageService,
-  ]
+    declarations: [
+        BaseTableComponent,
+        TableExpansionComponent,
+        ColumnCheckboxDirective,
+    ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        RouterModule,
+        TableModule,
+        ButtonModule,
+        MessagesModule,
+        CheckboxModule,
+        MultiSelectModule,
+        DynamicDialogModule,
+        TableDynamicComponentModule,
+        ToggleButtonModule,
+        SortIconModule,
+        MenuModule,
+        // BlockUIModule,
+        ToastModule,
+    ],
+    exports: [
+        BaseTableComponent,
+    ],
+    providers: [
+        DialogService,
+        MessageService,
+    ]
 })
 export class BaseTableModule { }

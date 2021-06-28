@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
-import { BaseBodyCellItems, Column, FilterDescriptor } from '../../../table-api';
+import { BaseColumnItems, Column, FilterDescriptor } from '../../../table-api';
 import { RowToggler } from 'primeng/table';
 
 @Component({
@@ -7,7 +7,7 @@ import { RowToggler } from 'primeng/table';
     templateUrl: './table-expansion.component.html',
     styleUrls: ['./table-expansion.component.scss']
 })
-export class TableExpansionComponent extends BaseBodyCellItems implements OnInit, AfterViewInit, OnDestroy {
+export class TableExpansionComponent extends BaseColumnItems implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild(RowToggler, { static: false }) public toggler: RowToggler;
 
     public expanded: boolean = false;

@@ -1,7 +1,6 @@
 import { Type } from '@angular/core';
 import { DynamicDialogConfig, DialogService } from 'primeng/dynamicdialog';
 import { CreateActionConfig, ExportConfig, ExportFormats, APIConfig, Column, RowExpansion, BaseTableConfig, Caption, MultiSelectOptions } from './table-api';
-import { getDefaultCreateNewOpts, getDefaultRefreshBtn, getDefaultDynamicDialogCfg, getDefaultCollapseRowsBtn } from './default-values';
 import _ from "lodash" // Import the entire lodash library
 import { BaseTableComponent } from './components/base-table/base-table.component';
 import { DefaultConsts } from './config';
@@ -29,39 +28,6 @@ export function getDefaultProcessOnClose(successSummary: string): (result: any, 
             baseTable.refresh();
         }
     }
-}
-
-export function getDefaultCreateNewConfig(
-    param: BaseTableButtonParam,
-): CreateActionConfig {
-    let button: CreateActionConfig;
-    let dialogCfg: DynamicDialogConfig;
-
-    if (param.pageURL != undefined) {
-        button = {
-            label: DefaultConsts.CreateNewLabel,
-            options: getDefaultCreateNewOpts(),
-            pageURL: param.pageURL
-        }
-    } else {
-        if (param.modal.dialogCfg != undefined) {
-            dialogCfg = param.modal.dialogCfg;
-        } else {
-            dialogCfg = getDefaultDynamicDialogCfg();
-        }
-
-        button = {
-            label: DefaultConsts.CreateNewLabel,
-            options: getDefaultCreateNewOpts(),
-            createConfig: {
-                component: param.modal.component,
-                dialogConfig: dialogCfg,
-                processOnClose: getDefaultProcessOnClose(param.modal.successSummary),
-            },
-        }
-    }
-
-    return button;
 }
 
 export interface ExportFormatOptions {
@@ -116,60 +82,6 @@ export function getDefaultExportConfig(
             },
         },
         exportFormats: exportFormats,
-    }
-
-    return cfg;
-}
-
-export interface CreateCaptionButtonOptions {
-    indexURL?: string;
-    successSummary?: string;
-    dialogCfg?: DynamicDialogConfig;
-}
-
-export interface CreateCaptionButtonParam {
-    note?: CreateCaptionButtonOptions
-}
-
-export interface BaseTableParam {
-    tableAPIConfig?: APIConfig;
-    tableSettingsAPIConfig?: APIConfig;
-    columnSelect?: MultiSelectOptions;
-    columns?: Column[];
-    exportParam?: ExportFormatsParam;
-    createNewBtnParam?: BaseTableButtonParam;
-    caption?: Caption;
-    rowExpansion?: RowExpansion;
-    processColumnFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
-    processBodyCellEvent?: (event: any, baseTable: BaseTableComponent) => void;
-    processCaptionEvent?: (event: any, baseTable: BaseTableComponent) => void;
-    processTableFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
-    processClearFiltersEvent?: (event: any, baseTable: BaseTableComponent) => void;
-    outerDataHeader?: (outerData: any) => string;
-}
-
-// TODO: Update this to take out dtConfig
-export function getDefaultBaseTableConfig(param: BaseTableParam): BaseTableConfig {
-    let cfg: BaseTableConfig = {
-        tableAPIConfig: param.tableAPIConfig,
-        tableSettingsAPIConfig: param.tableSettingsAPIConfig,
-        columnSelect: param.columnSelect,
-        columns: param.columns,
-        caption: param.caption,
-        rowExpansion: param.rowExpansion,
-        processColumnFilterEvent: param.processColumnFilterEvent,
-        processBodyCellEvent: param.processBodyCellEvent,
-        processCaptionEvent: param.processCaptionEvent,
-        processTableFilterEvent: param.processTableFilterEvent,
-        processClearFiltersEvent: param.processClearFiltersEvent,
-        outerDataHeader: param.outerDataHeader,
-    }
-
-    if (param.exportParam != undefined) {
-        cfg.exportConfig = getDefaultExportConfig(param.exportParam);
-    }
-    if (param.createNewBtnParam != undefined) {
-        cfg.createNewConfig = getDefaultCreateNewConfig(param.createNewBtnParam);
     }
 
     return cfg;

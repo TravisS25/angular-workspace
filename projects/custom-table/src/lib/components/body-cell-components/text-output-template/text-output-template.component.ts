@@ -1,15 +1,12 @@
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit } from '@angular/core';
-import { BaseBodyCellItems, BaseTableEvent } from '../../../table-api';
-import { BaseTableComponent } from '../../base-table/base-table.component';
-import { MaterialInputTextConfig } from '../../filter-components/material-components/material-input-text/material-input-text.component';
-
+import { BaseColumnItems, BaseTableEvent } from '../../../table-api';
 @Component({
     selector: 'lib-text-output-template',
     templateUrl: './text-output-template.component.html',
     styleUrls: ['./text-output-template.component.scss']
 })
-export class TextOutputTemplateComponent extends BaseBodyCellItems implements OnInit {
+export class TextOutputTemplateComponent extends BaseColumnItems implements OnInit {
     public label: string;
 
     constructor() {

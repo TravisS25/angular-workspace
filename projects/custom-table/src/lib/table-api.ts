@@ -361,30 +361,9 @@ export interface BaseTableConfig extends BaseEventOptions {
     // columns is where we dynamically create columns with configuration
     columns?: Column[];
 
-    // columnSelect is multiselect component used to have ability to hide columns
-    // and show columns
-    // If not set, dropdown will not be displayed
-    columnSelect?: MultiSelectOptions;
-
     // exportConfig is config to allow to export table info to different 
     // formats such as csv, excel, etc
     exportConfig?: ExportConfig;
-
-    // createNewConfig is configuration for create new button in the caption
-    // of table which allows us to configure if we want the create to happen
-    // in a modal or be redirected to another page
-    // If this is NOT set, the create new button will not be displayed
-    // By default, the table api will insert "outerData" and "isCreate" variables into our
-    // dynamic modal config data variable like so:
-    //
-    // createNewConfig#createConfig#dialogConfig#data#outerData
-    // createNewConfig#createConfig#dialogConfig#data#isCreate
-    //
-    // where outerData will be the current table's outerData variable which is set by table
-    // api if current table is an inner table and isCreate is bool which is always true
-    // Any variables assigned to the dynamic modal config data object with names "outerData"
-    // or "isCreate" WILL be overwritten by the table's api
-    createNewConfig?: CreateActionConfig;
 
     // showNoRecordsLabel determines if we show a "No Records" label whenever
     // no results come back for a table
@@ -625,6 +604,7 @@ export interface BaseColumnItemsI extends BaseTableItemsI, BaseEventOptions {
     rowData?: any;
     operator?: string;
     clearFilter?: () => void;
+    processRowData?: (rowData: any) => any;
 }
 
 @Component({
@@ -641,8 +621,6 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
     public isColumnFilter: boolean;
 
     protected emitChange(val: any) {
-        // console.log('emitting change')
-        // console.log(val)
         let filter: FilterDescriptor = {
             value: val,
             field: this.field,
@@ -666,6 +644,7 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
     public processColumnFilterEvent: (event: any, baseTable: BaseTableComponent) => void;
     public processClearFiltersEvent: (event: any, baseTable: BaseTableComponent) => void;
     public processSortEvent: (event: any, baseTable: BaseTableComponent) => void;
+    public processRowData: (rowData: any) => any;
 
     public clearFilter() {
         this.selectedValue = null;
@@ -679,6 +658,11 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
         }
     }
 
+    public onFilterChange(event: string) {
+        this.operator = event;
+        this.onChangeEvent(null);
+    }
+
     constructor() {
         super();
         this.operator = 'eq';
@@ -686,54 +670,6 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
 
     public ngOnInit() {
         super.ngOnInit();
-    }
-
-    public onFilterChange(event: string) {
-        this.operator = event;
-        this.onChangeEvent(null);
-    }
-}
-
-export interface BaseColumnFilterItemsI extends BaseColumnItemsI {
-    operator?: string;
-    clearFilter?: () => void;
-    updateLabel?: (label: string) => void;
-}
-
-@Component({
-    template: '',
-})
-export class BaseColumnFilterItems extends BaseColumnItems implements BaseColumnFilterItemsI, OnInit, OnDestroy {
-    constructor() {
-        super()
-    }
-
-    public clearFilter() {
-        this.selectedValue = null;
-    }
-
-    public onFilterChange(event: string) {
-        this.operator = event;
-        this.onChangeEvent(null);
-    }
-
-    public ngOnInit() {
-        this.operator = 'eq'
-    }
-}
-
-export interface BaseBodyCellItemsI extends BaseColumnItemsI {
-    processRowData?: (rowData: any) => any;
-}
-
-@Component({
-    template: '',
-})
-export class BaseBodyCellItems extends BaseColumnItems implements BaseBodyCellItemsI, OnInit, OnDestroy {
-    public processRowData?: (rowData: any) => any;
-
-    constructor() {
-        super();
     }
 }
 
@@ -750,15 +686,7 @@ export interface Caption extends BaseTableItemsI {
     component: Type<BaseTableItems>;
 }
 
-// ColumnFilter is used to display column filter component
-export interface ColumnFilter extends BaseColumnFilterItemsI {
-    // component is the column filter component to generate
-    component: Type<BaseColumnItems>;
-}
-
-// BodyCell is used to display component in cell of table
-export interface BodyCell extends BaseBodyCellItemsI {
-    // component is component to generate in cell of table
+export interface ColumnEntity extends BaseColumnItemsI {
     component: Type<BaseColumnItems>;
 }
 
@@ -812,22 +740,6 @@ export interface MultiSelectOptions {
     // Default: 'Choose'
     defaultLabel?: string;
 }
-
-// export interface ColumnHeaderConfig {
-//     // headers should be a list of SelectItem where label is header name
-//     // and value should be name of column
-//     // Value of SelectItem should have the same value for each Column#field
-//     // property as this 
-//     headers: SelectItem[];
-
-//     // selectedValues is ability to choose which columns are visible during
-//     // page load or change in future
-//     // If not set, all options will be selected by default
-//     selectedValues?: any[];
-
-//     // options is styling options for the multiselect component
-//     options?: MultiSelectOptions;
-// }
 
 // APIConfig is base config used when making an http request
 export interface APIConfig {
@@ -883,10 +795,11 @@ export interface BaseEventOptions {
     processOuterEvent?: (event: any, baseTable: BaseTableComponent) => void;
 }
 
-
+// EditModeConfig is config used for cell/row editing and determines
+// what the input and output template/component will be
 export interface EditModeConfig {
-    inputTemplate: BodyCell;
-    outputTemplate: BodyCell;
+    inputTemplate: ColumnEntity;
+    outputTemplate: ColumnEntity;
 }
 
 // Column is the base settings interface that is used with base table component
@@ -943,11 +856,11 @@ export interface Column extends BaseEventOptions {
 
     // columnFilter will display column filter and pass along config settings
     // to component if set
-    columnFilter?: ColumnFilter;
+    columnFilter?: ColumnEntity;
 
     // bodyCell will display component within cell of table of current column
     // and pass config if set
-    bodyCell?: BodyCell;
+    bodyCell?: ColumnEntity;
 
     // sort allows us to activate the ability to sort on current column
     sort?: SortOperation;
