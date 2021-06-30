@@ -53,8 +53,8 @@
                                         </ng-template>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        <ng-template [appDynamicBodyCell] [isInputTemplate]="false" [colIdx]="idx"
-                                            [rowIdx]="rowIdx" [rowData]="rowData">
+                                        <ng-template [libDynamicOutputTemplate] [isInputTemplate]="false" [colIdx]="idx"
+                                            [rowIdx]="rowIdx" [rowData]="rowData" [field]="cold.field">
                                         </ng-template>
                                     </ng-template>
                                 </p-cellEditor>
@@ -86,28 +86,6 @@
                     </ng-template>
                 </ng-container>
             </tr>
-
-            <!-- <tr [pEditableRow]="rowData">
-                <td *ngFor="let col of columns; let idx = index" [ngStyle]="col.bodyCellStyle"
-                    [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn">
-                    <ng-container *ngIf="col.renderColumnContent; else noContent">
-                        <ng-container *ngIf="col.bodyCell; else block1">
-                            <ng-template [appDynamicBodyCell] [colIdx]="idx" [rowIdx]="1" [rowData]="rowData">
-                            </ng-template>
-                        </ng-container>
-                        <ng-template #block1>
-                            <ng-container *ngIf="col.bodyCellHTML && rowData != null">
-                                <span [innerHTML]="col.bodyCellHTML(rowData)"></span>
-                            </ng-container>
-                        </ng-template>
-                    </ng-container>
-                    <ng-template #noContent>
-                        <ng-container *ngIf="showNoRecordsLabel">
-                            <h3>No Records...</h3>
-                        </ng-container>
-                    </ng-template>
-                </td>
-            </tr> -->
         </ng-template>
         <ng-template let-i="rowIndex" pTemplate="rowexpansion" let-columns let-rowData>
             <tr>
