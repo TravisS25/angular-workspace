@@ -2,10 +2,10 @@
 <p-messages *ngIf="showMessage" [value]="msgs" [enableService]="false"></p-messages>
 <div class="table-settings">
     <p-table #dt (onPage)="onPageChange($event)" (onSort)="onSortChange($event)" (onRowExpand)="onRowExpand($event)"
-        (onRowCollapse)="onRowCollapse($event)" (onEditInit)="config.onEditInit($event)"
-        (onEditComplete)="config.onEditComplete($event)" (onEditCancel)="config.onEditCancel($event)"
+        (onRowCollapse)="onRowCollapse($event)" (onEditInit)="onEditInit($event)"
+        (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)"
         [columnResizeMode]="config.columnResizeMode" [resizableColumns]="config.resizableColumns"
-        [dataKey]="config.dataKey" [columns]="config.columns" [editMode]="config.editMode">
+        [dataKey]="config.dataKey" [columns]="config.columns" [editMode]="config.editMode" dataKey="config.dataKey">
         <ng-template *ngIf="config.showCaption" pTemplate="caption" let-rowData>
             <div *ngIf="config.outerDataHeader" [innerHTML]="config.outerDataHeader(outerData)">
             </div>
@@ -40,22 +40,22 @@
                 </th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-expanded="expanded" let-columns="columns" let-rowData let-i="rowIdx">
+        <ng-template pTemplate="body" let-expanded="expanded" let-columns="columns" let-rowData let-i="rowIndex">
             <tr [pEditableRow]="rowData">
                 <ng-container *ngFor="let col of columns; let idx = index">
                     <ng-container *ngIf="col.renderColumnContent; else noContent">
                         <ng-container *ngIf="col.editModeConfig; else nonEdit">
-                            <td [ngStyle]="col.bodyCellStyle" [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn">
+                            <td [pEditableColumn]="rowData" [pEditableColumnRowIndex]="idx"
+                                [pEditableColumnField]="col.field" [ngStyle]="col.bodyCellStyle"
+                                [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn">
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
-                                        <ng-template [appDynamicBodyCell] [isInputTemplate]="true" [colIdx]="idx"
-                                            [rowIdx]="rowIdx" [rowData]="rowData">
+                                        <ng-template [libDynamicInputTemplate] [field]="col.field" [colIdx]="idx"
+                                            [rowIdx]="i" [rowData]="rowData">
                                         </ng-template>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        <ng-template [libDynamicOutputTemplate] [isInputTemplate]="false" [colIdx]="idx"
-                                            [rowIdx]="rowIdx" [rowData]="rowData" [field]="cold.field">
-                                        </ng-template>
+                                        <div [innerHTML]="col.editModeConfig.output(rowData)"></div>
                                     </ng-template>
                                 </p-cellEditor>
                             </td>
@@ -64,8 +64,8 @@
                             <td [ngStyle]="col.bodyCellStyle" [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn">
                                 <ng-container *ngIf="col.renderColumnContent; else noContent">
                                     <ng-container *ngIf="col.bodyCell; else block1">
-                                        <ng-template [appDynamicBodyCell] [colIdx]="idx" [rowIdx]="rowIdx"
-                                            [rowData]="rowData">
+                                        <ng-template [appDynamicBodyCell] [field]="col.field" [colIdx]="idx"
+                                            [rowIdx]="i" [rowData]="rowData">
                                         </ng-template>
                                     </ng-container>
                                     <ng-template #block1>

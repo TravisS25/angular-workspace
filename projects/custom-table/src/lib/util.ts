@@ -25,3 +25,16 @@ export function defaultProcessError(err: any) {
         alert('Server error');
     }
 }
+
+export function setJSONFieldValue(field: string, data: any, val: any) {
+    let fields = field.split(".");
+    let obj = {}
+
+    for (let i = 0; i < fields.length; i++) {
+        if (i == fields.length - 1) {
+            data[fields[i]] = val;
+        } else {
+            obj = data[fields[i]];
+        }
+    }
+}

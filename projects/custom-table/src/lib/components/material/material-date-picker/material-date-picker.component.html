@@ -1,11 +1,13 @@
-<mat-form-field [style]="config.style" appearance="fill">
+<mat-form-field *ngIf="config" [style]="config.style" appearance="fill">
     <mat-label>{{ config.dateLabel }}</mat-label>
-    <input [(ngModel)]="selectedValue" (dateChange)="onChangeEvent($event)" matInput [matDatepicker]="dp" [disabled]="config.disableInput">
+    <input [(ngModel)]="selectedValue" (dateChange)="onChangeEvent($event)" matInput [matDatepicker]="dp"
+        [disabled]="config.disableInput">
     <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
     <mat-datepicker #dp [disabled]="config.disableIcon"></mat-datepicker>
 </mat-form-field>
 <span class="ellipse-icon">
-    <lib-material-filter-option [config]="config.filterOptions" (onChange)="onFilterChange($event)"></lib-material-filter-option>
+    <lib-material-filter-option [config]="config.filterOptions" (onChange)="onFilterChange($event)">
+    </lib-material-filter-option>
 </span>
 <span class="x-icon">
     <i class="fas fa-times icon-hover" (click)="clear()"></i>

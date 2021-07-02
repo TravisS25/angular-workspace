@@ -1,9 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { BaseColumnItems } from '../../../table-api';
 import { FilterConfig, FilterOptions } from '../../component-config';
 import { IConfig } from 'ngx-mask';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { ChangeDetectorRef } from '@angular/core';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { setJSONFieldValue } from '../../../util';
 
 export interface MaskConfig extends IConfig {
     maskTemplate: string;
@@ -41,16 +44,20 @@ export interface MaterialInputTextConfig {
     templateUrl: './material-input-text.component.html',
     styleUrls: ['./material-input-text.component.scss']
 })
-export class MaterialInputTextComponent extends BaseColumnItems implements OnInit, OnDestroy {
+export class MaterialInputTextComponent extends BaseColumnItems implements OnInit, AfterViewInit, OnDestroy {
     //private _cfg: MaterialInputTextConfig;
-    public modelChanged: Subject<string> = new Subject<string>();
+    public txtChanged: Subject<string> = new Subject<string>();
     protected modelChangeSubscription: Subscription;
 
-    constructor() {
+    constructor(public cdr: ChangeDetectorRef) {
         super();
     }
 
     private initConfig() {
+        if (this.isInputTemplate && this.field == undefined) {
+            throw ('MUST SET PROPERTY "jsonField" FOR INPUT TEMPLATE FOR COLUMN INDEX ' + this.colIdx)
+        }
+
         if (this.config == undefined || this.config == null) {
             throw ('MUST SET INPUT TEXT CONFIG FOR COLUMN INDEX ' + this.colIdx);
         }
@@ -151,20 +158,27 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
         super.ngOnInit();
         this.initConfig();
         this.operator = 'contains';
-        this.modelChangeSubscription = this.modelChanged
+        this.modelChangeSubscription = this.txtChanged
             .pipe(
                 debounceTime(this.config.inputDebounceTime),
                 distinctUntilChanged()
             )
             .subscribe(txt => {
                 this.selectedValue = txt;
-                this.emitChange(txt);
+                this.onChangeEvent(txt);
+                //this.emitChange(txt);
                 // console.log(txt);
             });
     }
 
+    public ngAfterViewInit() {
+        //this.cdr.detectChanges
+    }
+
     public changed(text: string) {
-        this.modelChanged.next(text);
+        setJSONFieldValue(this.field, this.rowData, text)
+        this.editChange.emit(this.rowData);
+        this.txtChanged.next(text);
     }
 
     public ngOnDestroy() {

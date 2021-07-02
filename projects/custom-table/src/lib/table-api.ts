@@ -1,4 +1,4 @@
-import { Type, EventEmitter, SimpleChanges, OnInit, OnDestroy, Component, Input } from '@angular/core';
+import { Type, EventEmitter, SimpleChanges, OnInit, OnDestroy, Component, Input, Output } from '@angular/core';
 import { Observable, of, Subscription } from 'rxjs';
 import { Table } from 'primeng/table/table'
 import { HttpClient, HttpResponse, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
@@ -335,11 +335,32 @@ export interface BaseTableEvent extends BaseTableEventConfig {
 // ParamConfig is config used to determine different param names that will
 // be sent to server for filtering, sorting, and grouping
 export interface ParamConfig {
+    // take is parameter used to get a certain number of records
     take?: string;
+
+    // skip is parameter used to skip certain number of records
     skip?: string;
+
+    // filters is parameter used to apply filters for specific results
     filters?: string;
+
+    // sorts is parameter used to apply sorts to certain columns
     sorts?: string;
 }
+
+// // LocalStorageConfig is config used to store results of edited rows
+// export interface LocalStorageConfig {
+//     // key is used to store results in local storage
+//     key: string;
+
+//     // prependToRows determines whether user wants to prepend edited rows 
+//     // to rows queried from server on load
+//     prependToRows?: boolean;
+
+//     // appendToRows determines whether user wants to append edited rows 
+//     // to rows queried from server on load
+//     appendToRows?: boolean;
+// }
 
 // BaseTableConfig is the main config that is used against our table api
 export interface BaseTableConfig extends BaseEventOptions {
@@ -473,20 +494,35 @@ export interface BaseTableConfig extends BaseEventOptions {
     // Default: undefined
     editMode?: 'row' | 'cell';
 
+    // resetEditedRowsOnTableFilter determines whether to reset edited rows
+    // whenever a table filter action occurs
+    // 
+    // If this is set true, then the results stored in local storage, if any,
+    // will also be reset
+    //
+    // Default: true
+    resetEditedRowsOnTableFilter?: boolean;
+
+    // localStorageConfig is config used to stored results of edited rows
+    //localStorageConfig?: LocalStorageConfig;
+
+    // localStorageKeyForEditedRows is key used to store edited rows into local storage
+    localStorageKeyForEditedRows?: string;
+
     // Callback to invoke when a cell switches to edit mode
     //
     // Default: Empty function
-    onEditInit?: (event: any) => void;
+    onEditInit?: (event: EditEventConfig, baseTable: BaseTableComponent) => void;
 
     // Callback to invoke when cell edit is completed
     //
     // Default: Empty function
-    onEditComplete?: (event: any) => void;
+    onEditComplete?: (event: EditEventConfig, baseTable: BaseTableComponent) => void;
 
     // Callback to invoke when cell edit is cancelled with escape key
     //
     // Default: Empty function
-    onEditCancel?: (event: any) => void;
+    onEditCancel?: (event: EditEventConfig, baseTable: BaseTableComponent) => void;
 
     // customTableSearch is for overriding the default search functionality built into the table itself
     // when searching for entries of external datasource
@@ -600,6 +636,7 @@ export interface BaseColumnItemsI extends BaseTableItemsI, BaseEventOptions {
     colIdx?: number;
     value?: any;
     selectedValue?: any;
+    getSelectedValue?: (rowData: any) => any;
     rowIdx?: number;
     rowData?: any;
     operator?: string;
@@ -619,6 +656,9 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
     public rowData: any;
     public operator: string;
     public isColumnFilter: boolean;
+    public isInputTemplate: boolean;
+
+    @Output() public editChange: EventEmitter<any> = new EventEmitter<any>();
 
     protected emitChange(val: any) {
         let filter: FilterDescriptor = {
@@ -799,7 +839,13 @@ export interface BaseEventOptions {
 // what the input and output template/component will be
 export interface EditModeConfig {
     inputTemplate: ColumnEntity;
-    outputTemplate: ColumnEntity;
+    output: (rowData: any) => string;
+}
+
+export interface EditEventConfig {
+    data: any;
+    index: number;
+    field: string;
 }
 
 // Column is the base settings interface that is used with base table component

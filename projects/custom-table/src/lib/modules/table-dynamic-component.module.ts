@@ -5,6 +5,7 @@ import { DynamicExpansionDirective } from '../directives/dynamic-expansion.direc
 import { DynamicCaptionDirective } from '../directives/dynamic-caption.directive';
 import { DynamicColumnFilterDirective } from '../directives/dynamic-column-filter.directive';
 import { DynamicOutputTemplateDirective } from '../directives/dynamic-output-template.directive';
+import { DynamicInputTemplateDirective } from '../directives/dynamic-input-template.directive';
 
 @NgModule({
     declarations: [
@@ -12,6 +13,8 @@ import { DynamicOutputTemplateDirective } from '../directives/dynamic-output-tem
         DynamicBodyCellDirective,
         DynamicExpansionDirective,
         DynamicCaptionDirective,
+        DynamicOutputTemplateDirective,
+        DynamicInputTemplateDirective,
     ],
     imports: [
         CommonModule
@@ -22,6 +25,7 @@ import { DynamicOutputTemplateDirective } from '../directives/dynamic-output-tem
         DynamicExpansionDirective,
         DynamicCaptionDirective,
         DynamicOutputTemplateDirective,
+        DynamicInputTemplateDirective,
     ]
 })
 export class TableDynamicComponentModule { }

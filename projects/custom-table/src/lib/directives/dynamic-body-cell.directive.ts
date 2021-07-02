@@ -1,14 +1,11 @@
 import { Directive, ViewContainerRef, Input } from '@angular/core';
+import { DynamicBaseCellDirective } from './dynamic-base-cell.directive';
 
 @Directive({
     selector: '[appDynamicBodyCell]'
 })
-export class DynamicBodyCellDirective {
-    @Input() public rowData: any;
-    @Input() public colIdx: number;
-    @Input() public rowIdx: number;
-    @Input() public isInputTemplate: boolean;
-
-    constructor(public viewContainerRef: ViewContainerRef) { }
-
+export class DynamicBodyCellDirective extends DynamicBaseCellDirective {
+    constructor(public viewContainerRef: ViewContainerRef) {
+        super(viewContainerRef);
+    }
 }

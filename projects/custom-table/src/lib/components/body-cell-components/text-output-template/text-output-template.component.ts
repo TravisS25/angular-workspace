@@ -5,16 +5,16 @@ import { BaseTableComponent } from '../../base-table/base-table.component';
 
 export interface TextOutputTemplateConfig extends BaseTableEventConfig {
     changeBackgroundColor?: string;
+    label?: string;
 }
 
 @Component({
     selector: 'lib-text-output-template',
     templateUrl: './text-output-template.component.html',
-    styleUrls: ['./text-output-template.component.scss']
+    styleUrls: ['./text-output-template.component.scss'],
 })
 export class TextOutputTemplateComponent extends BaseColumnItems implements OnInit {
     public label: string;
-    public bc: string;
 
     constructor() {
         super();
@@ -23,8 +23,8 @@ export class TextOutputTemplateComponent extends BaseColumnItems implements OnIn
     public ngOnInit(): void {
         if (this.processRowData == undefined) {
             throw ('MUST SET "processRowData" FUNCTION FOR COLUMN IDX ' + this.colIdx);
+        } else {
+            this.config.label = this.processRowData(this.rowData);
         }
-
-        this.label = this.processRowData(this.rowData);
     }
 }

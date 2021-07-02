@@ -11,6 +11,7 @@ export * from './lib/components/body-cell-components/bool-body-cell/bool-body-ce
 export * from './lib/components/body-cell-components/table-expansion/table-expansion.component';
 export * from './lib/components/body-cell-components/table-modal/table-modal.component';
 export * from './lib/components/filter-components/sort-icon/sort-icon.component';
+export * from './lib/components/body-cell-components/text-output-template/text-output-template.component';
 
 // Material components
 export * from './lib/components/material/material-autocomplete/material-autocomplete.component';
@@ -41,6 +42,8 @@ export * from './lib/directives/dynamic-caption.directive';
 export * from './lib/directives/dynamic-column-filter.directive';
 export * from './lib/directives/dynamic-expansion.directive';
 export * from './lib/directives/dynamic-tab-panel.directive';
+export * from './lib/directives/dynamic-output-template.directive';
+export * from './lib/directives/dynamic-input-template.directive';
 
 // Modules
 export * from './lib/modules/base-table.module';
@@ -58,6 +61,7 @@ export * from './lib/modules/primeng/row-options.module';
 export * from './lib/modules/sort-icon.module';
 export * from './lib/modules/table-dynamic-component.module';
 export * from './lib/modules/table-modal.module';
+export * from './lib/modules/text-output-template.module';
 
 export * from './lib/modules/material/material-dropdown-select.module';
 export * from './lib/modules/material/material-input-text.module';
