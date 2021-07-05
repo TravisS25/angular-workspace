@@ -60,14 +60,14 @@ export function getDefaultExportConfig(
     }
 
     let cfg: ExportConfig = {
-        buttonCfg: {
-            label: 'Export',
-            options: {
-                icon: 'pi pi-chevron-down',
-                iconPos: 'right',
-                style: { 'margin-right': '10px' },
-            },
-        },
+        // buttonCfg: {
+        //     label: 'Export',
+        //     options: {
+        //         icon: 'pi pi-chevron-down',
+        //         iconPos: 'right',
+        //         style: { 'margin-right': '10px' },
+        //     },
+        // },
         exportFormats: exportFormats,
     }
 

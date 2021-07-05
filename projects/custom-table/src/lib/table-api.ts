@@ -232,9 +232,6 @@ export interface ExportConfig {
     // Default value: "headers"
     fieldsParam?: string;
 
-    // buttonCfg is config options to style the button
-    buttonCfg?: BaseButton;
-
     // exportFormats is for configuring which formats the table is able 
     // to export to
     exportFormats: ExportFormats;
@@ -284,7 +281,7 @@ export interface BaseButtonConfig {
 // If CreateActionConfig#createConfig is set then a modal will be used when 
 // the create button is click, else we will be redirected to another page if clicked
 // If both are set, modal will be used
-export interface CreateActionConfig extends BaseButtonConfig, BaseButton {
+export interface CreateActionConfig extends BaseButtonConfig {
     createConfig?: BaseModalConfig;
 }
 
@@ -346,21 +343,10 @@ export interface ParamConfig {
 
     // sorts is parameter used to apply sorts to certain columns
     sorts?: string;
+
+    // groups is parameter used to apply groups to certain columns
+    groups?: string
 }
-
-// // LocalStorageConfig is config used to store results of edited rows
-// export interface LocalStorageConfig {
-//     // key is used to store results in local storage
-//     key: string;
-
-//     // prependToRows determines whether user wants to prepend edited rows 
-//     // to rows queried from server on load
-//     prependToRows?: boolean;
-
-//     // appendToRows determines whether user wants to append edited rows 
-//     // to rows queried from server on load
-//     appendToRows?: boolean;
-// }
 
 // BaseTableConfig is the main config that is used against our table api
 export interface BaseTableConfig extends BaseEventOptions {
@@ -554,6 +540,10 @@ export interface BaseTableConfig extends BaseEventOptions {
 // interface properties are all optional is so they don't have to be set 
 // when using the column api and the concrete classes simply take in the 
 // properties that are set and use them in the dynamically created components
+//
+// There are built in components with different styles but if one wanted to 
+// implement custom components, one would simply need to extend the concrete
+// classes below
 //////////////////////////////////////////////////////////////////////////////////
 
 // BaseTableItemsI is base interface config used for column api
@@ -561,13 +551,14 @@ export interface BaseTableConfig extends BaseEventOptions {
 // like caption, column header etc.
 export interface BaseTableItemsI {
     config?: any;
+    baseTable?: BaseTableComponent;
     onColumnFilterEvent?: EventEmitter<any>;
     onBodyCellEvent?: EventEmitter<any>;
     onCaptionEvent?: EventEmitter<any>;
     onTableFilterEvent?: EventEmitter<any>;
     onClearFiltersEvent?: EventEmitter<any>;
     onSortEvent?: EventEmitter<any>;
-    baseTable?: BaseTableComponent;
+    onInputTemplateEvent?: EventEmitter<any>;
 }
 
 @Component({
@@ -581,6 +572,7 @@ export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
     public onTableFilterEvent: EventEmitter<any>;
     public onClearFiltersEvent: EventEmitter<any>;
     public onSortEvent: EventEmitter<any>;
+    public onInputTemplateEvent: EventEmitter<any>;
     public baseTable: BaseTableComponent;
 
     protected _subs: Subscription[] = [];
@@ -618,16 +610,13 @@ export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItems
     }
 
     public ngOnDestroy() {
+        super.ngOnDestroy();
+
         if (this._createSub != undefined && !this._createSub.closed) {
             this._createSub.unsubscribe();
         }
 
-        this._subs.forEach(item => {
-            item.unsubscribe()
-        })
-
         this._createSub = null;
-        this._subs = null;
     }
 }
 
@@ -658,8 +647,6 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
     public isColumnFilter: boolean;
     public isInputTemplate: boolean;
 
-    @Output() public editChange: EventEmitter<any> = new EventEmitter<any>();
-
     protected emitChange(val: any) {
         let filter: FilterDescriptor = {
             value: val,
@@ -678,6 +665,7 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
         }
     }
 
+    public processInputTemplateEvent: (event: any, baseTable: BaseTableComponent) => void;
     public processBodyCellEvent: (event: any, baseTable: BaseTableComponent) => void;
     public processCaptionEvent: (event: any, baseTable: BaseTableComponent) => void;
     public processTableFilterEvent: (event: any, baseTable: BaseTableComponent) => void;
@@ -705,7 +693,10 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
 
     constructor() {
         super();
-        this.operator = 'eq';
+
+        if (this.operator == undefined) {
+            this.operator = 'eq';
+        }
     }
 
     public ngOnInit() {
@@ -831,20 +822,36 @@ export interface BaseEventOptions {
     // processSortEvent is activated whenever a column is sorted
     processSortEvent?: (event: any, baseTable: BaseTableComponent) => void;
 
-    // processOuterEvent
+    // processOuterEvent is activated whenever an event outside of the table
+    // occurs but we may want to process it and modify something within the table
     processOuterEvent?: (event: any, baseTable: BaseTableComponent) => void;
+
+    // processEditEvent is activated whenever an cell or row edit event occurs
+    processInputTemplateEvent?: (event: any, baseTable: BaseTableComponent) => void;
 }
 
-// EditModeConfig is config used for cell/row editing and determines
+// TemplateConfig is config used for cell/row editing and determines
 // what the input and output template/component will be
-export interface EditModeConfig {
-    inputTemplate: ColumnEntity;
-    output: (rowData: any) => string;
+export interface TemplateConfig {
+    // inputTemplate is used to determine what input template will be
+    // used for editing values
+    inputTemplate?: ColumnEntity;
+
+    // outputTemplate is used to determine what output template will be
+    // used when displaying info
+    outputTemplate: ColumnEntity;
 }
 
+// EditEventConfig is config struct used whenever table is in edit mode
+// and user activates edit mode by clicking on output template
 export interface EditEventConfig {
+    // data is rowData that is currently being edited
     data: any;
+
+    // index is the column index that is currently being edited
     index: number;
+
+    // field is the name of the current field being edited
     field: string;
 }
 
@@ -911,9 +918,9 @@ export interface Column extends BaseEventOptions {
     // sort allows us to activate the ability to sort on current column
     sort?: SortOperation;
 
-    // editModeConfig is config used to set up inline edting for table
+    // templateConfig is config used to set up inline edting for table
     // by configuring an input and output template
-    editModeConfig?: EditModeConfig;
+    templateConfig?: TemplateConfig;
 
     // bodyCellHTML takes in row value for that column and should
     // return html based on value if set

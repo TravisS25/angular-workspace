@@ -79,6 +79,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // until we filter for more data
     private _updateBodyCellComponents: boolean = false;
 
+    private _updateOutputTemplateComponents: boolean = false;
+
     // _updateColumnFilter is used as a "hack flag" as subscribing to the column filter
     // events triggers when retrieving new data
     // This variable will be set to false once we get initial data and will never need
@@ -95,12 +97,12 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // There are various variables that depend on this to function
     private _tableInit: boolean = false;
 
-    // _cellSubs is used to keep track of subscriptions of input templates for cell editing
-    private _cellSubs: Subscription[] = [];
+    // _inputTemplateSubs is used to keep track of subscriptions of input templates for cell editing
+    private _inputTemplateSubs: Subscription[] = [];
 
-    // _clonedRowData is used to keep track of edited rows by user
+    // _editedRowData is used to keep track of edited rows by user
     // The key value used is the one set in BaseTableConfig#dataKey
-    private _clonedRowData: { [s: string]: any; } = {};
+    private _editedRowData: { [s: string]: any; } = {};
 
     // _sortMap keeps tracks of column headers and their sort order
     // The key should represent the column field and value is the number
@@ -124,6 +126,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // _bodyCellSubs is used to keep reference to explicitly body cell subscriptions
     // and will properly unsubscribe from them when new data is loaded into table
     private _bodyCellSubs: Subscription[] = [];
+
+    //private _outputTemplateSubs: Subscription[] = [];
 
     // _onTableFilterEvent is used by other components of the table like caption,
     // column filter and body cell rows and will be emitted by table whenever
@@ -156,7 +160,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // outputTemplateCrs keeps a list of references to dynamically created output template
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    //public outputTemplateCrs: ComponentRef<BaseColumnItemsI>[] = [];
+    public outputTemplateCrs: ComponentRef<BaseColumnItemsI>[] = [];
 
     // captionCr keeps a reference to dynamically created caption component which can be 
     // modified through different events and will be destroyed on component destruction
@@ -204,6 +208,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     public bodyCellDirs: QueryList<DynamicBodyCellDirective>;
     @ViewChildren(DynamicInputTemplateDirective)
     public inputTemplateDirs: QueryList<DynamicInputTemplateDirective>;
+    @ViewChildren(DynamicOutputTemplateDirective)
+    public outputTemplateDirs: QueryList<DynamicOutputTemplateDirective>;
     @ViewChildren(DynamicColumnFilterDirective)
     public columnFilterDirs: QueryList<DynamicColumnFilterDirective>;
     @ViewChildren(ColumnCheckboxDirective) public columnCheckboxes: QueryList<ColumnCheckboxDirective>;
@@ -516,6 +522,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             this.bodyCellDirs.changes.subscribe(val => {
                 console.log('change within body cell')
                 console.log(val)
+
                 if (this._updateBodyCellComponents) {
                     console.log('body cell dirs')
 
@@ -535,9 +542,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                         const cf = this.cfr.resolveComponentFactory(bc.component);
 
                         if (cf != undefined) {
-                            // console.log('body dir col idx with cf ');
-                            // console.log(item.colIdx);
-                            // console.log(item.isInputTemplate);
                             const cr = item.viewContainerRef.createComponent(cf);
                             cr.instance.baseTable = this;
                             cr.instance.colIdx = item.colIdx;
@@ -555,6 +559,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                             cr.instance.config = bc.config;
                             cr.instance.field = bc.field;
                             cr.instance.value = bc.value;
+                            cr.instance.operator = bc.operator;
                             cr.instance.processRowData = bc.processRowData;
                             cr.instance.processCaptionEvent = bc.processCaptionEvent;
                             cr.instance.processTableFilterEvent = bc.processTableFilterEvent;
@@ -568,6 +573,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                             cr.instance.onCaptionEvent = new EventEmitter<any>();
                             cr.instance.onTableFilterEvent = new EventEmitter<any>();
                             cr.instance.onClearFiltersEvent = new EventEmitter<any>();
+                            cr.instance.onSortEvent = new EventEmitter<any>();
+                            cr.instance.onInputTemplateEvent = new EventEmitter<any>();
                             this.bodyCellCrs.push(cr);
                         }
                     });
@@ -588,15 +595,15 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
             }),
             this.inputTemplateDirs.changes.subscribe(val => {
+                console.log('input template dir change');
+                console.log(val);
+
                 let results = val._results as DynamicInputTemplateDirective[];
 
                 results.forEach(item => {
                     let columns: Column[] = this.dt.columns;
-                    const bc = columns[item.colIdx].editModeConfig.inputTemplate as ColumnEntity
-                    const cf = this.cfr.resolveComponentFactory(bc.component);
-
-                    console.log('sdfsdfs')
-                    console.log(item.colIdx);
+                    const ce = columns[item.colIdx].templateConfig.inputTemplate as ColumnEntity
+                    const cf = this.cfr.resolveComponentFactory(ce.component);
 
                     if (cf != undefined) {
                         const cr = item.viewContainerRef.createComponent(cf);
@@ -604,50 +611,135 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                         cr.instance.colIdx = item.colIdx;
                         cr.instance.rowIdx = item.rowIdx;
                         cr.instance.rowData = item.rowData;
-                        cr.instance.field = item.field
                         cr.instance.isColumnFilter = false;
                         cr.instance.isInputTemplate = true;
 
-                        if (bc.getSelectedValue != undefined) {
-                            cr.instance.selectedValue = bc.getSelectedValue(item.rowData);
+                        if (ce.getSelectedValue != undefined) {
+                            cr.instance.selectedValue = ce.getSelectedValue(item.rowData);
                         } else {
-                            cr.instance.selectedValue = bc.selectedValue;
+                            cr.instance.selectedValue = ce.selectedValue;
                         }
 
-                        cr.instance.config = bc.config;
-                        cr.instance.field = bc.field;
-                        cr.instance.value = bc.value;
-                        cr.instance.processRowData = bc.processRowData;
-                        cr.instance.processCaptionEvent = bc.processCaptionEvent;
-                        cr.instance.processTableFilterEvent = bc.processTableFilterEvent;
-                        cr.instance.processColumnFilterEvent = bc.processColumnFilterEvent;
-                        cr.instance.processBodyCellEvent = bc.processBodyCellEvent;
-                        cr.instance.processClearFiltersEvent = bc.processClearFiltersEvent;
-                        cr.instance.processSortEvent = bc.processSortEvent;
+                        cr.instance.config = ce.config;
+                        cr.instance.field = ce.field;
+                        cr.instance.value = ce.value;
+                        cr.instance.operator = ce.operator;
+                        cr.instance.processRowData = ce.processRowData;
+                        cr.instance.processCaptionEvent = ce.processCaptionEvent;
+                        cr.instance.processTableFilterEvent = ce.processTableFilterEvent;
+                        cr.instance.processColumnFilterEvent = ce.processColumnFilterEvent;
+                        cr.instance.processBodyCellEvent = ce.processBodyCellEvent;
+                        cr.instance.processClearFiltersEvent = ce.processClearFiltersEvent;
+                        cr.instance.processSortEvent = ce.processSortEvent;
+                        cr.instance.processInputTemplateEvent = ce.processInputTemplateEvent;
 
                         cr.instance.onBodyCellEvent = new EventEmitter<any>();
                         cr.instance.onColumnFilterEvent = new EventEmitter<any>();
                         cr.instance.onCaptionEvent = new EventEmitter<any>();
                         cr.instance.onTableFilterEvent = new EventEmitter<any>();
                         cr.instance.onClearFiltersEvent = new EventEmitter<any>();
+                        cr.instance.onSortEvent = new EventEmitter<any>();
+                        cr.instance.onInputTemplateEvent = new EventEmitter<any>();
 
-                        this._cellSubs.push(
-                            cr.instance.editChange.subscribe(r => {
+                        this._inputTemplateSubs.push(
+                            cr.instance.onInputTemplateEvent.subscribe(r => {
+                                console.log('input template event activated')
+
+                                let result: BaseTableEvent = r;
+                                let rd = result.event;
+
                                 if (this.config.localStorageKeyForEditedRows != undefined) {
                                     window.localStorage.setItem(
                                         this.config.localStorageKeyForEditedRows,
-                                        JSON.stringify(this._clonedRowData)
+                                        JSON.stringify(this._editedRowData)
                                     )
                                 }
 
-                                this._clonedRowData[this.config.dataKey] = r;
-                                this.dt.value[item.rowIdx] = r
+                                this._editedRowData[rd[this.config.dataKey]] = rd;
+                                this.dt.value[item.rowIdx] = rd;
+
+
+
+                                columns[item.colIdx].templateConfig.outputTemplate.onInputTemplateEvent.emit(r);
                             })
                         )
                     }
 
-                    this.cdr.detectChanges();
+                    // this.cdr.detectChanges();
                 });
+
+                this.cdr.detectChanges();
+            }),
+            this.outputTemplateDirs.changes.subscribe(val => {
+                console.log('output template dir change');
+                console.log(val)
+
+                if (this._updateOutputTemplateComponents) {
+                    let results = val._results as DynamicOutputTemplateDirective[];
+
+                    if (this._tableInit) {
+                        this.outputTemplateCrs.forEach(item => {
+                            item.destroy();
+                        })
+                        this.outputTemplateCrs = [];
+                    }
+
+                    results.forEach(item => {
+                        let columns: Column[] = this.dt.columns;
+                        const ce = columns[item.colIdx].templateConfig.outputTemplate as ColumnEntity
+                        const cf = this.cfr.resolveComponentFactory(ce.component);
+
+                        if (cf != undefined) {
+                            const cr = item.viewContainerRef.createComponent(cf);
+                            cr.instance.baseTable = this;
+                            cr.instance.colIdx = item.colIdx;
+                            cr.instance.rowIdx = item.rowIdx;
+                            cr.instance.rowData = item.rowData;
+                            cr.instance.isColumnFilter = false;
+                            cr.instance.isInputTemplate = false;
+
+                            if (ce.getSelectedValue != undefined) {
+                                cr.instance.selectedValue = ce.getSelectedValue(item.rowData);
+                            } else {
+                                cr.instance.selectedValue = ce.selectedValue;
+                            }
+
+                            cr.instance.config = ce.config;
+                            cr.instance.field = ce.field;
+                            cr.instance.value = ce.value;
+                            cr.instance.operator = ce.operator;
+                            cr.instance.processRowData = ce.processRowData;
+                            cr.instance.processCaptionEvent = ce.processCaptionEvent;
+                            cr.instance.processTableFilterEvent = ce.processTableFilterEvent;
+                            cr.instance.processColumnFilterEvent = ce.processColumnFilterEvent;
+                            cr.instance.processBodyCellEvent = ce.processBodyCellEvent;
+                            cr.instance.processClearFiltersEvent = ce.processClearFiltersEvent;
+                            cr.instance.processSortEvent = ce.processSortEvent;
+
+                            cr.instance.onBodyCellEvent = new EventEmitter<any>();
+                            cr.instance.onColumnFilterEvent = new EventEmitter<any>();
+                            cr.instance.onCaptionEvent = new EventEmitter<any>();
+                            cr.instance.onTableFilterEvent = new EventEmitter<any>();
+                            cr.instance.onClearFiltersEvent = new EventEmitter<any>();
+                            cr.instance.onSortEvent = new EventEmitter<any>();
+                            cr.instance.onInputTemplateEvent = new EventEmitter<any>();
+                            this.outputTemplateCrs.push(cr);
+                        }
+
+                        // this.cdr.detectChanges();
+                    });
+                }
+
+                // if (this._tableInit) {
+                //     this._outputTemplateSubs.forEach(item => {
+                //         item.unsubscribe();
+                //     })
+                //     this._outputTemplateSubs = [];
+                //     //this.initBodyCellCrEvents()
+                // }
+
+                this.cdr.detectChanges();
+                this._updateOutputTemplateComponents = false;
             })
         )
     }
@@ -669,6 +761,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             cr.instance.onColumnFilterEvent = new EventEmitter<any>();
             cr.instance.onTableFilterEvent = new EventEmitter<any>();
             cr.instance.onClearFiltersEvent = new EventEmitter<any>();
+            cr.instance.onInputTemplateEvent = new EventEmitter<any>();
             this.captionCr = cr;
         }
     }
@@ -807,14 +900,14 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                     for (let t = 0; t < columns.length; t++) {
                         if (columns[t].columnFilter != undefined && columns[t].columnFilter.field == this.columnFilterCrs[i].instance.field) {
 
-                            if (columns[t].columnFilter.field == undefined ||
-                                columns[t].columnFilter.field == null ||
-                                columns[t].columnFilter.field == '') {
-                                console.warn(
-                                    'Warning!!! Your columnFilter "field" property is blank on index "' + t + '" of your columns array.  ' +
-                                    'This can effect your "processOnColumnFilter" function if another field is also blank',
-                                )
-                            }
+                            // if (columns[t].columnFilter.field == undefined ||
+                            //     columns[t].columnFilter.field == null ||
+                            //     columns[t].columnFilter.field == '') {
+                            //     console.warn(
+                            //         'Warning!!! Your columnFilter "field" property is blank on index "' + t + '" of your columns array.  ' +
+                            //         'This can effect your "processOnColumnFilter" function if another field is also blank',
+                            //     )
+                            // }
 
                             if (columns[t].processColumnFilterEvent != undefined) {
                                 columns[t].processColumnFilterEvent(r, this);
@@ -912,21 +1005,14 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                             }
                         }
                     }
-                    // for (let t = 0; t < this.outputTemplateCrs.length; t++) {
-                    //     if (this.outputTemplateCrs[t].instance.colIdx == this.bodyCellCrs[i].instance.colIdx) {
-                    //         if (this.outputTemplateCrs[t].instance.onBodyCellEvent != undefined) {
-                    //             this.outputTemplateCrs[t].instance.onBodyCellEvent.emit(r);
-                    //         }
-                    //     }
-                    // }
 
                     let cols: Column[] = this.dt.columns;
-                    let cfg: BaseTableEvent = r;
+                    //let cfg: BaseTableEvent = r;
 
-                    for (let i = 0; i < cols.length; i++) {
-                        if (cols[i].bodyCell != undefined && cols[i].bodyCell.field == cfg.eventFieldName) {
-                            if (cols[i].processBodyCellEvent != undefined) {
-                                cols[i].processBodyCellEvent(r, this);
+                    for (let t = 0; t < cols.length; t++) {
+                        if (cols[t].bodyCell != undefined && cols[t].bodyCell.colIdx == this.bodyCellCrs[i].instance.colIdx) {
+                            if (cols[t].processBodyCellEvent != undefined) {
+                                cols[t].processBodyCellEvent(r, this);
                             }
                         }
                     }
@@ -940,6 +1026,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                 })
             );
         }
+    }
+
+    private initOutputTemplateCrEvents() {
+
     }
 
     private initDynamicComponents() {
@@ -986,7 +1076,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // The update() function should be used to call this indirectly
     //
     // url: The encoded url to call against server
-    // fn: Optional parameter that is a callback function 
     private getGridInfo(url: string) {
         this.http.get<any>(
             url,
@@ -994,10 +1083,13 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         ).subscribe(r => {
             let res = r as HttpResponse<FilterData>;
 
+            // If table is not yet initialized, initiate all of our cr event to 
+            // listen to each other
             if (!this._tableInit) {
                 this.initCRSEvents();
             }
 
+            // Reset edited columns if set
             if (this.config.resetEditedRowsOnTableFilter) {
                 this.resetEditedRows();
             }
@@ -1005,6 +1097,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             this._tableInit = true;
             this._onTableFilterEvent.emit(res);
             this._updateBodyCellComponents = true;
+            this._updateOutputTemplateComponents = true;
 
             // If we get no results back and showNoRecordsLabel is set true,
             // inject one row and display text of no records
@@ -1207,11 +1300,11 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // EDIT FUNCTIONALITY
     ///////////////////////////////////////////
 
-    private unsubscribeCells() {
-        this._cellSubs.forEach(x => {
+    private unsubscribeTemplateCells() {
+        this._inputTemplateSubs.forEach(x => {
             x.unsubscribe();
         })
-        this._cellSubs = [];
+        this._inputTemplateSubs = [];
     }
 
     public onEditInit(event: EditEventConfig) {
@@ -1224,14 +1317,14 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.config.onEditCancel != undefined) {
             this.config.onEditCancel(event, this);
         }
-        this.unsubscribeCells();
+        this.unsubscribeTemplateCells();
     }
 
     public onEditComplete(event: EditEventConfig) {
         if (this.config.onEditComplete != undefined) {
             this.config.onEditComplete(event, this);
         }
-        this.unsubscribeCells();
+        this.unsubscribeTemplateCells();
     }
 
     ///////////////////////////////////////////
@@ -1251,12 +1344,12 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     public resetEditedRows() {
-        this._clonedRowData = {};
+        this._editedRowData = {};
         window.localStorage.removeItem(this.config.localStorageKeyForEditedRows)
     }
 
     public setEditedRows(obj: Object) {
-        this._clonedRowData = obj;
+        this._editedRowData = obj;
     }
 
     ///////////////////////////////////////////
@@ -1264,7 +1357,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     ///////////////////////////////////////////
 
     public getEditedRows(): Object {
-        return this._clonedRowData;
+        return this._editedRowData;
     }
 
     public getEditedRowsFromStorage(): Object {
@@ -1541,7 +1634,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     ///////////////////////////////////////////
 
     public ngOnInit(): void {
-        console.log('hitting base table!!!')
         this.init();
     }
 
@@ -1552,6 +1644,51 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     ///////////////////////////////////////////
     // EXPORT FUNCTIONS
     ///////////////////////////////////////////
+
+    public exportData(typ: ExportType, url: string, fileName: string) {
+        let fileType: string;
+        let blobOpts = {
+            type: ""
+        }
+
+        // Determine which type we want to export to
+        // We should then get a url specific for that file type request to
+        // send to server
+        switch (typ) {
+            case ExportType.csv:
+                blobOpts.type = 'text/csv';
+                fileType = '.csv';
+                break;
+            case ExportType.xls:
+                fileType = '.xls';
+                break;
+            case ExportType.xlsx:
+                fileType = '.xlsx';
+                break;
+        }
+
+        // Make request with proper url for particular file type
+        this.http.get(
+            url,
+            { withCredentials: true, observe: 'response', responseType: 'blob' }
+        ).subscribe(r => {
+            let newBlob = new Blob([r.body], blobOpts);
+
+            // For other browsers: 
+            // Create a link pointing to the ObjectURL containing the blob.
+            const data = window.URL.createObjectURL(newBlob);
+            var link = document.createElement('a');
+            link.href = data;
+            link.download = fileName + fileType;
+            link.click();
+            setTimeout(function () {
+                // For Firefox it is necessary to delay revoking the ObjectURL
+                window.URL.revokeObjectURL(data);
+            }, 100);
+        }, (err: HttpErrorResponse) => {
+            alert(JSON.stringify(err));
+        })
+    }
 
     // exportButton is function that allows user to export current filtered data to 
     // desired type base on ExportType passed

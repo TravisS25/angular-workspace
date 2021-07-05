@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
-import { BaseColumnItems } from '../../../table-api';
+import { BaseColumnItems, BaseTableEvent } from '../../../table-api';
 import { FilterConfig, FilterOptions } from '../../component-config';
 import { IConfig } from 'ngx-mask';
 import { Subject, Subscription } from 'rxjs';
@@ -177,7 +177,11 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
 
     public changed(text: string) {
         setJSONFieldValue(this.field, this.rowData, text)
-        this.editChange.emit(this.rowData);
+        let cfg: BaseTableEvent = {
+            eventFieldName: this.field,
+            event: this.rowData
+        }
+        this.onInputTemplateEvent.emit(cfg);
         this.txtChanged.next(text);
     }
 
