@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { BaseColumnItems, Column, FilterDescriptor } from '../../../table-api';
 import { RowToggler } from 'primeng/table';
+import { BaseTableComponent } from '../../base-table/base-table.component';
 
 @Component({
     selector: 'app-table-expansion',
@@ -16,34 +17,40 @@ export class TableExpansionComponent extends BaseColumnItems implements OnInit, 
         super()
     }
 
+    private closeExpansion() {
+        this.expanded = false;
+
+        if (this.toggler.dt.isRowExpanded(this.rowData)) {
+            this.toggler.dt.toggleRow(this.rowData);
+        }
+    }
+
     private initEvents() {
-        this._subs.push(
-            this.onColumnFilterEvent.subscribe(r => {
-                this.expanded = false;
+        let columnFilterFunc = this.processColumnFilterEvent;
+        let tableFilterFunc = this.processTableFilterEvent;
+        let clearFiltersFunc = this.processClearFiltersEvent;
 
-                if (this.toggler.dt.isRowExpanded(this.rowData)) {
-                    this.toggler.dt.toggleRow(this.rowData);
-                }
-            })
-        )
-        this._subs.push(
-            this.onTableFilterEvent.subscribe(r => {
-                this.expanded = false;
+        this.processColumnFilterEvent = (event: any, baseTable: BaseTableComponent) => {
+            this.closeExpansion();
 
-                if (this.toggler.dt.isRowExpanded(this.rowData)) {
-                    this.toggler.dt.toggleRow(this.rowData);
-                }
-            })
-        );
-        this._subs.push(
-            this.onClearFiltersEvent.subscribe(r => {
-                this.expanded = false;
+            if (columnFilterFunc != undefined) {
+                columnFilterFunc(event, baseTable);
+            }
+        }
+        this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
+            this.closeExpansion();
 
-                if (this.toggler.dt.isRowExpanded(this.rowData)) {
-                    this.toggler.dt.toggleRow(this.rowData);
-                }
-            })
-        )
+            if (tableFilterFunc != undefined) {
+                tableFilterFunc(event, baseTable);
+            }
+        }
+        this.processClearFiltersEvent = (event: any, baseTable: BaseTableComponent) => {
+            this.closeExpansion();
+
+            if (clearFiltersFunc != undefined) {
+                clearFiltersFunc(event, baseTable);
+            }
+        }
     }
 
     public ngOnInit(): void {

@@ -1,11 +1,10 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
-import { BaseColumnItems, BaseTableEvent } from '../../../table-api';
+import { BaseColumnItems, BaseTableEvent, EditEvent } from '../../../table-api';
 import { FilterConfig, FilterOptions } from '../../component-config';
 import { IConfig } from 'ngx-mask';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ChangeDetectorRef } from '@angular/core';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { setJSONFieldValue } from '../../../util';
 
 export interface MaskConfig extends IConfig {
@@ -45,7 +44,6 @@ export interface MaterialInputTextConfig {
     styleUrls: ['./material-input-text.component.scss']
 })
 export class MaterialInputTextComponent extends BaseColumnItems implements OnInit, AfterViewInit, OnDestroy {
-    //private _cfg: MaterialInputTextConfig;
     public txtChanged: Subject<string> = new Subject<string>();
     protected modelChangeSubscription: Subscription;
 
@@ -55,7 +53,7 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
 
     private initConfig() {
         if (this.isInputTemplate && this.field == undefined) {
-            throw ('MUST SET PROPERTY "jsonField" FOR INPUT TEMPLATE FOR COLUMN INDEX ' + this.colIdx)
+            throw ('MUST SET PROPERTY "field" FOR INPUT TEMPLATE FOR COLUMN INDEX ' + this.colIdx)
         }
 
         if (this.config == undefined || this.config == null) {
@@ -165,9 +163,7 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
             )
             .subscribe(txt => {
                 this.selectedValue = txt;
-                this.onChangeEvent(txt);
-                //this.emitChange(txt);
-                // console.log(txt);
+                this.emitFilterChange(this.selectedValue);
             });
     }
 
@@ -175,14 +171,25 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
         //this.cdr.detectChanges
     }
 
-    public changed(text: string) {
-        setJSONFieldValue(this.field, this.rowData, text)
-        let cfg: BaseTableEvent = {
-            eventFieldName: this.field,
-            event: this.rowData
+    public onChangeEvent(text: string) {
+        if (this.isColumnFilter) {
+            this.txtChanged.next(text);
+        } else {
+            setJSONFieldValue(this.field, this.rowData, text)
+
+            let eCfg: EditEvent = {
+                data: this.rowData,
+                field: this.field,
+                index: this.rowIdx,
+            }
+
+            let cfg: BaseTableEvent = {
+                eventFieldName: this.field,
+                event: eCfg,
+            }
+
+            this.onEvent.emit(cfg);
         }
-        this.onInputTemplateEvent.emit(cfg);
-        this.txtChanged.next(text);
     }
 
     public ngOnDestroy() {

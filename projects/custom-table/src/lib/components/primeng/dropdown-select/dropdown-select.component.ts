@@ -20,13 +20,17 @@ export interface DropdownSelectConfig extends BaseTableEventConfig {
     filter?: boolean;
 }
 
+export interface DropdownSelectEvent {
+    value?: any;
+}
+
 @Component({
     selector: 'app-dropdown-select',
     templateUrl: './dropdown-select.component.html',
     styleUrls: ['./dropdown-select.component.scss']
 })
 export class DropdownSelectComponent extends BaseColumnItems implements OnInit {
-    private initValues() {
+    private initConfig() {
         if (this.config == undefined) {
             throw ('MUST SET CONFIG FOR DROPDOWN SELECT');
         } else {
@@ -48,6 +52,21 @@ export class DropdownSelectComponent extends BaseColumnItems implements OnInit {
 
     public ngOnInit(): void {
         super.ngOnInit();
-        this.initValues();
+        this.initConfig();
+    }
+
+    public onChangeEvent(val: any) {
+        if (this.isColumnFilter) {
+            this.emitFilterChange(val);
+        } else {
+            let dse: DropdownSelectEvent = {
+                value: val
+            }
+            let event: BaseTableEvent = {
+                eventFieldName: this.field,
+                event: dse
+            }
+            this.onEvent.emit(event);
+        }
     }
 }

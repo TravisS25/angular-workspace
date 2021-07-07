@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
 import { DynamicDialogConfig, DialogService } from 'primeng/dynamicdialog';
-import { ExportConfig, ExportFormats, APIConfig, Column, RowExpansion, BaseTableConfig, Caption, MultiSelectOptions } from './table-api';
+import { ExportConfig, ExportFormats, APIConfig, Column, RowExpansion, BaseTableConfig, Caption } from './table-api';
 import _ from "lodash" // Import the entire lodash library
 import { BaseTableComponent } from './components/base-table/base-table.component';
 import { DefaultConsts } from './config';

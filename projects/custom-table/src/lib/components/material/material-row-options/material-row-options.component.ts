@@ -39,13 +39,13 @@ export class MaterialRowOptionsComponent extends BaseColumnItems implements OnIn
         }
     }
 
-    public onClick(event: MaterialRowOptionItem) {
+    public onChangeEvent(event: MaterialRowOptionItem) {
         event.rowData = this.rowData;
 
         let bteCfg: BaseTableEvent = {
             eventFieldName: this._cfg.eventFieldName,
             event: event,
         }
-        this.onBodyCellEvent.emit(bteCfg);
+        this.onEvent.emit(bteCfg);
     }
 }

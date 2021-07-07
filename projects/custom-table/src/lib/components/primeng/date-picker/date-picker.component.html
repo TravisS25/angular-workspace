@@ -1,17 +1,8 @@
-<p-calendar 
-    appendTo="body"
-    [showButtonBar]="config.showButtonBar"
-    [(ngModel)]="selectedValue"
-    [style]="config.style"
-    [inputStyle]="config.inputStyle"
-    [readonlyInput]="config.readonlyInput" 
-    [hourFormat]="config.hourFormat"
-    (onSelect)="onChangeEvent($event)"
-    (onClearClick)="onChangeEvent($event)">
+<p-calendar appendTo="body" [showButtonBar]="config.showButtonBar" [(ngModel)]="selectedValue" [style]="config.style"
+    [inputStyle]="config.inputStyle" [readonlyInput]="config.readonlyInput" [hourFormat]="config.hourFormat"
+    (onSelect)="onChangeEvent($event)" (onClearClick)="onChangeEvent($event)">
 </p-calendar>
-<span class="icon">
-    <app-filter-option 
-        [config]="config.filterCfg"
-        (onChange)="onFilterChange($event)">
+<span *ngIf="config && config.filterCfg" class="icon">
+    <app-filter-option [config]="config.filterCfg" (onChange)="onFilterChange($event)">
     </app-filter-option>
 </span>

@@ -34,7 +34,11 @@ export interface DatePickerConfig extends BaseTableEventConfig {
     hourFormat?: '12' | '24';
 
     // filterCfg is config used to determine filter options for date picker component
-    filterCfg: FilterConfig;
+    filterCfg?: FilterConfig;
+}
+
+export interface DatePickerEvent {
+    value?: any;
 }
 
 @Component({
@@ -47,7 +51,7 @@ export class DatePickerComponent extends BaseColumnItems implements OnInit {
         super();
     }
 
-    private initValues() {
+    private initConfig() {
         if (this.config == undefined || this.config == null) {
             throw ('MUST SET DATE PICKER CONFIG');
         } else {
@@ -78,16 +82,26 @@ export class DatePickerComponent extends BaseColumnItems implements OnInit {
 
     public ngOnInit(): void {
         super.ngOnInit();
-        this.initValues();
+        this.initConfig();
     }
 
     public onChangeEvent(event: any) {
-        let val = null;
-
-        if (this.selectedValue != null && this.selectedValue != undefined) {
-            val = moment(this.selectedValue).format(DefaultConsts.DateFormat);
+        if (this.selectedValue) {
+            this.selectedValue = moment(this.selectedValue).format(DefaultConsts.DateFormat);
         }
 
-        this.emitChange(val);
+        if (this.isColumnFilter) {
+            this.emitFilterChange(this.selectedValue)
+        } else {
+            let eCfg: DatePickerEvent = {
+                value: this.selectedValue,
+            }
+
+            let cfg: BaseTableEvent = {
+                eventFieldName: this.field,
+                event: eCfg,
+            }
+            this.onEvent.emit(cfg);
+        }
     }
 }

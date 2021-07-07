@@ -1,6 +1,6 @@
 <mat-form-field *ngIf="config" [style]="config.style">
     <mat-label *ngIf="config.label"></mat-label>
-    <input ngDefaultControl matInput (ngModelChange)='changed($event)' [ngModel]="selectedValue"
+    <input ngDefaultControl matInput (ngModelChange)='onChangeEvent($event)' [ngModel]="selectedValue"
         placeholder="{{ config.placeHolder }}" mask="{{ config.maskCfg.maskTemplate }}"
         [specialCharacters]="config.maskCfg.specialCharacters" prefix="{{ config.maskCfg.prefix }}"
         suffix="{{ config.maskCfg.suffix }}" [dropSpecialCharacters]="config.maskCfg.dropSpecialCharacters"

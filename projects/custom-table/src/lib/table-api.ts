@@ -355,6 +355,9 @@ export interface BaseTableConfig extends BaseEventOptions {
     // first call to server
     getState?: (outerData: any) => State;
 
+    // summary is config used to generate custom summary component
+    summary?: Summary;
+
     // paramConfig set param names that will be sent to server
     paramConfig?: ParamConfig;
 
@@ -498,17 +501,17 @@ export interface BaseTableConfig extends BaseEventOptions {
     // Callback to invoke when a cell switches to edit mode
     //
     // Default: Empty function
-    onEditInit?: (event: EditEventConfig, baseTable: BaseTableComponent) => void;
+    onEditInit?: (event: EditEvent, baseTable: BaseTableComponent) => void;
 
     // Callback to invoke when cell edit is completed
     //
     // Default: Empty function
-    onEditComplete?: (event: EditEventConfig, baseTable: BaseTableComponent) => void;
+    onEditComplete?: (event: EditEvent, baseTable: BaseTableComponent) => void;
 
     // Callback to invoke when cell edit is cancelled with escape key
     //
     // Default: Empty function
-    onEditCancel?: (event: EditEventConfig, baseTable: BaseTableComponent) => void;
+    onEditCancel?: (event: EditEvent, baseTable: BaseTableComponent) => void;
 
     // customTableSearch is for overriding the default search functionality built into the table itself
     // when searching for entries of external datasource
@@ -551,31 +554,25 @@ export interface BaseTableConfig extends BaseEventOptions {
 // like caption, column header etc.
 export interface BaseTableItemsI {
     config?: any;
-    baseTable?: BaseTableComponent;
-    onColumnFilterEvent?: EventEmitter<any>;
-    onBodyCellEvent?: EventEmitter<any>;
-    onCaptionEvent?: EventEmitter<any>;
-    onTableFilterEvent?: EventEmitter<any>;
-    onClearFiltersEvent?: EventEmitter<any>;
-    onSortEvent?: EventEmitter<any>;
-    onInputTemplateEvent?: EventEmitter<any>;
 }
 
 @Component({
     template: '',
 })
 export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
-    @Input() public config: any;
-    public onColumnFilterEvent: EventEmitter<any>;
-    public onBodyCellEvent: EventEmitter<any>;
-    public onCaptionEvent: EventEmitter<any>;
-    public onTableFilterEvent: EventEmitter<any>;
-    public onClearFiltersEvent: EventEmitter<any>;
-    public onSortEvent: EventEmitter<any>;
-    public onInputTemplateEvent: EventEmitter<any>;
-    public baseTable: BaseTableComponent;
-
     protected _subs: Subscription[] = [];
+
+    @Input() public config: any;
+    @Input() public baseTable: BaseTableComponent;
+    @Output() public onEvent: EventEmitter<any>;
+
+    public processInputTemplateEvent: (event: any, baseTable: BaseTableComponent) => void;
+    public processBodyCellEvent: (event: any, baseTable: BaseTableComponent) => void;
+    public processCaptionEvent: (event: any, baseTable: BaseTableComponent) => void;
+    public processTableFilterEvent: (event: any, baseTable: BaseTableComponent) => void;
+    public processColumnFilterEvent: (event: any, baseTable: BaseTableComponent) => void;
+    public processClearFiltersEvent: (event: any, baseTable: BaseTableComponent) => void;
+    public processSortEvent: (event: any, baseTable: BaseTableComponent) => void;
 
     constructor() { }
 
@@ -597,9 +594,9 @@ export interface BaseCaptionItemsI extends BaseTableItemsI {
     template: '',
 })
 export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItemsI, OnInit, OnDestroy {
-    public outerData: any;
-
     protected _createSub: Subscription;
+
+    public outerData: any;
 
     constructor() {
         super()
@@ -620,17 +617,14 @@ export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItems
     }
 }
 
-export interface BaseColumnItemsI extends BaseTableItemsI, BaseEventOptions {
+export interface BaseColumnItemsI extends BaseTableItemsI {
     field?: string;
-    colIdx?: number;
     value?: any;
     selectedValue?: any;
     getSelectedValue?: (rowData: any) => any;
-    rowIdx?: number;
-    rowData?: any;
     operator?: string;
-    clearFilter?: () => void;
     processRowData?: (rowData: any) => any;
+    excludeFilter?: boolean;
 }
 
 @Component({
@@ -646,49 +640,43 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
     public operator: string;
     public isColumnFilter: boolean;
     public isInputTemplate: boolean;
+    public excludeFilter: boolean;
 
-    protected emitChange(val: any) {
+    protected emitFilterChange(val: any) {
         let filter: FilterDescriptor = {
             value: val,
             field: this.field,
             operator: this.operator,
         }
-
-        this.onColumnFilterEvent.emit(filter);
-
-        if (this.config != undefined) {
-            let cfg: BaseEventOptions = this.config;
-
-            if (cfg.processColumnFilterEvent != undefined) {
-                cfg.processColumnFilterEvent(filter, this.baseTable);
-            }
+        let cfg: BaseTableEvent = {
+            eventFieldName: this.field,
+            event: filter,
         }
+
+        this.onEvent.emit(cfg);
     }
 
-    public processInputTemplateEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processBodyCellEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processCaptionEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processTableFilterEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processColumnFilterEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processClearFiltersEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processSortEvent: (event: any, baseTable: BaseTableComponent) => void;
     public processRowData: (rowData: any) => any;
 
     public clearFilter() {
         this.selectedValue = null;
     }
 
-    public onChangeEvent(event: any) {
-        if (this.isColumnFilter) {
-            this.emitChange(this.selectedValue);
-        } else {
-            this.onBodyCellEvent.emit(this.selectedValue)
-        }
-    }
+    // public onChangeEvent(event: any) {
+    //     if (this.isColumnFilter) {
+    //         this.emitFilterChange(this.selectedValue);
+    //     } else {
+    //         this.onEvent.emit(event)
+    //     }
+    // }
 
     public onFilterChange(event: string) {
         this.operator = event;
-        this.onChangeEvent(null);
+        // this.onChangeEvent(null);
+
+        if (this.isColumnFilter) {
+            this.emitFilterChange(this.selectedValue);
+        }
     }
 
     constructor() {
@@ -710,11 +698,20 @@ export interface RowExpansionItemsI {
     outerData?: any;
 }
 
+@Component({
+    template: '',
+})
+export class RowExpansionItems implements RowExpansionItemsI {
+    public config: any;
+    public renderCallback: EventEmitter<any>;
+    public outerData: any;
+}
+
 // ---------------- COLUMN IMPLEMENTATION ------------------
 
 // Caption is used to display caption component in caption part of table
 export interface Caption extends BaseTableItemsI {
-    component: Type<BaseTableItems>;
+    component: Type<BaseCaptionItems>;
 }
 
 export interface ColumnEntity extends BaseColumnItemsI {
@@ -724,7 +721,11 @@ export interface ColumnEntity extends BaseColumnItemsI {
 // RowExpansion is used to display expansion component of table
 export interface RowExpansion extends RowExpansionItemsI {
     // component is component to use for expansion of table
-    component: Type<RowExpansionItemsI>;
+    component: Type<RowExpansionItems>;
+}
+
+export interface Summary extends BaseTableItemsI {
+    component: Type<BaseTableItems>;
 }
 
 // ------------------ COLUMN CONFIGS -----------------------
@@ -842,13 +843,13 @@ export interface TemplateConfig {
     outputTemplate: ColumnEntity;
 }
 
-// EditEventConfig is config struct used whenever table is in edit mode
+// EditEvent is config struct used whenever table is in edit mode
 // and user activates edit mode by clicking on output template
-export interface EditEventConfig {
+export interface EditEvent {
     // data is rowData that is currently being edited
     data: any;
 
-    // index is the column index that is currently being edited
+    // index is the row index that is currently being edited
     index: number;
 
     // field is the name of the current field being edited

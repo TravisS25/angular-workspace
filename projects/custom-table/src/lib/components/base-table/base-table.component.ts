@@ -31,13 +31,16 @@ import {
     RowExpansionItemsI,
     BaseTableItemsI,
     BaseTableEvent,
-    MultiSelectOptions,
     APIConfig,
     ParamConfig,
     BaseColumnItems,
     ColumnEntity,
     BaseColumnItemsI,
-    EditEventConfig,
+    EditEvent,
+    BaseCaptionItemsI,
+    BaseCaptionItems,
+    RowExpansionItems,
+    BaseTableItems,
 } from '../../table-api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DynamicBodyCellDirective } from '../../directives/dynamic-body-cell.directive';
@@ -52,6 +55,7 @@ import { SortIconComponent } from '../filter-components/sort-icon/sort-icon.comp
 import { ComponentFactory } from '@angular/core';
 import { DynamicOutputTemplateDirective } from '../../directives/dynamic-output-template.directive';
 import { DynamicInputTemplateDirective } from '../../directives/dynamic-input-template.directive';
+import { DynamicSummaryDirective } from '../../directives/dynamic-summary.directive';
 
 @Component({
     selector: 'app-base-table',
@@ -73,12 +77,14 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // "this.visibleColumns = this.columnCheckboxes.length - this._hiddenColumns.length;"
     private _hiddenColumns: string[] = [];
 
-    // _updateBodyCellComponents is used as a "hack flag" as subscribing to the body
-    // cell events triggers multiple times on initial load on new data so this will be 
-    // set true on new data and once triggered the first time, this will be set to false
-    // until we filter for more data
+    // _updateBodyCellComponents is used as a "hack flag" for body cell directives as
+    // change events occur with any little change so this is set on initial load
+    // and any events after that will not be effected
     private _updateBodyCellComponents: boolean = false;
 
+    // _updateOutputTemplateComponents is used as a "hack flag" for output template directives as
+    // change events occur with any little change so this is set on initial load
+    // and any events after that will not be effected
     private _updateOutputTemplateComponents: boolean = false;
 
     // _updateColumnFilter is used as a "hack flag" as subscribing to the column filter
@@ -103,6 +109,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // _editedRowData is used to keep track of edited rows by user
     // The key value used is the one set in BaseTableConfig#dataKey
     private _editedRowData: { [s: string]: any; } = {};
+
+    // _clonedRowData is used to keep track of original rows so
+    // if user decides to cancel, we can set them back to original value 
+    private _clonedRowData: { [s: string]: any; } = {};
 
     // _sortMap keeps tracks of column headers and their sort order
     // The key should represent the column field and value is the number
@@ -145,26 +155,30 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // columnFilterCrs keeps a list of references to dynamically created column filters
     // components which can be modified through different events and will be destroyed on 
     // component destruction
-    public columnFilterCrs: ComponentRef<BaseColumnItemsI>[] = [];
+    public columnFilterCrs: ComponentRef<BaseColumnItems>[] = [];
 
     // rowExpansionCrs keeps a list of references to dynamically created expanded row
     // components which can be modified through different events and will be destroyed on 
     // component destruction
-    public rowExpansionCrs: ComponentRef<RowExpansionItemsI>[] = [];
+    public rowExpansionCrs: ComponentRef<RowExpansionItems>[] = [];
 
     // bodyCellCrs keeps a list of references to dynamically created body cell 
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    public bodyCellCrs: ComponentRef<BaseColumnItemsI>[] = [];
+    public bodyCellCrs: ComponentRef<BaseColumnItems>[] = [];
 
     // outputTemplateCrs keeps a list of references to dynamically created output template
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    public outputTemplateCrs: ComponentRef<BaseColumnItemsI>[] = [];
+    public outputTemplateCrs: ComponentRef<BaseColumnItems>[] = [];
 
     // captionCr keeps a reference to dynamically created caption component which can be 
     // modified through different events and will be destroyed on component destruction
-    public captionCr: ComponentRef<BaseTableItemsI>;
+    public captionCr: ComponentRef<BaseCaptionItems>;
+
+    // summaryCr keeps a reference to dynamically created summary component which can be 
+    // modified through different events and will be destroyed on component destruction
+    public summaryCr: ComponentRef<BaseTableItems>;
 
     // selectedColumns is the currently selected columns in table caption
     public selectedColumns: any[] = [];
@@ -202,6 +216,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('dt', { static: false }) public dt: Table;
     @ViewChild(DynamicCaptionDirective, { static: false })
     public headerCaptionDir: DynamicCaptionDirective;
+    @ViewChild(DynamicSummaryDirective, { static: false })
+    public summaryDir: DynamicCaptionDirective;
     @ViewChildren(DynamicExpansionDirective)
     public expansionDirs: QueryList<DynamicExpansionDirective>;
     @ViewChildren(DynamicBodyCellDirective)
@@ -481,32 +497,22 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                         const cr = item.viewContainerRef.createComponent(cf);
                         cr.instance.baseTable = this;
                         cr.instance.colIdx = item.colIdx;
+                        cr.instance.isColumnFilter = true;
+                        cr.instance.isInputTemplate = false;
 
                         if (columns[item.colIdx].columnFilter != undefined) {
                             cr.instance.field = columns[item.colIdx].columnFilter.field;
                             cr.instance.value = columns[item.colIdx].columnFilter.value;
                             cr.instance.selectedValue = columns[item.colIdx].columnFilter.selectedValue;
                             cr.instance.config = columns[item.colIdx].columnFilter.config;
-                            cr.instance.isColumnFilter = true;
-
-                            cr.instance.processCaptionEvent = columns[item.colIdx].columnFilter.processCaptionEvent;
-                            cr.instance.processTableFilterEvent = columns[item.colIdx].columnFilter.processTableFilterEvent;
-                            cr.instance.processColumnFilterEvent = columns[item.colIdx].columnFilter.processColumnFilterEvent;
-                            cr.instance.processBodyCellEvent = columns[item.colIdx].columnFilter.processBodyCellEvent;
-                            cr.instance.processClearFiltersEvent = columns[item.colIdx].columnFilter.processClearFiltersEvent;
-                            cr.instance.processSortEvent = columns[item.colIdx].columnFilter.processSortEvent;
+                            cr.instance.excludeFilter = columns[item.colIdx].columnFilter.excludeFilter;
 
                             if (columns[item.colIdx].columnFilter.operator != undefined) {
                                 cr.instance.operator = columns[item.colIdx].columnFilter.operator;
                             }
                         }
 
-                        cr.instance.onColumnFilterEvent = new EventEmitter<any>();
-                        cr.instance.onBodyCellEvent = new EventEmitter<any>();
-                        cr.instance.onCaptionEvent = new EventEmitter<any>();
-                        cr.instance.onTableFilterEvent = new EventEmitter<any>();
-                        cr.instance.onClearFiltersEvent = new EventEmitter<any>();
-                        cr.instance.onSortEvent = new EventEmitter<any>();
+                        cr.instance.onEvent = new EventEmitter<any>();
                         this.columnFilterCrs.push(cr);
                     });
                 }
@@ -561,20 +567,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                             cr.instance.value = bc.value;
                             cr.instance.operator = bc.operator;
                             cr.instance.processRowData = bc.processRowData;
-                            cr.instance.processCaptionEvent = bc.processCaptionEvent;
-                            cr.instance.processTableFilterEvent = bc.processTableFilterEvent;
-                            cr.instance.processColumnFilterEvent = bc.processColumnFilterEvent;
-                            cr.instance.processBodyCellEvent = bc.processBodyCellEvent;
-                            cr.instance.processClearFiltersEvent = bc.processClearFiltersEvent;
-                            cr.instance.processSortEvent = bc.processSortEvent;
 
-                            cr.instance.onBodyCellEvent = new EventEmitter<any>();
-                            cr.instance.onColumnFilterEvent = new EventEmitter<any>();
-                            cr.instance.onCaptionEvent = new EventEmitter<any>();
-                            cr.instance.onTableFilterEvent = new EventEmitter<any>();
-                            cr.instance.onClearFiltersEvent = new EventEmitter<any>();
-                            cr.instance.onSortEvent = new EventEmitter<any>();
-                            cr.instance.onInputTemplateEvent = new EventEmitter<any>();
+                            cr.instance.onEvent = new EventEmitter<any>();
                             this.bodyCellCrs.push(cr);
                         }
                     });
@@ -625,28 +619,15 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                         cr.instance.value = ce.value;
                         cr.instance.operator = ce.operator;
                         cr.instance.processRowData = ce.processRowData;
-                        cr.instance.processCaptionEvent = ce.processCaptionEvent;
-                        cr.instance.processTableFilterEvent = ce.processTableFilterEvent;
-                        cr.instance.processColumnFilterEvent = ce.processColumnFilterEvent;
-                        cr.instance.processBodyCellEvent = ce.processBodyCellEvent;
-                        cr.instance.processClearFiltersEvent = ce.processClearFiltersEvent;
-                        cr.instance.processSortEvent = ce.processSortEvent;
-                        cr.instance.processInputTemplateEvent = ce.processInputTemplateEvent;
 
-                        cr.instance.onBodyCellEvent = new EventEmitter<any>();
-                        cr.instance.onColumnFilterEvent = new EventEmitter<any>();
-                        cr.instance.onCaptionEvent = new EventEmitter<any>();
-                        cr.instance.onTableFilterEvent = new EventEmitter<any>();
-                        cr.instance.onClearFiltersEvent = new EventEmitter<any>();
-                        cr.instance.onSortEvent = new EventEmitter<any>();
-                        cr.instance.onInputTemplateEvent = new EventEmitter<any>();
+                        cr.instance.onEvent = new EventEmitter<any>();
 
                         this._inputTemplateSubs.push(
-                            cr.instance.onInputTemplateEvent.subscribe(r => {
+                            cr.instance.onEvent.subscribe(r => {
                                 console.log('input template event activated')
 
                                 let result: BaseTableEvent = r;
-                                let rd = result.event;
+                                let cfg = result.event as EditEvent;
 
                                 if (this.config.localStorageKeyForEditedRows != undefined) {
                                     window.localStorage.setItem(
@@ -655,12 +636,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                                     )
                                 }
 
-                                this._editedRowData[rd[this.config.dataKey]] = rd;
-                                this.dt.value[item.rowIdx] = rd;
+                                this._editedRowData[cfg.data[this.config.dataKey]] = cfg.data;
+                                this.dt.value[item.rowIdx] = cfg.data;
 
 
-
-                                columns[item.colIdx].templateConfig.outputTemplate.onInputTemplateEvent.emit(r);
                             })
                         )
                     }
@@ -709,34 +688,12 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                             cr.instance.value = ce.value;
                             cr.instance.operator = ce.operator;
                             cr.instance.processRowData = ce.processRowData;
-                            cr.instance.processCaptionEvent = ce.processCaptionEvent;
-                            cr.instance.processTableFilterEvent = ce.processTableFilterEvent;
-                            cr.instance.processColumnFilterEvent = ce.processColumnFilterEvent;
-                            cr.instance.processBodyCellEvent = ce.processBodyCellEvent;
-                            cr.instance.processClearFiltersEvent = ce.processClearFiltersEvent;
-                            cr.instance.processSortEvent = ce.processSortEvent;
 
-                            cr.instance.onBodyCellEvent = new EventEmitter<any>();
-                            cr.instance.onColumnFilterEvent = new EventEmitter<any>();
-                            cr.instance.onCaptionEvent = new EventEmitter<any>();
-                            cr.instance.onTableFilterEvent = new EventEmitter<any>();
-                            cr.instance.onClearFiltersEvent = new EventEmitter<any>();
-                            cr.instance.onSortEvent = new EventEmitter<any>();
-                            cr.instance.onInputTemplateEvent = new EventEmitter<any>();
+                            cr.instance.onEvent = new EventEmitter<any>();
                             this.outputTemplateCrs.push(cr);
                         }
-
-                        // this.cdr.detectChanges();
                     });
                 }
-
-                // if (this._tableInit) {
-                //     this._outputTemplateSubs.forEach(item => {
-                //         item.unsubscribe();
-                //     })
-                //     this._outputTemplateSubs = [];
-                //     //this.initBodyCellCrEvents()
-                // }
 
                 this.cdr.detectChanges();
                 this._updateOutputTemplateComponents = false;
@@ -755,14 +712,23 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             const cr = this.headerCaptionDir.viewContainerRef.createComponent(cf);
             cr.instance.config = this.config.caption.config;
             cr.instance.baseTable = this;
-
-            cr.instance.onCaptionEvent = new EventEmitter<any>();
-            cr.instance.onBodyCellEvent = new EventEmitter<any>();
-            cr.instance.onColumnFilterEvent = new EventEmitter<any>();
-            cr.instance.onTableFilterEvent = new EventEmitter<any>();
-            cr.instance.onClearFiltersEvent = new EventEmitter<any>();
-            cr.instance.onInputTemplateEvent = new EventEmitter<any>();
+            cr.instance.onEvent = new EventEmitter<any>();
             this.captionCr = cr;
+        }
+    }
+
+    // initSummaryComponent initializes and creates summary component if set by config
+    private initSummaryComponent() {
+        if (this.config.summary != undefined) {
+            const cf = this.cfr.resolveComponentFactory(
+                this.config.summary.component,
+            );
+
+            const cr = this.summaryDir.viewContainerRef.createComponent(cf);
+            cr.instance.config = this.config.summary.config;
+            cr.instance.baseTable = this;
+            cr.instance.onEvent = new EventEmitter<any>();
+            this.summaryCr = cr;
         }
     }
 
@@ -783,18 +749,18 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                     }
                 }
                 for (let i = 0; i < this.columnFilterCrs.length; i++) {
-                    if (this.columnFilterCrs[i].instance.onTableFilterEvent != undefined) {
-                        this.columnFilterCrs[i].instance.onTableFilterEvent.emit(r);
+                    if (this.columnFilterCrs[i].instance.processTableFilterEvent != undefined) {
+                        this.columnFilterCrs[i].instance.processTableFilterEvent(r, this);
                     }
                 }
                 for (let i = 0; i < this.bodyCellCrs.length; i++) {
-                    if (this.bodyCellCrs[i].instance.onTableFilterEvent != undefined) {
-                        this.bodyCellCrs[i].instance.onTableFilterEvent.emit(r);
+                    if (this.bodyCellCrs[i].instance.processTableFilterEvent != undefined) {
+                        this.bodyCellCrs[i].instance.processTableFilterEvent(r, this);
                     }
                 }
 
-                if (this.captionCr != undefined) {
-                    this.captionCr.instance.onTableFilterEvent.emit(r);
+                if (this.captionCr != undefined && this.captionCr.instance.processTableFilterEvent) {
+                    this.captionCr.instance.processTableFilterEvent(r, this);
                 }
                 if (this.config.processTableFilterEvent != undefined) {
                     this.config.processTableFilterEvent(r, this);
@@ -811,20 +777,19 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                         columns[i].processClearFiltersEvent(r, this);
                     }
                 }
-
                 for (let i = 0; i < this.columnFilterCrs.length; i++) {
-                    if (this.columnFilterCrs[i].instance.onTableFilterEvent != undefined) {
-                        this.columnFilterCrs[i].instance.onClearFiltersEvent.emit(r);
+                    if (this.columnFilterCrs[i].instance.processClearFiltersEvent != undefined) {
+                        this.columnFilterCrs[i].instance.processClearFiltersEvent(r, this);
                     }
                 }
                 for (let i = 0; i < this.bodyCellCrs.length; i++) {
-                    if (this.bodyCellCrs[i].instance.onTableFilterEvent != undefined) {
-                        this.bodyCellCrs[i].instance.onClearFiltersEvent.emit(r);
+                    if (this.bodyCellCrs[i].instance.processClearFiltersEvent != undefined) {
+                        this.bodyCellCrs[i].instance.processClearFiltersEvent(r, this);
                     }
                 }
 
-                if (this.captionCr != undefined) {
-                    this.captionCr.instance.onClearFiltersEvent.emit(r);
+                if (this.captionCr != undefined && this.captionCr.instance.processClearFiltersEvent) {
+                    this.captionCr.instance.processClearFiltersEvent(r, this);
                 }
 
                 if (this.config.processClearFiltersEvent != undefined) {
@@ -837,28 +802,28 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this._subs.push(
             this._onSortEvent.subscribe(r => {
                 for (let i = 0; i < columns.length; i++) {
-                    if (columns[i].processClearFiltersEvent != undefined) {
+                    if (columns[i].processSortEvent != undefined) {
                         columns[i].processSortEvent(r, this);
                     }
                 }
 
                 for (let i = 0; i < this.columnFilterCrs.length; i++) {
-                    if (this.columnFilterCrs[i].instance.onTableFilterEvent != undefined) {
-                        this.columnFilterCrs[i].instance.onClearFiltersEvent.emit(r);
+                    if (this.columnFilterCrs[i].instance.processSortEvent != undefined) {
+                        this.columnFilterCrs[i].instance.processSortEvent(r, this);
                     }
                 }
                 for (let i = 0; i < this.bodyCellCrs.length; i++) {
-                    if (this.bodyCellCrs[i].instance.onTableFilterEvent != undefined) {
-                        this.bodyCellCrs[i].instance.onClearFiltersEvent.emit(r);
+                    if (this.bodyCellCrs[i].instance.processSortEvent != undefined) {
+                        this.bodyCellCrs[i].instance.processSortEvent(r, this);
                     }
                 }
 
-                if (this.captionCr != undefined) {
-                    this.captionCr.instance.onClearFiltersEvent.emit(r);
+                if (this.captionCr != undefined && this.captionCr.instance.processSortEvent != undefined) {
+                    this.captionCr.instance.processSortEvent(r, this);
                 }
 
-                if (this.config.processClearFiltersEvent != undefined) {
-                    this.config.processClearFiltersEvent(r, this);
+                if (this.config.processSortEvent != undefined) {
+                    this.config.processSortEvent(r, this);
                 }
             })
         )
@@ -868,20 +833,20 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         // triggered by custom emits
         if (this.captionCr != undefined) {
             this._subs.push(
-                this.captionCr.instance.onCaptionEvent.subscribe(r => {
+                this.captionCr.instance.onEvent.subscribe(r => {
                     for (let i = 0; i < columns.length; i++) {
                         if (columns[i].processCaptionEvent != undefined) {
                             columns[i].processCaptionEvent(r, this);
                         }
                     }
                     for (let i = 0; i < this.columnFilterCrs.length; i++) {
-                        if (this.columnFilterCrs[i].instance.onCaptionEvent != undefined) {
-                            this.columnFilterCrs[i].instance.onCaptionEvent.emit(r);
+                        if (this.columnFilterCrs[i].instance.processCaptionEvent != undefined) {
+                            this.columnFilterCrs[i].instance.processCaptionEvent(r, this);
                         }
                     }
                     for (let i = 0; i < this.bodyCellCrs.length; i++) {
-                        if (this.bodyCellCrs[i].instance.onCaptionEvent != undefined) {
-                            this.bodyCellCrs[i].instance.onCaptionEvent.emit(r);
+                        if (this.bodyCellCrs[i].instance.processCaptionEvent != undefined) {
+                            this.bodyCellCrs[i].instance.processCaptionEvent(r, this);
                         }
                     }
 
@@ -896,90 +861,85 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         // user changes filtering for particular column
         for (let i = 0; i < this.columnFilterCrs.length; i++) {
             this._subs.push(
-                this.columnFilterCrs[i].instance.onColumnFilterEvent.subscribe(r => {
+                this.columnFilterCrs[i].instance.onEvent.subscribe(r => {
                     for (let t = 0; t < columns.length; t++) {
-                        if (columns[t].columnFilter != undefined && columns[t].columnFilter.field == this.columnFilterCrs[i].instance.field) {
-
-                            // if (columns[t].columnFilter.field == undefined ||
-                            //     columns[t].columnFilter.field == null ||
-                            //     columns[t].columnFilter.field == '') {
-                            //     console.warn(
-                            //         'Warning!!! Your columnFilter "field" property is blank on index "' + t + '" of your columns array.  ' +
-                            //         'This can effect your "processOnColumnFilter" function if another field is also blank',
-                            //     )
-                            // }
-
-                            if (columns[t].processColumnFilterEvent != undefined) {
-                                columns[t].processColumnFilterEvent(r, this);
-                            }
+                        if (
+                            columns[t].processColumnFilterEvent != undefined &&
+                            columns[t].columnFilter != undefined &&
+                            columns[t].columnFilter.field == this.columnFilterCrs[i].instance.field
+                        ) {
+                            columns[t].processColumnFilterEvent(r, this);
                         }
                     }
 
                     for (let t = 0; t < this.bodyCellCrs.length; t++) {
                         if (this.bodyCellCrs[t].instance.colIdx == this.columnFilterCrs[i].instance.colIdx) {
-                            if (this.bodyCellCrs[t].instance.onColumnFilterEvent != undefined) {
-                                this.bodyCellCrs[t].instance.onColumnFilterEvent.emit(r);
+                            if (this.bodyCellCrs[t].instance.processColumnFilterEvent != undefined) {
+                                this.bodyCellCrs[t].instance.processColumnFilterEvent(r, this);
                             }
                         }
                     }
 
-                    if (this.captionCr != undefined) {
-                        this.captionCr.instance.onColumnFilterEvent.emit(r);
+                    if (this.captionCr != undefined && this.captionCr.instance.processColumnFilterEvent) {
+                        this.captionCr.instance.processColumnFilterEvent(r, this);
                     }
 
                     if (this.config.processColumnFilterEvent != undefined) {
                         this.config.processColumnFilterEvent(r, this);
                     }
 
-                    let event = r as FilterDescriptor;
+                    if (!this.columnFilterCrs[i].instance.excludeFilter) {
+                        let cfg = r as BaseTableEvent;
+                        let event = cfg.event as FilterDescriptor;
 
-                    console.log('event filter')
-                    console.log(event)
+                        // console.log('event filter')
+                        // console.log(event)
 
-                    if (event.field !== '' && event.field !== undefined && event.field !== null) {
-                        let filterIdx = -1;
-                        let filters = this.state.filter.filters as FilterDescriptor[];
+                        if (event.field !== '' && event.field !== undefined && event.field !== null) {
+                            let filterIdx = -1;
+                            let filters = this.state.filter.filters as FilterDescriptor[];
 
-                        console.log('filter before stuff')
-                        console.log(filters)
+                            // console.log('filter before stuff')
+                            // console.log(filters)
 
-                        for (let i = 0; i < filters.length; i++) {
-                            if (filters[i].field == event.field) {
-                                filterIdx = i;
-                            }
-                        }
-
-                        if (filterIdx > -1) {
-                            this.state.filter.filters.splice(filterIdx, 1);
-                        }
-
-                        console.log('filter after splice')
-                        console.log(filters)
-
-                        if (Array.isArray(event.value)) {
-                            let arrayVal = event.value as any[];
-
-                            if (arrayVal.length != 0) {
-                                this.state.filter.filters.push(event);
-                            }
-                        } else {
-                            if (event.value !== undefined && event.value !== null && event.value !== "") {
-                                this.state.filter.filters.push(event);
-                            } else {
-                                if (event.operator == 'isnull' || event.operator == 'isnotnull') {
-                                    this.state.filter.filters.push({
-                                        field: event.field,
-                                        operator: event.operator,
-                                    });
+                            for (let i = 0; i < filters.length; i++) {
+                                if (filters[i].field == event.field) {
+                                    filterIdx = i;
                                 }
                             }
-                        }
 
-                        console.log('filter at the end')
-                        console.log(filters)
+                            if (filterIdx > -1) {
+                                this.state.filter.filters.splice(filterIdx, 1);
+                            }
 
-                        if (this.config.autoSearch) {
-                            this.update();
+                            // console.log('filter after splice')
+                            // console.log(filters)
+
+                            if (Array.isArray(event.value)) {
+                                let arrayVal = event.value as any[];
+
+                                if (arrayVal.length != 0) {
+                                    this.state.filter.filters.push(event);
+                                }
+                            } else {
+                                if (event.value !== undefined && event.value !== null && event.value !== "") {
+                                    this.state.filter.filters.push(event);
+                                } else {
+                                    if (event.operator == 'isnull' || event.operator == 'isnotnull') {
+                                        this.state.filter.filters.push({
+                                            field: event.field,
+                                            operator: event.operator,
+                                        });
+                                    }
+                                }
+                            }
+
+                            // console.log('filter at the end')
+                            // console.log(filters)
+
+                            if (this.config.autoSearch) {
+                                this.update();
+                            }
                         }
                     }
                 })
@@ -997,28 +957,29 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     private initBodyCellCrEvents() {
         for (let i = 0; i < this.bodyCellCrs.length; i++) {
             this._bodyCellSubs.push(
-                this.bodyCellCrs[i].instance.onBodyCellEvent.subscribe(r => {
+                this.bodyCellCrs[i].instance.onEvent.subscribe(r => {
                     for (let t = 0; t < this.columnFilterCrs.length; t++) {
                         if (this.columnFilterCrs[t].instance.colIdx == this.bodyCellCrs[i].instance.colIdx) {
-                            if (this.columnFilterCrs[t].instance.onBodyCellEvent != undefined) {
-                                this.columnFilterCrs[t].instance.onBodyCellEvent.emit(r);
+                            if (this.columnFilterCrs[t].instance.processBodyCellEvent != undefined) {
+                                this.columnFilterCrs[t].instance.processBodyCellEvent(r, this);
                             }
                         }
                     }
 
-                    let cols: Column[] = this.dt.columns;
-                    //let cfg: BaseTableEvent = r;
+                    let columns: Column[] = this.dt.columns;
 
-                    for (let t = 0; t < cols.length; t++) {
-                        if (cols[t].bodyCell != undefined && cols[t].bodyCell.colIdx == this.bodyCellCrs[i].instance.colIdx) {
-                            if (cols[t].processBodyCellEvent != undefined) {
-                                cols[t].processBodyCellEvent(r, this);
-                            }
+                    for (let t = 0; t < columns.length; t++) {
+                        if (
+                            columns[t].processBodyCellEvent != undefined &&
+                            columns[t].bodyCell != undefined &&
+                            columns[t].bodyCell.field == this.bodyCellCrs[i].instance.field
+                        ) {
+                            columns[t].processBodyCellEvent(r, this);
                         }
                     }
 
-                    if (this.captionCr != undefined) {
-                        this.captionCr.instance.onBodyCellEvent.emit(r);
+                    if (this.captionCr != undefined && this.captionCr.instance.processBodyCellEvent) {
+                        this.captionCr.instance.processBodyCellEvent(r, this);
                     }
                     if (this.config.processBodyCellEvent != undefined) {
                         this.config.processBodyCellEvent(r, this);
@@ -1028,11 +989,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    private initOutputTemplateCrEvents() {
-
-    }
-
     private initDynamicComponents() {
+        this.initSummaryComponent();
         this.initCaptionComponent();
         this.initExpansionComponents();
         this.initColumnFilterComponents();
@@ -1307,20 +1265,20 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this._inputTemplateSubs = [];
     }
 
-    public onEditInit(event: EditEventConfig) {
+    public onEditInit(event: EditEvent) {
         if (this.config.onEditInit != undefined) {
             this.config.onEditInit(event, this);
         }
     }
 
-    public onEditCancel(event: EditEventConfig) {
+    public onEditCancel(event: EditEvent) {
         if (this.config.onEditCancel != undefined) {
             this.config.onEditCancel(event, this);
         }
         this.unsubscribeTemplateCells();
     }
 
-    public onEditComplete(event: EditEventConfig) {
+    public onEditComplete(event: EditEvent) {
         if (this.config.onEditComplete != undefined) {
             this.config.onEditComplete(event, this);
         }
@@ -1545,7 +1503,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     public onRowExpand(event: any) {
-        console.log("row expand: visible cols " + this.visibleColumns);
+        console.log("row expand: visible columns " + this.visibleColumns);
         //console.log(this.visibleColumns);
         //this.initExpansionComponents(event.data);
     }

@@ -39,7 +39,7 @@ export class RowOptionsComponent extends BaseColumnItems implements OnInit, OnDe
                         event: event,
                     }
 
-                    this.onBodyCellEvent.emit(cfg);
+                    this.onEvent.emit(cfg);
                 }
             }
         }

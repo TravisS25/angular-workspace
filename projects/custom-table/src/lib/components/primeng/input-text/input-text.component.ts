@@ -67,12 +67,12 @@ export class InputTextComponent extends BaseColumnItems implements OnInit, OnDes
             )
             .subscribe(txt => {
                 this.selectedValue = txt;
-                this.emitChange(txt);
+                this.emitFilterChange(txt);
                 // console.log(txt);
             });
     }
 
-    public changed(text: string) {
+    public onChangeEvent(text: string) {
         this.modelChanged.next(text);
     }
 

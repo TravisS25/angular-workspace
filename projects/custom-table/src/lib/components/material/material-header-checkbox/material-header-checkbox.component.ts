@@ -5,6 +5,7 @@ import { CheckboxEvent } from '../../component-config';
 import { BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 import { MaterialCheckboxConfig } from '../../component-config';
 import { BaseColumnItems } from '../../../table-api';
+import { BaseTableComponent } from '../../base-table/base-table.component';
 
 @Component({
     selector: 'lib-material-header-checkbox',
@@ -29,23 +30,22 @@ export class MaterialHeaderCheckboxComponent extends BaseColumnItems implements 
         } else {
             this.cfg = this.config;
         }
+
+        this.excludeFilter = true;
     }
 
     private initEventListeners() {
-        this._subs.push(
-            this.onTableFilterEvent.subscribe(r => {
-                this.checked = false;
-            }),
-            this.onBodyCellEvent.subscribe(r => {
-                let event = r as BaseTableEvent;
-                let cfg = event.event as CheckboxEvent
+        this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
+            this.checked = false;
+        }
+        this.processBodyCellEvent = (event: BaseTableEvent, baseTable: BaseTableComponent) => {
+            let cfg = event.event as CheckboxEvent
 
-                if (!cfg.checked) {
-                    console.log('change value')
-                    this.checked = false;
-                }
-            })
-        )
+            if (!cfg.checked) {
+                console.log('change value')
+                this.checked = false;
+            }
+        }
     }
 
     public ngOnInit(): void {
@@ -66,7 +66,7 @@ export class MaterialHeaderCheckboxComponent extends BaseColumnItems implements 
             eventFieldName: this.cfg.eventFieldName,
             event: cbe,
         }
-        this.onColumnFilterEvent.emit(cfg)
+        this.onEvent.emit(cfg)
     }
 
 }

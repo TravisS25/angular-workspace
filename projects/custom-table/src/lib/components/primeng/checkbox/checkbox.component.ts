@@ -1,13 +1,7 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { BaseColumnItems, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
-
-export interface CheckboxEvent {
-    colIdx?: number;
-    rowIdx?: number;
-    rowData?: any;
-    checked?: boolean;
-    isHeaderCheckbox?: boolean;
-}
+import { BaseTableComponent } from '../../base-table/base-table.component';
+import { CheckboxEvent } from '../../component-config';
 
 @Component({
     selector: 'app-checkbox',
@@ -22,19 +16,30 @@ export class CheckboxComponent extends BaseColumnItems implements OnInit {
         super()
     }
 
-    private initColumnFilterEvent() {
-        this._subs.push(
-            this.onColumnFilterEvent.subscribe(r => {
-                let event = r as BaseTableEvent;
-                let cfg = event.eventFieldName as CheckboxEvent
+    private initProcessEvents() {
+        this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
+            this.checked = false;
+        }
+        this.processColumnFilterEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
+            if (!this.isColumnFilter) {
+                let cfg = e.event as CheckboxEvent
 
                 if (cfg.checked) {
                     this.checked = true
                 } else {
                     this.checked = false
                 }
-            })
-        )
+            }
+        }
+        this.processBodyCellEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
+            if (this.isColumnFilter) {
+                let cfg = e.event as CheckboxEvent
+
+                if (!cfg.checked) {
+                    this.checked = false;
+                }
+            }
+        }
     }
 
     private initConfig() {
@@ -47,7 +52,7 @@ export class CheckboxComponent extends BaseColumnItems implements OnInit {
 
     public ngOnInit(): void {
         this.initConfig();
-        this.initColumnFilterEvent();
+        this.initProcessEvents();
     }
 
     public onChangeEvent(event: any) {
@@ -66,6 +71,6 @@ export class CheckboxComponent extends BaseColumnItems implements OnInit {
             event: cbe,
         }
 
-        this.onBodyCellEvent.emit(cfg);
+        this.onEvent.emit(cfg);
     }
 }

@@ -77,33 +77,28 @@ export class MaterialDropdownSelectComponent extends BaseColumnItems implements 
     }
 
     public toggle() {
-        let sEvent: MaterialDropdownSelectEvent = {
-            isSelectAll: false
-        }
-        let event: BaseTableEvent = {
-            eventFieldName: this.cfg.eventFieldName,
-            event: sEvent,
-        }
-
         if (this.selectAll && this.selectAll.selected) {
             this.selectAll.deselect();
         } else if (this.selectedValue && this.selectedValue.length == this.value.length) {
             this.selectAll.select();
-            let vals = this.selectedValue as any[];
-            this.removeNulls(vals);
+            this.removeNulls(this.selectedValue as any[]);
         }
-        this.onChangeEvent(event);
+
+        if (this.isColumnFilter) {
+            this.emitFilterChange(this.selectedValue);
+        } else {
+            let sEvent: MaterialDropdownSelectEvent = {
+                isSelectAll: false
+            }
+            let event: BaseTableEvent = {
+                eventFieldName: this.cfg.eventFieldName,
+                event: sEvent,
+            }
+            this.onEvent.emit(event);
+        }
     }
 
     public toggleAll() {
-        let sEvent: MaterialDropdownSelectEvent = {
-            isSelectAll: true
-        }
-        let event: BaseTableEvent = {
-            eventFieldName: this.cfg.eventFieldName,
-            event: sEvent
-        }
-
         this.options.forEach(x => {
             if (this.selectAll.selected) {
                 x.viewContainerRef.select();
@@ -112,8 +107,20 @@ export class MaterialDropdownSelectComponent extends BaseColumnItems implements 
             }
         })
 
-        let vals = this.selectedValue as any[];
-        this.removeNulls(vals);
-        this.onChangeEvent(event);
+        this.removeNulls(this.selectedValue as any[]);
+
+        if (this.isColumnFilter) {
+            this.emitFilterChange(this.selectedValue);
+        } else {
+            let sEvent: MaterialDropdownSelectEvent = {
+                isSelectAll: true
+            }
+            let event: BaseTableEvent = {
+                eventFieldName: this.cfg.eventFieldName,
+                event: sEvent
+            }
+
+            this.onEvent.emit(event);
+        }
     }
 }

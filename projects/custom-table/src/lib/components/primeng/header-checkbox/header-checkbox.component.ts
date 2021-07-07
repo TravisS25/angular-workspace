@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Checkbox } from 'primeng/checkbox';
 import { CheckboxEvent } from '../../component-config';
 import { BaseColumnItems, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { BaseTableComponent } from '../../base-table/base-table.component';
 
 @Component({
     selector: 'app-header-checkbox',
@@ -27,34 +28,27 @@ export class HeaderCheckboxComponent extends BaseColumnItems implements OnInit, 
         } else {
             this._hcbCfg = this.config;
         }
+
+        this.excludeFilter = true;
     }
 
-    private initTableFilterEvent() {
-        this._subs.push(
-            this.onTableFilterEvent.subscribe(r => {
+    private initProcessEvents() {
+        this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
+            this.checked = false
+        }
+        this.processBodyCellEvent = (event: BaseTableEvent, baseTable: BaseTableComponent) => {
+            let cfg = event.event as CheckboxEvent;
+
+            if (!cfg.checked) {
                 this.checked = false;
-            })
-        )
-    }
-
-    private initBodyCellEvent() {
-        this._subs.push(
-            this.onBodyCellEvent.subscribe(r => {
-                let config = r as CheckboxEvent;
-
-                if (!config.checked) {
-                    console.log('change value')
-                    this.checked = false;
-                }
-            })
-        );
+            }
+        }
     }
 
     public ngOnInit(): void {
         super.ngOnInit();
         this.initConfig();
-        this.initBodyCellEvent();
-        this.initTableFilterEvent();
+        this.initProcessEvents();
     }
 
     public onChangeEvent(event: any) {
@@ -69,6 +63,6 @@ export class HeaderCheckboxComponent extends BaseColumnItems implements OnInit, 
             eventFieldName: this._hcbCfg.eventFieldName,
             event: cbe,
         }
-        this.onColumnFilterEvent.emit(cfg)
+        this.onEvent.emit(cfg)
     }
 }

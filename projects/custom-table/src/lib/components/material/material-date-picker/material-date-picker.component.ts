@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { BaseColumnItems } from '../../../table-api'
+import { BaseColumnItems, BaseTableEvent, BaseTableEventConfig } from '../../../table-api'
 import { FilterConfig, FilterOptions } from '../../component-config'
 import * as moment from 'moment';
 import { DefaultConsts } from '../../../config';
@@ -29,6 +29,10 @@ export interface MaterialDatePickerConfig {
 
     // filterCfg is config used to determine filter options for date picker component
     filterOptions?: FilterOptions;
+}
+
+export interface MaterialDatePickerEvent {
+    value: any;
 }
 
 
@@ -86,17 +90,26 @@ export class MaterialDatePickerComponent extends BaseColumnItems implements OnIn
             this.operator = 'eq';
         }
 
-        this.emitChange(this.selectedValue);
+        this.emitFilterChange(this.selectedValue);
     }
 
     public onChangeEvent(event: MatDatepickerInputEvent<any, any>) {
-        console.log('change event val')
-        console.log(this.selectedValue)
+        if (this.selectedValue) {
+            this.selectedValue = moment(this.selectedValue).format(DefaultConsts.DateFormat);
+        }
 
-        if (this.selectedValue == null) {
-            this.emitChange(null)
+        if (this.isColumnFilter) {
+            this.emitFilterChange(this.selectedValue)
         } else {
-            this.emitChange(moment(this.selectedValue).format(DefaultConsts.DateFormat))
+            let eCfg: MaterialDatePickerEvent = {
+                value: this.selectedValue,
+            }
+
+            let cfg: BaseTableEvent = {
+                eventFieldName: this.field,
+                event: eCfg,
+            }
+            this.onEvent.emit(cfg);
         }
     }
 }

@@ -32,7 +32,7 @@ export function deepCopyColumn(column: Column): Column {
             newBC.component = _.cloneDeep(bc.component);
             newBC.config = _.cloneDeep(bc.config);
             newBC.processRowData = bc.processRowData;
-            newBC.onBodyCellEvent = _.cloneDeep(bc.onBodyCellEvent);
+            //newBC.onEvent = _.cloneDeep(bc.onEvent);
             return newBC;
         }
 

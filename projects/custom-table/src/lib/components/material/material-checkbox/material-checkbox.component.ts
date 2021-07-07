@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 import { BaseColumnItems } from '../../../table-api';
+import { BaseTableComponent } from '../../base-table/base-table.component';
 import { CheckboxEvent } from '../../component-config';
 
 export interface MaterialCheckboxConfig extends BaseTableEventConfig {
@@ -28,19 +29,30 @@ export class MaterialCheckboxComponent extends BaseColumnItems implements OnInit
         super();
     }
 
-    private initColumnFilterEvent() {
-        this._subs.push(
-            this.onColumnFilterEvent.subscribe(r => {
-                let event = r as BaseTableEvent;
-                let cfg = event.event as CheckboxEvent
+    private initProcessEvents() {
+        this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
+            this.checked = false;
+        }
+        this.processColumnFilterEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
+            if (!this.isColumnFilter) {
+                let cfg = e.event as CheckboxEvent
 
                 if (cfg.checked) {
                     this.checked = true
                 } else {
                     this.checked = false
                 }
-            })
-        )
+            }
+        }
+        this.processBodyCellEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
+            if (this.isColumnFilter) {
+                let cfg = e.event as CheckboxEvent
+
+                if (!cfg.checked) {
+                    this.checked = false;
+                }
+            }
+        }
     }
 
     private initConfig() {
@@ -54,20 +66,15 @@ export class MaterialCheckboxComponent extends BaseColumnItems implements OnInit
     public ngOnInit(): void {
         super.ngOnInit();
         this.initConfig();
-        this.initColumnFilterEvent();
+        this.initProcessEvents();
     }
 
     public onChangeEvent(event: any) {
-        console.log('col idx');
-        console.log(this.colIdx);
-        console.log('row idx');
-        console.log(this.rowIdx)
-
         let cbe: CheckboxEvent = {
             colIdx: this.colIdx,
             rowIdx: this.rowIdx,
-            checked: event.checked,
             rowData: this.rowData,
+            checked: event.checked,
             isHeaderCheckbox: false,
         }
 
@@ -76,6 +83,6 @@ export class MaterialCheckboxComponent extends BaseColumnItems implements OnInit
             event: cbe,
         }
 
-        this.onBodyCellEvent.emit(cfg);
+        this.onEvent.emit(cfg);
     }
 }

@@ -1,14 +1,6 @@
-<input 
-    #inputText 
-    [style]="config.style" 
-    [type]="config.inputType" 
-    [ngModel]="selectedValue"
-    (ngModelChange)='changed($event)'
-    pInputText />
-<span class="icon">
-    <app-filter-option 
-        [config]="config.filterCfg"
-        (onChange)="onFilterChange($event)">
+<input #inputText [style]="config.style" [type]="config.inputType" [ngModel]="selectedValue"
+    (ngModelChange)='onChangeEvent($event)' pInputText />
+<span class="icon" *ngIf="config && config.filterCfg">
+    <app-filter-option [config]="config.filterCfg" (onChange)="onFilterChange($event)">
     </app-filter-option>
 </span>
-

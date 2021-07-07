@@ -89,6 +89,9 @@
                 </ng-container>
             </tr>
         </ng-template>
+        <ng-template *ngIf="config.summary" pTemplate="summary">
+            <ng-template [libDynamicSummary]></ng-template>
+        </ng-template>
         <ng-template let-i="rowIndex" pTemplate="rowexpansion" let-columns let-rowData>
             <tr>
                 <td [attr.colspan]="visibleColumns">

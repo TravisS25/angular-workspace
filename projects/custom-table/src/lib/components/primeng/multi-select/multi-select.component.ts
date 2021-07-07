@@ -1,43 +1,52 @@
 import { Component, OnInit, Input, ViewChildren, ViewChild, Output, EventEmitter, ComponentFactoryResolver, ChangeDetectorRef } from '@angular/core';
 import { MultiSelect, MultiSelectItem } from 'primeng/multiselect';
-import { BaseColumnItems, MultiSelectOptions } from '../../../table-api';
+import { BaseColumnItems, BaseTableEvent, MultiSelectOptions } from '../../../table-api';
 
-export interface MultiSelectConfig extends MultiSelectOptions {
-    // // Inline style of the element
-    // style?: Object;
+export interface MultiSelectConfig {
+    // Inline style of the element
+    style?: Object;
 
-    // // Height of the viewport in pixels, a scrollbar is defined if height of list exceeds this value
-    // //
-    // // Default: 200px
-    // scrollHeight?: string;
+    // Height of the viewport in pixels, a scrollbar is defined if height of list exceeds this value
+    //
+    // Default: 200px
+    scrollHeight?: string;
 
-    // // Style class of the element
-    // styleClass?: string;
+    // Style class of the element
+    styleClass?: string;
 
-    // // Decides how many selected item labels to show at most
-    // //
-    // // Default: 3
-    // maxSelectedLabels?: number;
+    // Decides how many selected item labels to show at most
+    //
+    // Default: 3
+    maxSelectedLabels?: number;
 
-    // // Label to display after exceeding max selected labels
-    // //
-    // // Default: {0} items selected
-    // selectedItemsLabel?: string;
+    // Label to display after exceeding max selected labels
+    //
+    // Default: {0} items selected
+    selectedItemsLabel?: string;
 
-    // // Whether to show the checkbox at header to toggle all items at once
-    // //
-    // // Default: true
-    // showToggleAll?: boolean;
+    // Whether to show the checkbox at header to toggle all items at once
+    //
+    // Default: true
+    showToggleAll?: boolean;
 
-    // // Clears the filter value when hiding the dropdown
-    // //
-    // // Default: false
-    // resetFilterOnHide?: boolean;
+    // Clears the filter value when hiding the dropdown
+    //
+    // Default: false
+    resetFilterOnHide?: boolean;
 
-    // // Whether to show the header
-    // // 
-    // // Default: true
-    // showHeader?: boolean;
+    // Whether to show the header
+    // 
+    // Default: true
+    showHeader?: boolean;
+
+    // The default label to display for select
+    //
+    // Default: 'Choose'
+    defaultLabel?: string;
+}
+
+export interface MultiSelectEvent {
+    value?: any;
 }
 
 @Component({
@@ -52,7 +61,7 @@ export class MultiSelectComponent extends BaseColumnItems {
         super()
     }
 
-    private initValues() {
+    private initConfig() {
         let cfg: MultiSelectConfig;
 
         if (this.config == undefined || this.config == null) {
@@ -92,16 +101,31 @@ export class MultiSelectComponent extends BaseColumnItems {
     public ngOnInit(): void {
         //console.log('multi init')
         super.ngOnInit();
-        this.initValues();
+        this.initConfig();
     }
 
     public clearFilter() {
-        //console.log("multi select clear filters");
         this.select.value = [];
         this.select.updateLabel();
     }
 
     public updateLabel(label: string) {
         this.select.updateLabel();
+    }
+
+    public onChangeEvent(val: any) {
+        if (this.isColumnFilter) {
+            this.emitFilterChange(val);
+        } else {
+            let cfg: MultiSelectEvent = {
+                value: this.select.value
+            }
+
+            let event: BaseTableEvent = {
+                eventFieldName: this.field,
+                event: cfg
+            }
+            this.onEvent.emit(event);
+        }
     }
 }
