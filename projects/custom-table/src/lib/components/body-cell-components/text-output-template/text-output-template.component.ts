@@ -20,22 +20,23 @@ export class TextOutputTemplateComponent extends BaseColumnItems implements OnIn
         super();
     }
 
-    private initProcessFunctions() {
-        this.processInputTemplateEvent = (event: BaseTableEvent, baseTable: BaseTableComponent) => {
-            this.label = this.processRowData(this.rowData);
-        }
-    }
+    // private initProcessFunctions() {
+    //     this.processInputTemplateEvent = (event: BaseTableEvent, baseTable: BaseTableComponent) => {
+    //         console.log('processing input template event');
+    //         this.label = this.processRowData(this.rowData);
+    //     }
+    // }
 
     public ngOnInit(): void {
         console.log('output template init');
-        this.initProcessFunctions();
+        //this.initProcessFunctions();
 
         if (this.processRowData == undefined) {
             throw ('MUST SET "processRowData" FUNCTION FOR COLUMN IDX ' + this.colIdx);
         } else {
             this.label = this.processRowData(this.rowData);
-            console.log('label here')
-            console.log(this.label);
+            // console.log('label here')
+            // console.log(this.label);
         }
     }
 }

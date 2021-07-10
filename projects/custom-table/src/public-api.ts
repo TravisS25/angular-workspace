@@ -6,6 +6,7 @@
 // COMPONENTS
 /////////////////////////////////////
 
+export * from './lib/components/component-config';
 export * from './lib/components/base-table/base-table.component';
 export * from './lib/components/body-cell-components/bool-body-cell/bool-body-cell.component';
 export * from './lib/components/body-cell-components/table-expansion/table-expansion.component';
@@ -44,6 +45,8 @@ export * from './lib/directives/dynamic-expansion.directive';
 export * from './lib/directives/dynamic-tab-panel.directive';
 export * from './lib/directives/dynamic-output-template.directive';
 export * from './lib/directives/dynamic-input-template.directive';
+export * from './lib/directives/dynamic-input-template.directive';
+export * from './lib/directives/dynamic-table-cell.directive';
 
 // Modules
 export * from './lib/modules/base-table.module';
@@ -73,7 +76,6 @@ export * from './lib/modules/material/material-checkbox-all.module';
 // Utils
 export * from './lib/config';
 export * from './lib/copy-util';
-export * from './lib/default-util';
 export * from './lib/default-values';
 export * from './lib/table-api';
 export * from './lib/util';

@@ -9,6 +9,7 @@ import { MultiSelectModule } from 'primeng';
 
 //---------------- FILTERS ----------------------- 
 
+// FilterData is default interface used for returning data from server
 export interface FilterData {
     data: any[],
     total: number,
@@ -164,30 +165,6 @@ export interface HTTPOptions {
     withCredentials?: boolean;
 }
 
-// ButtonOptions is configuration for basic styling of a button
-export interface ButtonOptions {
-    // icon represents icon for button
-    icon?: string;
-
-    // iconPos is which side the icon will appear
-    iconPos?: 'left' | 'right';
-
-    // styleClass should be space seperated classes to apply to class
-    styleClass?: string;
-
-    // style is applying css styling through javascript object
-    style?: Object;
-}
-
-// BaseButton is basic styling options for button
-export interface BaseButton {
-    // label displays text for button
-    label: string;
-
-    // options is for various styling of button
-    options?: ButtonOptions;
-}
-
 // ExportMenuItem extends MenuItem to add our exportAPI function
 // and fileName property
 // This is mainly used in the "ExportFormats" interface which is used
@@ -220,6 +197,32 @@ export enum ExportType {
 
     // xlsx will export to .xslx format
     xlsx
+}
+
+// TableCaptionExportConfig is optional config that can be used in a custom table
+// caption to have ability to export table info
+//
+// This config is intended to be used in conjunction with BaseTableComponent#exportData function
+export interface TableCaptionExportItem {
+    // url of intended request
+    url: string;
+
+    // fileName is name of file that user will see downloaded
+    fileName: string;
+
+    // columnHeadersParam is parameter sent to server to determine
+    // what columns to export from table
+    columnHeadersParam: string;
+
+    // idFilterParam is parameter sent to server to determine
+    // what specific rows should be exported based on ids sent
+    idFilterParam: string;
+}
+
+export interface TableCaptionExportConfig {
+    csv?: TableCaptionExportItem;
+    xls?: TableCaptionExportItem;
+    xlsx?: TableCaptionExportItem;
 }
 
 // ExportConfig is config used in BaseTableConfig to construct
@@ -266,27 +269,24 @@ export interface SortOperation {
     sortOrder?: string;
 }
 
-// BaseButtonConfig is base config used to determine which page to
-// navigate to based on the rowData/outerData passed to function
-export interface BaseButtonConfig {
-    pageURL?: (rowData: any) => string;
-}
+// BaseActionConfig is base config used for navigating when
+// an action button like "create" or "edit" is clicked
+export interface BaseActionConfig {
+    // modal is config used to set up a modal component whenever 
+    // an action button is clicked
+    modalCfg?: BaseModalConfig;
 
-// CreateActionConfig is config used in BaseTableConfig to determine 
-// what action to take when clicking the "Create" button of a table,
-// along with styling 
-// 
-// CreateActionConfig extends BaseButtonConfig and contains BaseModalConfig
-// and will change functionality of the create button depending on which one is set
-// If CreateActionConfig#createConfig is set then a modal will be used when 
-// the create button is click, else we will be redirected to another page if clicked
-// If both are set, modal will be used
-export interface CreateActionConfig extends BaseButtonConfig {
-    createConfig?: BaseModalConfig;
-}
+    // pageURL is config used to take in rowData/outerData and 
+    // should return url to navigate to
+    pageURL?: (any) => string;
 
-export interface EditActionConfig extends BaseButtonConfig {
-    editConfig?: BaseModalConfig;
+    // actionFn takes in BaseTableComponent and manipulates the
+    // table based on passed function
+    //
+    // The main purpose of this function is to create/edit an
+    // inline row in a table instead of using modal or redirecting
+    // to different page
+    actionFn?: (baseTable: BaseTableComponent) => void;
 }
 
 //---------------- MODAL CONFIGS ----------------------- 
@@ -836,7 +836,7 @@ export interface BaseEventOptions {
 export interface TemplateConfig {
     // inputTemplate is used to determine what input template will be
     // used for editing values
-    inputTemplate?: ColumnEntity;
+    inputTemplate: ColumnEntity;
 
     // outputTemplate is used to determine what output template will be
     // used when displaying info
@@ -854,6 +854,10 @@ export interface EditEvent {
 
     // field is the name of the current field being edited
     field: string;
+
+    // foundDiff will be set true if the rowData has changed between
+    // the activation of the onEditInit and onEditComplete functions
+    foundDiff?: boolean;
 }
 
 // Column is the base settings interface that is used with base table component

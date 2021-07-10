@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Checkbox } from 'primeng/checkbox';
 import { CheckboxEvent } from '../../component-config';
 import { BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
-import { MaterialCheckboxConfig } from '../../component-config';
+//import { MaterialCheckboxConfig } from '../../component-config';
 import { BaseColumnItems } from '../../../table-api';
 import { BaseTableComponent } from '../../base-table/base-table.component';
 
@@ -14,7 +14,8 @@ import { BaseTableComponent } from '../../base-table/base-table.component';
 })
 export class MaterialHeaderCheckboxComponent extends BaseColumnItems implements OnInit, OnDestroy {
     public checked: boolean = false;
-    public cfg: MaterialCheckboxConfig
+    public cfg: any;
+    // public cfg: MaterialCheckboxConfig
 
     constructor(
         public http: HttpClient,
@@ -31,7 +32,7 @@ export class MaterialHeaderCheckboxComponent extends BaseColumnItems implements 
             this.cfg = this.config;
         }
 
-        this.excludeFilter = true;
+        //this.excludeFilter = true;
     }
 
     private initEventListeners() {

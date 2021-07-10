@@ -1,6 +1,6 @@
 import { Component, OnInit, Type } from '@angular/core';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { APIConfig, BaseModalConfig, BaseButtonConfig } from '../../../table-api';
+import { APIConfig, BaseModalConfig, BaseActionConfig } from '../../../table-api';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { DefaultConsts } from '../../../config';
 import { SelectItem } from 'primeng';
@@ -52,11 +52,11 @@ export interface DynamicDetailsTableModalConfig {
     tableModalConfig: BaseTableModal;
 }
 
-export interface DynamicDetailsActionConfig extends BaseButtonConfig {
+export interface DynamicDetailsActionConfig extends BaseActionConfig {
     detailsConfig?: DynamicDetailsTableModalConfig;
 }
 
-export interface DynamicDeleteActionConfig extends BaseButtonConfig {
+export interface DynamicDeleteActionConfig extends BaseActionConfig {
     deleteConfig?: DynamicDeleteTableModalConfig;
 }
 

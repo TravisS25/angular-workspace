@@ -1,5 +1,5 @@
 import { SelectItem } from 'primeng/api';
-import { BaseTableEventConfig } from '../table-api';
+import { BaseTableEventConfig, ExportType } from '../table-api';
 
 export interface FilterConfig {
     // type determines the icon that will be displayed
@@ -25,16 +25,4 @@ export interface CheckboxEvent {
     rowData?: any;
     checked?: boolean;
     isHeaderCheckbox?: boolean;
-}
-
-export interface MaterialCheckboxConfig extends BaseTableEventConfig {
-    color?: any;
-    disableRipple?: boolean;
-    disabled?: boolean;
-    id?: string;
-    indeterminate?: boolean;
-    labelPosition?: 'left' | 'right',
-    name?: string;
-    required?: boolean;
-    value?: string;
 }

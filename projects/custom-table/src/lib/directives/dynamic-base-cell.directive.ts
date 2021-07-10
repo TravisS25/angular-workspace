@@ -1,13 +1,11 @@
 import { Directive, Input, ViewContainerRef } from '@angular/core';
+import { BaseTableCellDirective } from './base-table-cell.directive';
 
 @Directive({
     selector: '[libDynamicBaseCell]'
 })
-export class DynamicBaseCellDirective {
-    @Input() public rowData: any;
-    @Input() public colIdx: number;
-    @Input() public rowIdx: number;
-    //@Input() public field: string;
-
-    constructor(public viewContainerRef: ViewContainerRef) { }
+export class DynamicBaseCellDirective extends BaseTableCellDirective {
+    constructor(public viewContainerRef: ViewContainerRef) {
+        super();
+    }
 }
