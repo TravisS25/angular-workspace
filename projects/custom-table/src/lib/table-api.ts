@@ -6,6 +6,9 @@ import { SelectItem, MessageService, Message, MenuItem } from 'primeng/api';
 import { DynamicDialogConfig, DialogService } from 'primeng/dynamicdialog';
 import { BaseTableComponent } from './components/base-table/base-table.component';
 import { MultiSelectModule } from 'primeng';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { DefaultConsts } from './config';
 
 //---------------- FILTERS ----------------------- 
 
@@ -219,10 +222,27 @@ export interface TableCaptionExportItem {
     idFilterParam: string;
 }
 
+// TableCaptionExportConfig is config 
 export interface TableCaptionExportConfig {
-    csv?: TableCaptionExportItem;
-    xls?: TableCaptionExportItem;
-    xlsx?: TableCaptionExportItem;
+    // url for csv file
+    csvURL?: string;
+
+    // url for xls file
+    xlsURL?: string;
+
+    // url for xlsx file
+    xlsxURL?: string;
+
+    // fileName is name of file that user will see downloaded
+    fileName: string;
+
+    // columnHeadersParam is parameter sent to server to determine
+    // what columns to export from table
+    columnHeadersParam: string;
+
+    // idFilterParam is parameter sent to server to determine
+    // what specific rows should be exported based on ids sent
+    idFilterParam: string;
 }
 
 // ExportConfig is config used in BaseTableConfig to construct
@@ -269,12 +289,20 @@ export interface SortOperation {
     sortOrder?: string;
 }
 
+export interface ModalSetupConfig {
+    modalCfg?: BaseModalConfig;
+    modal: (cfg: BaseModalConfig, sub: Subscription) => void;
+}
+
 // BaseActionConfig is base config used for navigating when
 // an action button like "create" or "edit" is clicked
 export interface BaseActionConfig {
     // modal is config used to set up a modal component whenever 
     // an action button is clicked
     modalCfg?: BaseModalConfig;
+
+    // modalSetupCfg is config to have ability to setup modal pop up
+    modalSetupCfg?: ModalSetupConfig;
 
     // pageURL is config used to take in rowData/outerData and 
     // should return url to navigate to
@@ -346,6 +374,15 @@ export interface ParamConfig {
 
     // groups is parameter used to apply groups to certain columns
     groups?: string
+}
+
+export interface BaseTableCaptionConfig {
+    showRefreshBtn?: boolean;
+    showClearFiltersBtn?: boolean;
+    showCollapseBtn?: boolean;
+    showColumnSelect?: boolean;
+    exportCfg?: TableCaptionExportConfig;
+    createCfg?: BaseActionConfig;
 }
 
 // BaseTableConfig is the main config that is used against our table api
@@ -614,6 +651,168 @@ export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItems
         }
 
         this._createSub = null;
+    }
+}
+
+@Component({
+    template: '',
+})
+export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseCaptionItemsI, OnInit, OnDestroy {
+    private _tcCfg: BaseTableCaptionConfig;
+
+    // _rowMap is used for keeping track of what rows are currently selected
+    // to be able to export those selected rows
+    protected _rowMap: Map<number, string> = new Map();
+
+    // _selectedColsMap is a map that keeps track of selected columns
+    // by field namae to properly show and hide columns
+    protected _selectedColsMap: Map<string, boolean> = new Map();
+
+    public selectedColumns: any[] = [];
+
+    // columnOptions will be the available options to select from dropdown
+    // to hide and show columns
+    public columnOptions: SelectItem[] = [];
+
+    constructor(
+        public router: Router,
+    ) {
+        super();
+    }
+
+    private initConfig() {
+        if (this.config == undefined) {
+            let cfg: BaseTableCaptionConfig = {
+                showRefreshBtn: true,
+                showClearFiltersBtn: true,
+                showCollapseBtn: true,
+                showColumnSelect: true,
+                exportCfg: {
+                    csvURL: '',
+                    xlsURL: '',
+                    xlsxURL: '',
+                    fileName: '',
+                    columnHeadersParam: '',
+                    idFilterParam: '',
+                }
+            }
+
+            this.config = cfg;
+        } else {
+            this._tcCfg = this.config
+        }
+    }
+
+    private initColumnFilterSelect() {
+        let columns: Column[] = this.baseTable.dt.columns;
+
+        columns.forEach(x => {
+            if (x.showColumnOption) {
+                this.columnOptions.push({
+                    value: x.field,
+                    label: x.header,
+                });
+
+                if (x.hideColumn) {
+                    this._selectedColsMap.set(x.field, false);
+                } else {
+                    this.selectedColumns.push(x.field);
+                    this._selectedColsMap.set(x.field, true);
+                }
+
+            }
+        })
+    }
+
+    public ngOnInit(): void {
+        this.initConfig();
+        this.initColumnFilterSelect();
+    }
+
+    public closeRows() {
+        this.baseTable.closeExpandedRows();
+    }
+
+    public clearFilters() {
+        this.baseTable.clearFilters();
+    }
+
+    public refresh() {
+        this.baseTable.refresh();
+    }
+
+    public columnFilterChange(val: string) {
+        if (this._selectedColsMap.get(val)) {
+            this.baseTable.addHiddenColumn(val);
+            this._selectedColsMap.set(val, false);
+        } else {
+            this.baseTable.removeHiddenColumn(val);
+            this._selectedColsMap.set(val, true);
+        }
+    }
+
+    public create() {
+        if (this._tcCfg.createCfg.pageURL != undefined) {
+            this.router.navigateByUrl(this._tcCfg.createCfg.pageURL(this.baseTable.outerData));
+        } else if (this._tcCfg.createCfg.modalSetupCfg != undefined) {
+            this._tcCfg.createCfg.modalSetupCfg.modal(this._tcCfg.createCfg.modalSetupCfg.modalCfg, this._createSub);
+        } else if (this._tcCfg.createCfg.actionFn != undefined) {
+            this._tcCfg.createCfg.actionFn(this.baseTable);
+        }
+    }
+
+    public export(et: ExportType) {
+        let url: string;
+
+        switch (et) {
+            case ExportType.csv:
+                et = ExportType.csv
+                url = this._tcCfg.exportCfg.csvURL;
+                break;
+            case ExportType.xls:
+                et = ExportType.xls
+                url = this._tcCfg.exportCfg.xlsURL;
+                break;
+            case ExportType.xlsx:
+                et = ExportType.xlsx
+                url = this._tcCfg.exportCfg.xlsxURL;
+                break;
+        }
+
+        let headers: string[] = [];
+
+        this._selectedColsMap.forEach((v, k) => {
+            if (v) {
+                headers.push(k);
+            }
+        })
+
+        if (this._rowMap.size == 0) {
+            url += this.baseTable.getFilterParams() + '&' + this._tcCfg.exportCfg.columnHeadersParam + '=' +
+                encodeURI(JSON.stringify(headers));
+        } else {
+            let ids = [];
+            this._rowMap.forEach((v, k) => {
+                ids.push(v)
+            })
+
+            let filter: FilterDescriptor = {
+                field: this._tcCfg.exportCfg.idFilterParam,
+                operator: 'eq',
+                value: ids
+            }
+
+            url += '?' + this._tcCfg.exportCfg.columnHeadersParam + '=' + encodeURI(JSON.stringify(headers)) + '&' +
+                this.baseTable.config.paramConfig.filters + '=' +
+                encodeURI(JSON.stringify([filter])) + '&' + this.baseTable.config.paramConfig.sorts + '=' +
+                encodeURI(JSON.stringify(this.baseTable.state.sort));
+        }
+
+        this.baseTable.exportData(et, url, this._tcCfg.exportCfg.fileName);
+    }
+
+    public ngOnDestroy() {
+        super.ngOnDestroy();
     }
 }
 
