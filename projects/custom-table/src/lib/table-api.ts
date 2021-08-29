@@ -304,6 +304,8 @@ export interface BaseActionConfig {
     // modalSetupCfg is config to have ability to setup modal pop up
     modalSetupCfg?: ModalSetupConfig;
 
+    modal?: (baseTable: BaseTableComponent) => void;
+
     // pageURL is config used to take in rowData/outerData and 
     // should return url to navigate to
     pageURL?: (any) => string;
@@ -658,6 +660,13 @@ export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItems
     template: '',
 })
 export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseCaptionItemsI, OnInit, OnDestroy {
+    @Output() public onRefresh: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public onClearFilters: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public onCloseRows: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public onColumnFilterChange: EventEmitter<string> = new EventEmitter<string>();
+    @Output() public onCreate: EventEmitter<BaseActionConfig> = new EventEmitter<BaseActionConfig>();
+    @Output() public onExport: EventEmitter<any> = new EventEmitter<any>();
+
     private _tcCfg: BaseTableCaptionConfig;
 
     // _rowMap is used for keeping track of what rows are currently selected
@@ -731,14 +740,17 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
 
     public closeRows() {
         this.baseTable.closeExpandedRows();
+        this.onCloseRows.emit(null);
     }
 
     public clearFilters() {
         this.baseTable.clearFilters();
+        this.onClearFilters.emit(null);
     }
 
     public refresh() {
         this.baseTable.refresh();
+        this.onRefresh.emit(null);
     }
 
     public columnFilterChange(val: string) {
@@ -749,13 +761,15 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
             this.baseTable.removeHiddenColumn(val);
             this._selectedColsMap.set(val, true);
         }
+
+        this.onColumnFilterChange.emit(val)
     }
 
     public create() {
         if (this._tcCfg.createCfg.pageURL != undefined) {
             this.router.navigateByUrl(this._tcCfg.createCfg.pageURL(this.baseTable.outerData));
-        } else if (this._tcCfg.createCfg.modalSetupCfg != undefined) {
-            this._tcCfg.createCfg.modalSetupCfg.modal(this._tcCfg.createCfg.modalSetupCfg.modalCfg, this._createSub);
+        } else if (this._tcCfg.createCfg.modal != undefined) {
+            this._tcCfg.createCfg.modal(this.baseTable);
         } else if (this._tcCfg.createCfg.actionFn != undefined) {
             this._tcCfg.createCfg.actionFn(this.baseTable);
         }

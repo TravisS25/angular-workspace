@@ -1174,11 +1174,15 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private clearFilterState() {
-        this.state.filter = {
-            logic: 'and',
-            filters: []
-        };
-        this.state.sort = [];
+        if (this.config.getState != undefined) {
+            this.state = this.config.getState(this.outerData);
+        } else {
+            this.state.filter = {
+                logic: 'and',
+                filters: []
+            };
+            this.state.sort = [];
+        }
 
         this._onClearFiltersEvent.emit(null);
         this.columnFilterCrs.forEach(item => {
@@ -1216,7 +1220,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             this.config.customTableSearch(this);
         } else {
             if (
-                this.config.tableSettingsAPIConfig != undefined &&
+                this.config.tableAPIConfig != undefined &&
                 this.config.tableAPIConfig.apiURL(this.outerData) != "" &&
                 this.config.tableAPIConfig.apiURL(this.outerData) != null
             ) {

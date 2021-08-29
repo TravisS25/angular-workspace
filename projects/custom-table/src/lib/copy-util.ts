@@ -3,10 +3,16 @@ import {
     ColumnEntity,
     BaseModalConfig,
     APIConfig,
+    State,
+    CompositeFilterDescriptor,
+    FilterDescriptor,
+    GroupDescriptor,
+    SortDescriptor,
 } from './table-api';
 import _ from "lodash" // Import the entire lodash library
 import { DeleteTableModal, DynamicDetailsTableModalConfig, DynamicDeleteTableModalConfig } from './components/body-cell-components/table-modal/table-modal.component';
 import { MenuItem } from 'primeng/api';
+import { skip } from 'rxjs/operators';
 
 export function deepCopyColumn(column: Column): Column {
     let c: Column = _.cloneDeep(column);
@@ -134,3 +140,25 @@ export function deepCopyMenuItem(item: MenuItem): MenuItem {
 
     return copyItem;
 }
+
+// export function deepCopyState(item: State): State {
+//     let state: State = item;
+//     let filters: FilterDescriptor[] = [];
+//     let groups: GroupDescriptor[] = [];
+//     let sorts: SortDescriptor[] = [];
+
+//     if(item.filter){
+//         let vals = item.filter.filters as FilterDescriptor[];
+//         vals.forEach(x => {
+//             filters.push(x);
+//         })
+//     }
+
+//     let filter: CompositeFilterDescriptor = {
+
+//     }
+
+//     state.filter
+
+
+// }
