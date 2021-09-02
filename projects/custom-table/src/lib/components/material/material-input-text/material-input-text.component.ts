@@ -34,8 +34,6 @@ export interface MaterialInputTextConfig {
 
     // maskCfg is config to set mask for input
     maskCfg?: Partial<MaskConfig>;
-
-    maskTemplate?: string;
 }
 
 @Component({
@@ -172,24 +170,25 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
     }
 
     public onChangeEvent(text: string) {
-        if (this.isColumnFilter) {
-            this.txtChanged.next(text);
-        } else {
-            setJSONFieldValue(this.field, this.rowData, text)
+        this.txtChanged.next(text);
+        // if (this.isColumnFilter) {
+        //     this.txtChanged.next(text);
+        // } else {
+        //     setJSONFieldValue(this.field, this.rowData, text)
 
-            let eCfg: EditEvent = {
-                data: this.rowData,
-                field: this.field,
-                index: this.rowIdx,
-            }
+        //     let eCfg: EditEvent = {
+        //         data: this.rowData,
+        //         field: this.field,
+        //         index: this.rowIdx,
+        //     }
 
-            let cfg: BaseTableEvent = {
-                eventFieldName: this.field,
-                event: eCfg,
-            }
+        //     let cfg: BaseTableEvent = {
+        //         eventFieldName: this.field,
+        //         event: eCfg,
+        //     }
 
-            this.onEvent.emit(cfg);
-        }
+        //     this.onEvent.emit(cfg);
+        // }
     }
 
     public ngOnDestroy() {

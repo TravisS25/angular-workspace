@@ -4,6 +4,7 @@ import { MaterialFilterOptionComponent } from '../../components/material/materia
 import { MatRadioModule } from '@angular/material/radio';
 import { MatMenuModule } from '@angular/material/menu';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 
 
 @NgModule({
@@ -14,6 +15,7 @@ import { FormsModule } from '@angular/forms';
         CommonModule,
         MatRadioModule,
         MatMenuModule,
+        MatIconModule,
         FormsModule,
     ],
     exports: [

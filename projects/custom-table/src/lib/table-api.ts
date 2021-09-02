@@ -836,16 +836,18 @@ export interface BaseColumnItemsI extends BaseTableItemsI {
     template: '',
 })
 export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI, OnInit, OnDestroy {
-    public field: string;
-    public colIdx: number;
-    public value: any;
-    public selectedValue: any;
-    public rowIdx: number;
-    public rowData: any;
-    public operator: string;
-    public isColumnFilter: boolean;
-    public isInputTemplate: boolean;
-    public excludeFilter: boolean;
+    @Input() public field: string;
+    @Input() public colIdx: number;
+    @Input() public value: any;
+    @Input() public selectedValue: any;
+    @Input() public rowIdx: number;
+    @Input() public rowData: any;
+    @Input() public operator: string;
+    @Input() public isColumnFilter: boolean;
+    @Input() public isInputTemplate: boolean;
+    @Input() public excludeFilter: boolean;
+    @Input() public processRowData: (rowData: any) => any;
+    @Input() public getSelectedValue?: (rowData: any) => any;
 
     protected emitFilterChange(val: any) {
         let filter: FilterDescriptor = {
@@ -861,23 +863,12 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
         this.onEvent.emit(cfg);
     }
 
-    public processRowData: (rowData: any) => any;
-
     public clearFilter() {
         this.selectedValue = null;
     }
 
-    // public onChangeEvent(event: any) {
-    //     if (this.isColumnFilter) {
-    //         this.emitFilterChange(this.selectedValue);
-    //     } else {
-    //         this.onEvent.emit(event)
-    //     }
-    // }
-
     public onFilterChange(event: string) {
         this.operator = event;
-        // this.onChangeEvent(null);
 
         if (this.isColumnFilter) {
             this.emitFilterChange(this.selectedValue);

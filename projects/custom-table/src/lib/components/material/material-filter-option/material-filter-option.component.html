@@ -1,7 +1,11 @@
-<i class="fas fa-ellipsis-v icon-hover" [matMenuTriggerFor]="menu"></i>
+<!-- <i class="fas fa-ellipsis-v icon-hover" [matMenuTriggerFor]="menu"></i> -->
+<button mat-icon-button [matMenuTriggerFor]="menu">
+    <mat-icon>more_vert</mat-icon>
+</button>
 <mat-menu #menu="matMenu">
     <mat-radio-group aria-label="Select an option" [(ngModel)]="selectedValue">
-        <mat-radio-button *ngFor="let item of config.values" class="checkbox" (change)="radioChange($event)" value="{{ item.value }}">
+        <mat-radio-button *ngFor="let item of config.values" class="checkbox" (change)="radioChange($event)"
+            value="{{ item.value }}">
             {{ item.label }}
         </mat-radio-button>
     </mat-radio-group>

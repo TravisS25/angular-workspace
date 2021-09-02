@@ -14,9 +14,13 @@ export class MatOptionDirective {
 
 // GroupSelect is config used to group together select items into group for select
 export interface GroupSelect {
-    // groupName 
+    // groupName is the name displayed for the grouping of subgroups
     groupName: string
+
+    // disabled will determine if a group is disabled from being selected 
     disabled?: boolean;
+
+    // subgroups should be array of items under a group
     subgroups: SelectItem[];
 }
 
@@ -84,18 +88,20 @@ export class MaterialDropdownSelectComponent extends BaseColumnItems implements 
             this.removeNulls(this.selectedValue as any[]);
         }
 
-        if (this.isColumnFilter) {
-            this.emitFilterChange(this.selectedValue);
-        } else {
-            let sEvent: MaterialDropdownSelectEvent = {
-                isSelectAll: false
-            }
-            let event: BaseTableEvent = {
-                eventFieldName: this.cfg.eventFieldName,
-                event: sEvent,
-            }
-            this.onEvent.emit(event);
-        }
+        this.emitFilterChange(this.selectedValue);
+
+        // if (this.isColumnFilter) {
+        //     this.emitFilterChange(this.selectedValue);
+        // } else {
+        //     let sEvent: MaterialDropdownSelectEvent = {
+        //         isSelectAll: false
+        //     }
+        //     let event: BaseTableEvent = {
+        //         eventFieldName: this.cfg.eventFieldName,
+        //         event: sEvent,
+        //     }
+        //     this.onEvent.emit(event);
+        // }
     }
 
     public toggleAll() {
@@ -108,19 +114,20 @@ export class MaterialDropdownSelectComponent extends BaseColumnItems implements 
         })
 
         this.removeNulls(this.selectedValue as any[]);
+        this.emitFilterChange(this.selectedValue);
 
-        if (this.isColumnFilter) {
-            this.emitFilterChange(this.selectedValue);
-        } else {
-            let sEvent: MaterialDropdownSelectEvent = {
-                isSelectAll: true
-            }
-            let event: BaseTableEvent = {
-                eventFieldName: this.cfg.eventFieldName,
-                event: sEvent
-            }
+        // if (this.isColumnFilter) {
+        //     this.emitFilterChange(this.selectedValue);
+        // } else {
+        //     let sEvent: MaterialDropdownSelectEvent = {
+        //         isSelectAll: true
+        //     }
+        //     let event: BaseTableEvent = {
+        //         eventFieldName: this.cfg.eventFieldName,
+        //         event: sEvent
+        //     }
 
-            this.onEvent.emit(event);
-        }
+        //     this.onEvent.emit(event);
+        // }
     }
 }

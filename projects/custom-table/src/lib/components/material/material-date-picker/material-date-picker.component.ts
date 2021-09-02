@@ -98,18 +98,20 @@ export class MaterialDatePickerComponent extends BaseColumnItems implements OnIn
             this.selectedValue = moment(this.selectedValue).format(DefaultConsts.DateFormat);
         }
 
-        if (this.isColumnFilter) {
-            this.emitFilterChange(this.selectedValue)
-        } else {
-            let eCfg: MaterialDatePickerEvent = {
-                value: this.selectedValue,
-            }
+        this.emitFilterChange(this.selectedValue)
 
-            let cfg: BaseTableEvent = {
-                eventFieldName: this.field,
-                event: eCfg,
-            }
-            this.onEvent.emit(cfg);
-        }
+        // if (this.isColumnFilter) {
+        //     this.emitFilterChange(this.selectedValue)
+        // } else {
+        //     let eCfg: MaterialDatePickerEvent = {
+        //         value: this.selectedValue,
+        //     }
+
+        //     let cfg: BaseTableEvent = {
+        //         eventFieldName: this.field,
+        //         event: eCfg,
+        //     }
+        //     this.onEvent.emit(cfg);
+        // }
     }
 }
