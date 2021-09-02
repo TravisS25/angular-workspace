@@ -1,0 +1,19 @@
+<mat-menu #childMenu="matMenu">
+    <ng-container *ngFor="let child of items">
+        <!-- Handle branch node menu items -->
+        <ng-container *ngIf="child.childMenu && child.childMenu.length > 0; else block">
+            <button [value]="child.value" mat-menu-item [matMenuTriggerFor]="menu.childMenu">
+                <i class="{{ child.iconClass }}">{{ child.iconLabel }}</i>
+                {{ child.label }}
+            </button>
+            <lib-material-menu-item #menu [items]="child.childMenu"></lib-material-menu-item>
+        </ng-container>
+        <!-- Handle leaf node menu items -->
+        <ng-container *ngIf="!child.childMenu || child.childMenu.length === 0">
+            <button [value]="child.value" (click)="onChangeEvent(child)" mat-menu-item>
+                <i class="{{ child.iconClass }}">{{ child.iconLabel }}</i>
+                {{ child.label }}
+            </button>
+        </ng-container>
+    </ng-container>
+</mat-menu>

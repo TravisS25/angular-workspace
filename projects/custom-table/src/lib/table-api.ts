@@ -289,11 +289,6 @@ export interface SortOperation {
     sortOrder?: string;
 }
 
-export interface ModalSetupConfig {
-    modalCfg?: BaseModalConfig;
-    modal: (cfg: BaseModalConfig, sub: Subscription) => void;
-}
-
 // BaseActionConfig is base config used for navigating when
 // an action button like "create" or "edit" is clicked
 export interface BaseActionConfig {
@@ -301,10 +296,7 @@ export interface BaseActionConfig {
     // an action button is clicked
     modalCfg?: BaseModalConfig;
 
-    // modalSetupCfg is config to have ability to setup modal pop up
-    modalSetupCfg?: ModalSetupConfig;
-
-    modal?: (baseTable: BaseTableComponent) => void;
+    modal?: (component: any) => void;
 
     // pageURL is config used to take in rowData/outerData and 
     // should return url to navigate to
@@ -316,7 +308,7 @@ export interface BaseActionConfig {
     // The main purpose of this function is to create/edit an
     // inline row in a table instead of using modal or redirecting
     // to different page
-    actionFn?: (baseTable: BaseTableComponent) => void;
+    actionFn?: (component: any) => void;
 }
 
 //---------------- MODAL CONFIGS ----------------------- 
@@ -992,7 +984,7 @@ export interface APIConfig {
     apiURL: (rowData: any) => string
 
     // processResult processes successful response
-    processResult?: (result: any, baseTable?: BaseTableComponent) => any;
+    processResult?: (result: any, baseTable?: any) => any;
 
     // apiOptions is the options to set for HTTPClient#get function
     apiOptions?: HTTPOptions;

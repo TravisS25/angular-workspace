@@ -23,6 +23,7 @@ export * from './lib/components/material/material-dropdown-select/material-dropd
 export * from './lib/components/material/material-filter-option/material-filter-option.component';
 export * from './lib/components/material/material-input-text/material-input-text.component';
 export * from './lib/components/material/material-row-options/material-row-options.component';
+export * from './lib/components/material/material-menu-item/material-menu-item.component';
 
 // Primeng components
 export * from './lib/components/primeng/date-picker/date-picker.component';
@@ -71,6 +72,7 @@ export * from './lib/modules/material/material-input-text.module';
 export * from './lib/modules/material/material-row-options.module';
 export * from './lib/modules/material/material-date-picker.module';
 export * from './lib/modules/material/material-checkbox-all.module';
+export * from './lib/modules/material/material-menu-item.module';
 //export * from './lib/modules/material/material-autocomplete.module';
 
 // Utils

@@ -1,19 +1,6 @@
-<button mat-icon-button [matMenuTriggerFor]="menu">
+<button mat-icon-button [matMenuTriggerFor]="menu.childMenu">
     <mat-icon>more_vert</mat-icon>
 </button>
-<mat-menu #menu="matMenu">
-    <ng-container *ngFor="let item of config.items">
-        <ng-container *ngIf="item.subMenu && item.subMenu.length > 0; else menuBlock">
-            <button [value]="item.value" (click)="onChangeEvent(item)" mat-menu-item [matMenuTriggerFor]="sub_menu">
-                <i class="{{ item.iconClass }}">{{ item.iconLabel }}</i>
-                {{ item.label }}
-            </button>
-        </ng-container>
-        <ng-template #menuBlock>
-            <button [value]="item.value" (click)="onChangeEvent(item)" mat-menu-item>
-                <i class="{{ item.iconClass }}">{{ item.iconLabel }}</i>
-                {{ item.label }}
-            </button>
-        </ng-template>
-    </ng-container>
-</mat-menu>
+<lib-material-menu-item #menu (onEvent)="onChangeEvent($event)" [field]="field" [rowData]="rowData"
+    [items]="config.items">
+</lib-material-menu-item>

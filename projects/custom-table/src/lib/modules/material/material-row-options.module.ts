@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MaterialRowOptionsComponent } from '../../components/material/material-row-options/material-row-options.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
+import { MaterialMenuItemModule } from './material-menu-item.module';
 
 
 @NgModule({
@@ -15,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
         MatButtonModule,
         MatMenuModule,
         MatIconModule,
+        MaterialMenuItemModule,
     ],
     exports: [
         MaterialRowOptionsComponent,

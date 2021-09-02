@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { MaterialMenuItemModule } from '../../../modules/material/material-menu-item.module';
 import { BaseColumnItems, BaseTableEvent, BaseTableEventConfig, BaseTableItems } from '../../../table-api';
+import { MaterialMenuItemComponent } from '../material-menu-item/material-menu-item.component';
 
-export interface MaterialRowOptionItem {
+export interface MaterialMenuItem {
     label: string;
     value?: any;
     iconClass?: string;
     iconLabel?: string;
     rowData?: any;
-    subMenu?: MaterialRowOptionItem[];
+    childMenu?: MaterialMenuItem[];
 }
 
 export interface MaterialRowOptionConfig extends BaseTableEventConfig {
-    items: MaterialRowOptionItem[];
+    items: MaterialMenuItem[];
 }
 
 @Component({
@@ -39,13 +41,11 @@ export class MaterialRowOptionsComponent extends BaseColumnItems implements OnIn
         }
     }
 
-    public onChangeEvent(event: MaterialRowOptionItem) {
-        event.rowData = this.rowData;
-
-        let bteCfg: BaseTableEvent = {
-            eventFieldName: this._cfg.eventFieldName,
-            event: event,
-        }
-        this.onEvent.emit(bteCfg);
+    public onChangeEvent(event: BaseTableEvent) {
+        this.onEvent.emit(event);
     }
+
+    // public buttonClick() {
+    //     this.menu.childMenu
+    // }
 }
