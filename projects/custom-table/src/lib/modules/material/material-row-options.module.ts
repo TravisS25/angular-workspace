@@ -5,6 +5,8 @@ import { MaterialRowOptionsComponent } from '../../components/material/material-
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MaterialMenuItemModule } from './material-menu-item.module';
+import { MatRippleModule } from '@angular/material/core';
+import { MaterialEllipsisIconModule } from './material-ellipsis-icon.module';
 
 
 @NgModule({
@@ -16,7 +18,9 @@ import { MaterialMenuItemModule } from './material-menu-item.module';
         MatButtonModule,
         MatMenuModule,
         MatIconModule,
+        MatRippleModule,
         MaterialMenuItemModule,
+        MaterialEllipsisIconModule,
     ],
     exports: [
         MaterialRowOptionsComponent,

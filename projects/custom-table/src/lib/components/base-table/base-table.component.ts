@@ -516,10 +516,15 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         cr.instance.field = ce.field;
         cr.instance.value = ce.value;
         cr.instance.operator = ce.operator;
-        cr.instance.selectedValue = ce.selectedValue;
-        cr.instance.getSelectedValue = ce.getSelectedValue;
         cr.instance.processRowData = ce.processRowData;
         cr.instance.onEvent = new EventEmitter<any>();
+
+        if (ce.getSelectedValue != undefined) {
+            cr.instance.selectedValue = ce.getSelectedValue(dir.rowData);
+        } else {
+            cr.instance.selectedValue = ce.selectedValue;
+        }
+
         return cr;
     }
 

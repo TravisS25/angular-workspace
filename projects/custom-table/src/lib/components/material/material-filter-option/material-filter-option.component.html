@@ -1,7 +1,8 @@
-<!-- <i class="fas fa-ellipsis-v icon-hover" [matMenuTriggerFor]="menu"></i> -->
-<button mat-icon-button [matMenuTriggerFor]="menu">
-    <mat-icon>more_vert</mat-icon>
-</button>
+<!-- <mat-icon matRipple class="icon-hover" [matMenuTriggerFor]="menu">more_vert</mat-icon> -->
+
+<span class="foo-bar">
+    <lib-material-ellipsis-icon [matMenuTriggerFor]="menu"></lib-material-ellipsis-icon>
+</span>
 <mat-menu #menu="matMenu">
     <mat-radio-group aria-label="Select an option" [(ngModel)]="selectedValue">
         <mat-radio-button *ngFor="let item of config.values" class="checkbox" (change)="radioChange($event)"

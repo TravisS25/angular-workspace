@@ -1,6 +1,5 @@
-<button mat-icon-button [matMenuTriggerFor]="menu.childMenu">
-    <mat-icon>more_vert</mat-icon>
-</button>
+<!-- <mat-icon matRipple [matMenuTriggerFor]="menu.childMenu">more_vert</mat-icon> -->
+<lib-material-ellipsis-icon [matMenuTriggerFor]="menu.childMenu"></lib-material-ellipsis-icon>
 <lib-material-menu-item #menu (onEvent)="onChangeEvent($event)" [field]="field" [rowData]="rowData"
     [items]="config.items">
 </lib-material-menu-item>

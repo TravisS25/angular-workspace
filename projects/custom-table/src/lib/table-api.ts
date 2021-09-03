@@ -370,11 +370,23 @@ export interface ParamConfig {
     groups?: string
 }
 
+// BaseTableCaptionConfig is base config settings that will typically
+// be used in a standard table caption
 export interface BaseTableCaptionConfig {
+    // showRefreshBtn determines whether to show refresh button
     showRefreshBtn?: boolean;
+
+    // showClearFiltersBtn determines whether to show clear filter button
     showClearFiltersBtn?: boolean;
+
+    // showCollapseBtn determines whether to show collapse button
     showCollapseBtn?: boolean;
+
+    // showColumnSelect determines whether to show column select
+    // where users can hide and show certain columns
     showColumnSelect?: boolean;
+
+
     exportCfg?: TableCaptionExportConfig;
     createCfg?: BaseActionConfig;
 }
@@ -847,7 +859,6 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
     @Input() public isInputTemplate: boolean;
     @Input() public excludeFilter: boolean;
     @Input() public processRowData: (rowData: any) => any;
-    @Input() public getSelectedValue?: (rowData: any) => any;
 
     protected emitFilterChange(val: any) {
         let filter: FilterDescriptor = {

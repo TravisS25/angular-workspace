@@ -5,6 +5,8 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatMenuModule } from '@angular/material/menu';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { MatRippleModule } from '@angular/material/core';
+import { MaterialEllipsisIconModule } from './material-ellipsis-icon.module';
 
 
 @NgModule({
@@ -16,7 +18,9 @@ import { MatIconModule } from '@angular/material/icon';
         MatRadioModule,
         MatMenuModule,
         MatIconModule,
+        MatRippleModule,
         FormsModule,
+        MaterialEllipsisIconModule,
     ],
     exports: [
         MaterialFilterOptionComponent
