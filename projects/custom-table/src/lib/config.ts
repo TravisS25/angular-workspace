@@ -1,5 +1,4 @@
-// Change
-
+// DefaultConsts is object with default string variables
 export const DefaultConsts = {
     CSVLabel: 'CSV',
     CreateNoteLabel: 'Create Note',
@@ -11,4 +10,17 @@ export const DefaultConsts = {
     TableModalConfig: 'tableModalConfig',
     DateFormat: 'YYYY-MM-DD',
     TokenHeader: 'X-Csrf-Token'
+}
+
+export const DefaultTableEvents = {
+    Sort: 'sort',
+    Refresh: 'refresh',
+    ClearFilters: 'clearFilters',
+    TableFilter: 'tableFilter',
+    Caption: 'caption',
+    ColumnFilter: 'columnFilter',
+    BodyCell: 'bodyCell',
+    CloseRows: 'closeRows',
+    Export: 'export',
+    Summary: 'summary',
 }

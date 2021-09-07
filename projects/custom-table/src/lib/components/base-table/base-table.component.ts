@@ -60,6 +60,8 @@ import { DynamicSummaryDirective } from '../../directives/dynamic-summary.direct
 import { DynamicBaseCellDirective } from '../../directives/dynamic-base-cell.directive';
 import { isNgTemplate } from '@angular/compiler/src/ml_parser/tags';
 import { getJSONFieldValue } from '../../util';
+import { ThrowStmt } from '@angular/compiler';
+import { DefaultTableEvents } from '../../config';
 
 interface outputTemplateConfig {
     updateOutputTemplate: boolean;
@@ -147,9 +149,9 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // It continues to flip between "asc" and "desc" and never back to neutral
     private _sortMap: Map<string, number> = new Map<string, number>();
 
-    // _createSub is used to keep a reference to any modal create subscription
-    // to be destroyed once the component is destroyed
-    private _createSub: Subscription;
+    // // _createSub is used to keep a reference to any modal create subscription
+    // // to be destroyed once the component is destroyed
+    // private _createSub: Subscription;
 
     // _subs is used to keep a reference to all subscriptions within table
     private _subs: Subscription[] = [];
@@ -170,6 +172,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // _onSortEvent is triggered whenever a sort event occurs on a column
     private _onSortEvent: EventEmitter<any> = new EventEmitter<any>();
+
+    // _onEvent is generic event that will activate with any event
+    // that occurs in the table
+    private _onEvent: EventEmitter<BaseTableEvent> = new EventEmitter();
 
     // columnFilterCrs keeps a list of references to dynamically created column filters
     // components which can be modified through different events and will be destroyed on 
@@ -250,8 +256,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // defaultProperty is the default property used to be set for primeng's table "dataKey" property
     public defaultProperty: string = 'id';
-    public showMessage = true;
-    public msgs: Message[] = [];
 
     // exportItems is used to display multiple export format options within a single button
     public exportItems: MenuItem[];
@@ -280,10 +284,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         public cdr: ChangeDetectorRef,
         public cfr: ComponentFactoryResolver,
         public http: HttpClient,
-        public router: Router,
-        public route: ActivatedRoute,
-        public dialog: DialogService,
-        public messageService: MessageService,
     ) { }
 
     ///////////////////////////////////////////
@@ -517,7 +517,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         cr.instance.value = ce.value;
         cr.instance.operator = ce.operator;
         cr.instance.processRowData = ce.processRowData;
-        cr.instance.onEvent = new EventEmitter<any>();
+        cr.instance.onEvent = new EventEmitter();
 
         if (ce.getSelectedValue != undefined) {
             cr.instance.selectedValue = ce.getSelectedValue(dir.rowData);
@@ -534,11 +534,11 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this._subs.push(
             this.bodyCellDirs.changes.subscribe(val => {
-                console.log('change within body cell')
-                console.log(val)
+                // console.log('change within body cell')
+                // console.log(val)
 
                 if (this._updateBodyCellComponents) {
-                    console.log('body cell dirs')
+                    //console.log('body cell dirs')
 
                     // If table has already been initialized, destroy current component references
                     // and assign bodyCellCrs to empty array;
@@ -741,6 +741,33 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     private initCRSEvents() {
         let columns: Column[] = this.dt.columns;
 
+        this._subs.push(
+            this._onEvent.subscribe(r => {
+                for (let i = 0; i < columns.length; i++) {
+                    if (columns[i].processEvent != undefined) {
+                        columns[i].processEvent(r, this);
+                    }
+                }
+                for (let i = 0; i < this.columnFilterCrs.length; i++) {
+                    if (this.columnFilterCrs[i].instance.processEvent != undefined) {
+                        this.columnFilterCrs[i].instance.processEvent(r, this);
+                    }
+                }
+                for (let i = 0; i < this.bodyCellCrs.length; i++) {
+                    if (this.bodyCellCrs[i].instance.processEvent != undefined) {
+                        this.bodyCellCrs[i].instance.processEvent(r, this);
+                    }
+                }
+
+                if (this.captionCr != undefined && this.captionCr.instance.processEvent) {
+                    this.captionCr.instance.processEvent(r, this);
+                }
+                if (this.config.processEvent != undefined) {
+                    this.config.processEvent(r, this);
+                }
+            })
+        );
+
         // subscribing all components to table filter event, which occurs
         // whenever new data is written to table via column filter,
         // pagination, etc.
@@ -856,6 +883,28 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                     if (this.config.processCaptionEvent != undefined) {
                         this.config.processCaptionEvent(r, this);
                     }
+
+
+
+                    for (let i = 0; i < columns.length; i++) {
+                        if (columns[i].processEvent != undefined) {
+                            columns[i].processEvent(r, this);
+                        }
+                    }
+                    for (let i = 0; i < this.columnFilterCrs.length; i++) {
+                        if (this.columnFilterCrs[i].instance.processEvent != undefined) {
+                            this.columnFilterCrs[i].instance.processEvent(r, this);
+                        }
+                    }
+                    for (let i = 0; i < this.bodyCellCrs.length; i++) {
+                        if (this.bodyCellCrs[i].instance.processEvent != undefined) {
+                            this.bodyCellCrs[i].instance.processEvent(r, this);
+                        }
+                    }
+
+                    if (this.config.processEvent != undefined) {
+                        this.config.processEvent(r, this);
+                    }
                 })
             );
         }
@@ -889,6 +938,34 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
                     if (this.config.processColumnFilterEvent != undefined) {
                         this.config.processColumnFilterEvent(r, this);
+                    }
+
+
+
+                    for (let t = 0; t < columns.length; t++) {
+                        if (
+                            columns[t].processEvent != undefined &&
+                            columns[t].columnFilter != undefined &&
+                            columns[t].columnFilter.field == this.columnFilterCrs[i].instance.field
+                        ) {
+                            columns[t].processEvent(r, this);
+                        }
+                    }
+
+                    for (let t = 0; t < this.bodyCellCrs.length; t++) {
+                        if (this.bodyCellCrs[t].instance.colIdx == this.columnFilterCrs[i].instance.colIdx) {
+                            if (this.bodyCellCrs[t].instance.processEvent != undefined) {
+                                this.bodyCellCrs[t].instance.processEvent(r, this);
+                            }
+                        }
+                    }
+
+                    if (this.captionCr != undefined && this.captionCr.instance.processEvent) {
+                        this.captionCr.instance.processEvent(r, this);
+                    }
+
+                    if (this.config.processEvent != undefined) {
+                        this.config.processEvent(r, this);
                     }
 
                     if (!this.columnFilterCrs[i].instance.excludeFilter) {
@@ -981,11 +1058,39 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                         }
                     }
 
-                    if (this.captionCr != undefined && this.captionCr.instance.processBodyCellEvent) {
+                    if (this.captionCr != undefined && this.captionCr.instance.processBodyCellEvent != undefined) {
                         this.captionCr.instance.processBodyCellEvent(r, this);
                     }
                     if (this.config.processBodyCellEvent != undefined) {
                         this.config.processBodyCellEvent(r, this);
+                    }
+                }),
+                this.bodyCellCrs[i].instance.onEvent.subscribe(r => {
+                    for (let t = 0; t < this.columnFilterCrs.length; t++) {
+                        if (this.columnFilterCrs[t].instance.colIdx == this.bodyCellCrs[i].instance.colIdx) {
+                            if (this.columnFilterCrs[t].instance.processEvent != undefined) {
+                                this.columnFilterCrs[t].instance.processEvent(r, this);
+                            }
+                        }
+                    }
+
+                    let columns: Column[] = this.dt.columns;
+
+                    for (let t = 0; t < columns.length; t++) {
+                        if (
+                            columns[t].processEvent != undefined &&
+                            columns[t].bodyCell != undefined &&
+                            columns[t].bodyCell.field == this.bodyCellCrs[i].instance.field
+                        ) {
+                            columns[t].processEvent(r, this);
+                        }
+                    }
+
+                    if (this.captionCr != undefined && this.captionCr.instance.processEvent != undefined) {
+                        this.captionCr.instance.processEvent(r, this);
+                    }
+                    if (this.config.processEvent != undefined) {
+                        this.config.processEvent(r, this);
                     }
                 })
             );
@@ -1056,6 +1161,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
 
             this._tableInit = true;
+            this._onEvent.emit({
+                eventFieldName: DefaultTableEvents.TableFilter,
+                event: res
+            });
             this._onTableFilterEvent.emit(res);
             this._updateBodyCellComponents = true;
             this._updateOutputTemplateComponents = true;
@@ -1185,6 +1294,9 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         this._onClearFiltersEvent.emit(null);
+        this._onEvent.emit({
+            eventFieldName: DefaultTableEvents.ClearFilters
+        })
         this.columnFilterCrs.forEach(item => {
             item.instance.clearFilter();
         })
@@ -1478,6 +1590,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         })
 
         this._onSortEvent.emit(event.field);
+        this._onEvent.emit({
+            eventFieldName: DefaultTableEvents.Sort,
+            event: event.field
+        })
 
         if (this.config.autoSearch) {
             this.update();
@@ -1611,7 +1727,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // toast adds ability to have a toast message based on message passed
     public toast(msg: Message) {
-        this.messageService.add(msg);
+        //this.messageService.add(msg);
     }
 
     ///////////////////////////////////////////
@@ -1689,9 +1805,9 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             console.log('project name');
         }
 
-        if (this._createSub != undefined) {
-            this._createSub.unsubscribe();
-        }
+        // if (this._createSub != undefined) {
+        //     this._createSub.unsubscribe();
+        // }
 
         this._subs.forEach(item => {
             item.unsubscribe();
@@ -1700,7 +1816,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             item.unsubscribe();
         })
 
-        this._createSub = null;
+        //this._createSub = null;
         this._subs = null;
         this._subs = null;
         this._bodyCellSubs = null;

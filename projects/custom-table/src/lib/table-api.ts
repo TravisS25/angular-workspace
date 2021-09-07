@@ -8,7 +8,7 @@ import { BaseTableComponent } from './components/base-table/base-table.component
 import { MultiSelectModule } from 'primeng';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { DefaultConsts } from './config';
+import { DefaultConsts, DefaultTableEvents } from './config';
 
 //---------------- FILTERS ----------------------- 
 
@@ -296,9 +296,13 @@ export interface BaseActionConfig {
     // an action button is clicked
     modalCfg?: BaseModalConfig;
 
+    // modal is function used to create a modal for creating
+    // entry for table
+    //
+    // The passed parameter will be current table initiating modal
     modal?: (component: any) => void;
 
-    // pageURL is config used to take in rowData/outerData and 
+    // pageURL is function used to take in rowData/outerData and 
     // should return url to navigate to
     pageURL?: (any) => string;
 
@@ -351,6 +355,10 @@ export interface BaseTableEvent extends BaseTableEventConfig {
     event?: any;
 }
 
+export interface ColumnEvent extends BaseTableEvent {
+    columnName: string
+}
+
 // ParamConfig is config used to determine different param names that will
 // be sent to server for filtering, sorting, and grouping
 export interface ParamConfig {
@@ -386,8 +394,11 @@ export interface BaseTableCaptionConfig {
     // where users can hide and show certain columns
     showColumnSelect?: boolean;
 
-
+    // exportCfg is config used to export current table info
+    // to a file format specific to config
     exportCfg?: TableCaptionExportConfig;
+
+    // createCfg is config used to create entry for table either
     createCfg?: BaseActionConfig;
 }
 
@@ -597,6 +608,7 @@ export interface BaseTableConfig extends BaseEventOptions {
 // like caption, column header etc.
 export interface BaseTableItemsI {
     config?: any;
+    //onEvent?: EventEmitter<any>;
 }
 
 @Component({
@@ -609,6 +621,7 @@ export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
     @Input() public baseTable: BaseTableComponent;
     @Output() public onEvent: EventEmitter<any>;
 
+    public processEvent: (event: BaseTableEvent, table: any) => void;
     public processInputTemplateEvent: (event: any, baseTable: BaseTableComponent) => void;
     public processBodyCellEvent: (event: any, baseTable: BaseTableComponent) => void;
     public processCaptionEvent: (event: any, baseTable: BaseTableComponent) => void;
@@ -745,16 +758,28 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
     public closeRows() {
         this.baseTable.closeExpandedRows();
         this.onCloseRows.emit(null);
+        let event: BaseTableEvent = {
+            eventFieldName: DefaultTableEvents.CloseRows,
+        }
+        this.onEvent.emit(event);
     }
 
     public clearFilters() {
         this.baseTable.clearFilters();
         this.onClearFilters.emit(null);
+        let event: BaseTableEvent = {
+            eventFieldName: DefaultTableEvents.ClearFilters,
+        }
+        this.onEvent.emit(event);
     }
 
     public refresh() {
         this.baseTable.refresh();
         this.onRefresh.emit(null);
+        let event: BaseTableEvent = {
+            eventFieldName: DefaultTableEvents.Refresh,
+        }
+        this.onEvent.emit(event);
     }
 
     public columnFilterChange(val: string) {
@@ -834,31 +859,21 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
     }
 }
 
-export interface BaseColumnItemsI extends BaseTableItemsI {
+export interface MobileFilterItemsI extends BaseTableItemsI {
     field?: string;
     value?: any;
     selectedValue?: any;
-    getSelectedValue?: (rowData: any) => any;
     operator?: string;
-    processRowData?: (rowData: any) => any;
-    excludeFilter?: boolean;
 }
 
 @Component({
     template: '',
 })
-export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI, OnInit, OnDestroy {
+export class MobileFilterItems extends BaseTableItems implements MobileFilterItemsI, OnInit, OnDestroy {
     @Input() public field: string;
-    @Input() public colIdx: number;
     @Input() public value: any;
     @Input() public selectedValue: any;
-    @Input() public rowIdx: number;
-    @Input() public rowData: any;
     @Input() public operator: string;
-    @Input() public isColumnFilter: boolean;
-    @Input() public isInputTemplate: boolean;
-    @Input() public excludeFilter: boolean;
-    @Input() public processRowData: (rowData: any) => any;
 
     protected emitFilterChange(val: any) {
         let filter: FilterDescriptor = {
@@ -880,10 +895,7 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
 
     public onFilterChange(event: string) {
         this.operator = event;
-
-        if (this.isColumnFilter) {
-            this.emitFilterChange(this.selectedValue);
-        }
+        this.emitFilterChange(this.selectedValue);
     }
 
     constructor() {
@@ -892,6 +904,34 @@ export class BaseColumnItems extends BaseTableItems implements BaseColumnItemsI,
         if (this.operator == undefined) {
             this.operator = 'eq';
         }
+    }
+
+    public ngOnInit() {
+        super.ngOnInit();
+    }
+}
+
+
+export interface BaseColumnItemsI extends MobileFilterItemsI {
+    getSelectedValue?: (rowData: any) => any;
+    processRowData?: (rowData: any) => any;
+    excludeFilter?: boolean;
+}
+
+@Component({
+    template: '',
+})
+export class BaseColumnItems extends MobileFilterItems implements BaseColumnItemsI, OnInit, OnDestroy {
+    @Input() public colIdx: number;
+    @Input() public rowIdx: number;
+    @Input() public rowData: any;
+    @Input() public isColumnFilter: boolean;
+    @Input() public isInputTemplate: boolean;
+    @Input() public excludeFilter: boolean;
+    @Input() public processRowData: (rowData: any) => any;
+
+    constructor() {
+        super();
     }
 
     public ngOnInit() {
@@ -1001,6 +1041,8 @@ export interface APIConfig {
 // The purpose of BaseEventOptions is to be able to listen to events on a per 
 // column basis and should be used within the Column config
 export interface BaseEventOptions {
+    processEvent?: (event: BaseTableEvent, table: any) => void;
+
     // processBodyCellEvent processes an event from body cell for current column
     // This function will only activate if bodyCell#field property is set 
     // to field that is exposed when a body cell creates an event which
