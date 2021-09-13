@@ -8,6 +8,7 @@ import { InputTextConfig } from './components/primeng/input-text/input-text.comp
 import { MaterialDropdownSelectConfig } from './components/material/material-dropdown-select/material-dropdown-select.component';
 import { MaterialDatePickerConfig } from './components/material/material-date-picker/material-date-picker.component';
 import { MaterialInputTextConfig } from './components/material/material-input-text/material-input-text.component';
+import { SelectItem } from 'primeng';
 
 export function getDefaultDynamicDialogCfg(): DynamicDialogConfig {
     let cfg: DynamicDialogConfig = {
@@ -287,4 +288,21 @@ export function getDefaultMaterialDropdownConfig(): MaterialDropdownSelectConfig
         style: { 'width': '90%' },
     }
     return cfg;
+}
+
+export function getBoolList(): SelectItem[] {
+    return [
+        {
+            label: '--Select--',
+            value: null,
+        },
+        {
+            label: 'True',
+            value: true,
+        },
+        {
+            label: 'False',
+            value: false,
+        }
+    ]
 }

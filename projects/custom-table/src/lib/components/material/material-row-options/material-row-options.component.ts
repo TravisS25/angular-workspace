@@ -1,16 +1,9 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { MaterialMenuItem } from '../material-menu-item/material-menu-item.component';
+import { Menu } from 'primeng';
 import { MaterialMenuItemModule } from '../../../modules/material/material-menu-item.module';
 import { BaseColumnItems, BaseTableEvent, BaseTableEventConfig, BaseTableItems } from '../../../table-api';
 import { MaterialMenuItemComponent } from '../material-menu-item/material-menu-item.component';
-
-export interface MaterialMenuItem {
-    label: string;
-    value?: any;
-    iconClass?: string;
-    iconLabel?: string;
-    rowData?: any;
-    childMenu?: MaterialMenuItem[];
-}
 
 export interface MaterialRowOptionConfig extends BaseTableEventConfig {
     items: MaterialMenuItem[];
@@ -44,8 +37,4 @@ export class MaterialRowOptionsComponent extends BaseColumnItems implements OnIn
     public onChangeEvent(event: BaseTableEvent) {
         this.onEvent.emit(event);
     }
-
-    // public buttonClick() {
-    //     this.menu.childMenu
-    // }
 }

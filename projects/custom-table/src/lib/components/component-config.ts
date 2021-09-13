@@ -20,9 +20,11 @@ export interface FilterOptions {
 }
 
 export interface CheckboxEvent {
+    field?: string;
     colIdx?: number;
     rowIdx?: number;
     rowData?: any;
     checked?: boolean;
     isHeaderCheckbox?: boolean;
 }
+

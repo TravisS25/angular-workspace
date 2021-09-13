@@ -1,16 +1,20 @@
-<mat-menu #childMenu="matMenu">
+<mat-menu [xPosition]="xPosition" [yPosition]="yPosition" [overlapTrigger]="overlapTrigger" #childMenu="matMenu">
     <ng-container *ngFor="let child of items">
         <!-- Handle branch node menu items -->
         <ng-container *ngIf="child.childMenu && child.childMenu.length > 0; else block">
-            <button [value]="child.value" mat-menu-item [matMenuTriggerFor]="menu.childMenu">
+            <button (mouseleave)="onMouseLeaveEvent(child)" (mouseenter)="onMouseEnterEvent(child)"
+                (click)="onClickEvent(child)" mat-menu-item #menuTrigger="matMenuTrigger" [value]="child.value"
+                [matMenuTriggerFor]="menu.childMenu">
                 <i class="{{ child.iconClass }}">{{ child.iconLabel }}</i>
                 {{ child.label }}
             </button>
-            <lib-material-menu-item #menu [items]="child.childMenu"></lib-material-menu-item>
+            <lib-material-menu-item #menu (onEvent)="submenuEvent($event)" [items]="child.childMenu"
+                [rowData]="child.rowData" [field]="child.field" [xPosition]="child.xPosition"
+                [yPosition]="child.yPosition"></lib-material-menu-item>
         </ng-container>
         <!-- Handle leaf node menu items -->
         <ng-container *ngIf="!child.childMenu || child.childMenu.length === 0">
-            <button [value]="child.value" (click)="onChangeEvent(child)" mat-menu-item>
+            <button [value]="child.value" (click)="onClickEvent(child)" mat-menu-item>
                 <i class="{{ child.iconClass }}">{{ child.iconLabel }}</i>
                 {{ child.label }}
             </button>

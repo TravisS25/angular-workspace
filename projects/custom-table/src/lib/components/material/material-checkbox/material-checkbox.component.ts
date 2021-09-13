@@ -71,6 +71,7 @@ export class MaterialCheckboxComponent extends BaseColumnItems implements OnInit
 
     public onChangeEvent(event: any) {
         let cbe: CheckboxEvent = {
+            field: this.field,
             colIdx: this.colIdx,
             rowIdx: this.rowIdx,
             rowData: this.rowData,

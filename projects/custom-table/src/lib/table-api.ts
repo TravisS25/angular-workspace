@@ -351,6 +351,10 @@ export interface BaseTableEventConfig {
 // as identifier of what kind of event has been emitted and use that to
 // cast our "event" property to appropriate type
 export interface BaseTableEvent extends BaseTableEventConfig {
+    // eventType is to describe what type of event has occured
+    // This is meant to give more meta data about event
+    eventType?: string;
+
     // event should be custom event type that can be used by event listeners
     event?: any;
 }
@@ -608,7 +612,9 @@ export interface BaseTableConfig extends BaseEventOptions {
 // like caption, column header etc.
 export interface BaseTableItemsI {
     config?: any;
-    //onEvent?: EventEmitter<any>;
+    baseTable?: any;
+    processEvent?: (event: BaseTableEvent, component: any) => void;
+    onEvent?: EventEmitter<BaseTableEvent>;
 }
 
 @Component({

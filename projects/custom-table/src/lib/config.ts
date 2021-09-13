@@ -14,6 +14,7 @@ export const DefaultConsts = {
 
 export const DefaultTableEvents = {
     Sort: 'sort',
+    Search: 'search',
     Refresh: 'refresh',
     ClearFilters: 'clearFilters',
     TableFilter: 'tableFilter',
@@ -23,4 +24,10 @@ export const DefaultTableEvents = {
     CloseRows: 'closeRows',
     Export: 'export',
     Summary: 'summary',
+}
+
+export const DefaultEvents = {
+    MouseEnter: 'mounseEnter',
+    MouseLeave: 'mouseLeave',
+    Click: 'click',
 }

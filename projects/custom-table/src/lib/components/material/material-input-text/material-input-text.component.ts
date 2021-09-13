@@ -91,6 +91,10 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
             leadZeroDateTime: null
         }
 
+        if (this.selectedValue == undefined) {
+            this.selectedValue = null;
+        }
+
         if (cfg.maskCfg == undefined) {
             cfg.maskCfg = mCfg;
         } else {
@@ -147,13 +151,21 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
             }
         }
 
+        if (this.operator == undefined) {
+            this.operator = 'contains'
+        } else if (cfg.filterOptions != undefined) {
+            cfg.filterOptions.selectedValue = this.operator;
+        }
+
         this.config = cfg;
     }
 
     public ngOnInit(): void {
         super.ngOnInit();
+        console.log('material text init');
+
         this.initConfig();
-        this.operator = 'contains';
+        // this.operator = 'contains';
         this.modelChangeSubscription = this.txtChanged
             .pipe(
                 debounceTime(this.config.inputDebounceTime),

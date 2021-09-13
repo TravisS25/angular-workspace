@@ -3,6 +3,7 @@ import _ from "lodash" // Import the entire lodash library
 import { Subscription } from 'rxjs';
 import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { BaseTableComponent } from './components/base-table/base-table.component';
+import { CheckboxEvent, MaterialMenuItem } from '../public-api';
 
 // setColumnFilterValue sets the column filter reference values in table passed with
 // the values found in map passed
@@ -63,4 +64,12 @@ export function getJSONFieldValue(field: string, data: Object): any {
     }
 
     return val;
+}
+
+export function instanceOfCheckboxEvent(object: any): object is CheckboxEvent {
+    return 'isHeaderCheckbox' in object
+}
+
+export function instanceOfMaterialMenuItem(object: any): object is MaterialMenuItem {
+    return 'childMenu' in object
 }
