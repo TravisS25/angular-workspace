@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MaterialInputTextComponent } from '../../components/material/material-input-text/material-input-text.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialFilterOptionModule } from './material-filter-option.module';
 import { NgxMaskModule } from 'ngx-mask';
 
@@ -17,6 +17,7 @@ import { NgxMaskModule } from 'ngx-mask';
         MatFormFieldModule,
         MaterialFilterOptionModule,
         FormsModule,
+        ReactiveFormsModule,
         NgxMaskModule.forRoot(),
     ],
     exports: [

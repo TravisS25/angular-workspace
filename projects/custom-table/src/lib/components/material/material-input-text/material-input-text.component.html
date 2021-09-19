@@ -1,7 +1,7 @@
-<mat-form-field *ngIf="config" [style]="config.style">
+<mat-form-field [style]="config.style">
     <mat-label *ngIf="config.label">{{ config.label }}</mat-label>
-    <input ngDefaultControl name="input-text" matInput (ngModelChange)='onChangeEvent($event)' [ngModel]="selectedValue"
-        placeholder="{{ config.placeHolder }}" mask="{{ config.maskCfg.maskTemplate }}"
+    <input type="text" ngDefaultControl name="{{ nameField }}" matInput (ngModelChange)='onChangeEvent($event)'
+        [ngModel]="selectedValue" placeholder="{{ config.placeHolder }}" mask="{{ config.maskCfg.maskTemplate }}"
         [specialCharacters]="config.maskCfg.specialCharacters" prefix="{{ config.maskCfg.prefix }}"
         suffix="{{ config.maskCfg.suffix }}" [dropSpecialCharacters]="config.maskCfg.dropSpecialCharacters"
         [showMaskTyped]="config.maskCfg.showMaskTyped" [allowNegativeNumbers]="config.maskCfg.allowNegativeNumbers"
@@ -10,7 +10,5 @@
         thousandSeparator="{{ config.maskCfg.thousandSeparator }}" [leadZeroDateTime]="config.maskCfg.leadZeroDateTime"
         [validation]="config.maskCfg.validation" [hiddenInput]="config.maskCfg.hiddenInput">
 </mat-form-field>
-<span *ngIf="config && config.filterOptions" class="icon">
-    <lib-material-filter-option [config]="config.filterOptions" (onChange)="onFilterChange($event)">
-    </lib-material-filter-option>
-</span>
+<lib-material-filter-option [config]="config.filterOptions" (onChange)="onFilterChange($event)">
+</lib-material-filter-option>

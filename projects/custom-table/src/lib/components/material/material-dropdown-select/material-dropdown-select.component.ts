@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, Directive, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Directive, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatOption } from '@angular/material/core';
 import { SelectItem } from 'primeng'
 import { BaseColumnItems, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 import { MatSelectChange } from '@angular/material/select';
+import { makeID } from '../../../util';
 
 @Directive({
     selector: '[matOptionDirective]'
@@ -41,13 +42,14 @@ export interface MaterialDropdownSelectEvent {
     templateUrl: './material-dropdown-select.component.html',
     styleUrls: ['./material-dropdown-select.component.scss']
 })
-export class MaterialDropdownSelectComponent extends BaseColumnItems implements OnInit {
+export class MaterialDropdownSelectComponent extends BaseColumnItems implements OnInit, AfterViewInit {
     @ViewChild('selectAll') public selectAll: MatOption;
     @ViewChildren(MatOptionDirective) public options: QueryList<MatOptionDirective>;
 
     public cfg: MaterialDropdownSelectConfig;
+    public nameField = makeID(15);
 
-    constructor() {
+    constructor(public cdr: ChangeDetectorRef) {
         super();
     }
 
@@ -78,6 +80,10 @@ export class MaterialDropdownSelectComponent extends BaseColumnItems implements 
     public ngOnInit(): void {
         super.ngOnInit();
         this.initConfig();
+    }
+
+    public ngAfterViewInit() {
+        this.cdr.detectChanges();
     }
 
     public toggle() {

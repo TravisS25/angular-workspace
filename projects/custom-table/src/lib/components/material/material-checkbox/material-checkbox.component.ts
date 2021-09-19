@@ -60,6 +60,12 @@ export class MaterialCheckboxComponent extends BaseColumnItems implements OnInit
             throw ('MUST SET MATERIAL CHECKBOX CONFIG')
         } else {
             this.cfg = this.config
+
+            if (this.cfg.name == undefined) {
+                this.cfg.name = 'checkbox'
+            }
+
+            this.config = this.cfg;
         }
     }
 

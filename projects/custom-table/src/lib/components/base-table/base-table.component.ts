@@ -384,6 +384,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (this.config.getState != undefined) {
             this.state = this.config.getState(this.outerData);
+            console.log('state within basr table')
+            console.log(this.state)
         }
         if (this.config.resetEditedRowsOnTableFilter == undefined) {
             this.config.resetEditedRowsOnTableFilter = true;

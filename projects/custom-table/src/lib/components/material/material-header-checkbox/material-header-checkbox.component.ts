@@ -6,6 +6,7 @@ import { BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 //import { MaterialCheckboxConfig } from '../../component-config';
 import { BaseColumnItems } from '../../../table-api';
 import { BaseTableComponent } from '../../base-table/base-table.component';
+import { MaterialCheckboxConfig } from '../material-checkbox/material-checkbox.component';
 
 @Component({
     selector: 'lib-material-header-checkbox',
@@ -14,7 +15,7 @@ import { BaseTableComponent } from '../../base-table/base-table.component';
 })
 export class MaterialHeaderCheckboxComponent extends BaseColumnItems implements OnInit, OnDestroy {
     public checked: boolean = false;
-    public cfg: any;
+    public cfg: MaterialCheckboxConfig;
     // public cfg: MaterialCheckboxConfig
 
     constructor(
@@ -30,6 +31,12 @@ export class MaterialHeaderCheckboxComponent extends BaseColumnItems implements 
             throw ('MUST SET CONFIG FOR HEADER CHECKBOX');
         } else {
             this.cfg = this.config;
+
+            if (this.cfg.name == undefined) {
+                this.cfg.name = 'header-checkbox'
+            }
+
+            this.config = this.cfg;
         }
 
         //this.excludeFilter = true;
