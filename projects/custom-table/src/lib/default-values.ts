@@ -1,4 +1,4 @@
-import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, BaseActionConfig, MultiSelectOptions } from './table-api'
+import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, BaseActionConfig } from './table-api'
 import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { BaseTableComponent } from './components/base-table/base-table.component';
 import { defaultProcessError } from './util';
@@ -268,15 +268,6 @@ export function getDefaultLogTableSettingsAPICfg(): APIConfig {
         }
     }
 
-    return cfg;
-}
-
-export function getDefaultColumnSelectOpts(): MultiSelectOptions {
-    let cfg: MultiSelectOptions = {
-        defaultLabel: 'Columns',
-        selectedItemsLabel: 'Columns',
-        maxSelectedLabels: 0,
-    }
     return cfg;
 }
 

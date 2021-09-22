@@ -15,8 +15,6 @@ export interface MaterialRowOptionConfig extends BaseTableEventConfig {
     styleUrls: ['./material-row-options.component.scss']
 })
 export class MaterialRowOptionsComponent extends BaseColumnItems implements OnInit {
-    private _cfg: MaterialRowOptionConfig
-
     constructor() {
         super();
     }
@@ -24,13 +22,10 @@ export class MaterialRowOptionsComponent extends BaseColumnItems implements OnIn
     public ngOnInit(): void {
         if (this.processRowData != undefined) {
             this.config = this.processRowData(this.rowData);
-            this._cfg = this.config
         } else {
             if (this.config == undefined) {
                 throw ('MUST SET MATERIAL ROW OPTION CONFIG FOR COL IDX ' + this.colIdx);
             }
-
-            this._cfg = this.config
         }
     }
 

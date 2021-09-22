@@ -684,11 +684,11 @@ export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItems
 })
 export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseCaptionItemsI, OnInit, OnDestroy {
     @Output() public onRefresh: EventEmitter<any> = new EventEmitter<any>();
-    @Output() public onClearFilters: EventEmitter<any> = new EventEmitter<any>();
-    @Output() public onCloseRows: EventEmitter<any> = new EventEmitter<any>();
-    @Output() public onColumnFilterChange: EventEmitter<string> = new EventEmitter<string>();
-    @Output() public onCreate: EventEmitter<BaseActionConfig> = new EventEmitter<BaseActionConfig>();
-    @Output() public onExport: EventEmitter<any> = new EventEmitter<any>();
+    // @Output() public onClearFilters: EventEmitter<any> = new EventEmitter<any>();
+    // @Output() public onCloseRows: EventEmitter<any> = new EventEmitter<any>();
+    // @Output() public onColumnFilterChange: EventEmitter<string> = new EventEmitter<string>();
+    // @Output() public onCreate: EventEmitter<BaseActionConfig> = new EventEmitter<BaseActionConfig>();
+    // @Output() public onExport: EventEmitter<any> = new EventEmitter<any>();
 
     private _tcCfg: BaseTableCaptionConfig;
 
@@ -763,7 +763,6 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
 
     public closeRows() {
         this.baseTable.closeExpandedRows();
-        this.onCloseRows.emit(null);
         let event: BaseTableEvent = {
             eventFieldName: DefaultTableEvents.CloseRows,
         }
@@ -772,7 +771,6 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
 
     public clearFilters() {
         this.baseTable.clearFilters();
-        this.onClearFilters.emit(null);
         let event: BaseTableEvent = {
             eventFieldName: DefaultTableEvents.ClearFilters,
         }
@@ -781,7 +779,6 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
 
     public refresh() {
         this.baseTable.refresh();
-        this.onRefresh.emit(null);
         let event: BaseTableEvent = {
             eventFieldName: DefaultTableEvents.Refresh,
         }
@@ -797,7 +794,11 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
             this._selectedColsMap.set(val, true);
         }
 
-        this.onColumnFilterChange.emit(val)
+        let event: BaseTableEvent = {
+            eventFieldName: DefaultTableEvents.ColumnFilter,
+            event: val
+        }
+        this.onEvent.emit(event);
     }
 
     public create() {
@@ -858,6 +859,11 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
         }
 
         this.baseTable.exportData(et, url, this._tcCfg.exportCfg.fileName);
+
+        const event: BaseTableEvent = {
+            eventFieldName: DefaultTableEvents.Export,
+        }
+        this.onEvent.emit(event);
     }
 
     public ngOnDestroy() {
@@ -955,9 +961,9 @@ export interface RowExpansionItemsI {
     template: '',
 })
 export class RowExpansionItems implements RowExpansionItemsI {
-    public config: any;
-    public renderCallback: EventEmitter<any>;
-    public outerData: any;
+    @Input() public config: any;
+    @Input() public renderCallback: EventEmitter<any>;
+    @Input() public outerData: any;
 }
 
 // ---------------- COLUMN IMPLEMENTATION ------------------
@@ -983,48 +989,6 @@ export interface Summary extends BaseTableItemsI {
 
 // ------------------ COLUMN CONFIGS -----------------------
 
-export interface MultiSelectOptions {
-    // Inline style of the element
-    style?: Object;
-
-    // Height of the viewport in pixels, a scrollbar is defined if height of list exceeds this value
-    //
-    // Default: 200px
-    scrollHeight?: string;
-
-    // Style class of the element
-    styleClass?: string;
-
-    // Decides how many selected item labels to show at most
-    //
-    // Default: 3
-    maxSelectedLabels?: number;
-
-    // Label to display after exceeding max selected labels
-    //
-    // Default: {0} items selected
-    selectedItemsLabel?: string;
-
-    // Whether to show the checkbox at header to toggle all items at once
-    //
-    // Default: true
-    showToggleAll?: boolean;
-
-    // Clears the filter value when hiding the dropdown
-    //
-    // Default: false
-    resetFilterOnHide?: boolean;
-
-    // Whether to show the header
-    // 
-    // Default: true
-    showHeader?: boolean;
-
-    // The default label to display for select
-    //
-    // Default: 'Choose'
-    defaultLabel?: string;
-}
 
 // APIConfig is base config used when making an http request
 export interface APIConfig {

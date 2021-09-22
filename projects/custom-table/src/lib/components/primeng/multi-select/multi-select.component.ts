@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChildren, ViewChild, Output, EventEmitter, ComponentFactoryResolver, ChangeDetectorRef } from '@angular/core';
 import { MultiSelect, MultiSelectItem } from 'primeng/multiselect';
-import { BaseColumnItems, BaseTableEvent, MultiSelectOptions } from '../../../table-api';
+import { BaseColumnItems, BaseTableEvent } from '../../../table-api';
 
 export interface MultiSelectConfig {
     // Inline style of the element

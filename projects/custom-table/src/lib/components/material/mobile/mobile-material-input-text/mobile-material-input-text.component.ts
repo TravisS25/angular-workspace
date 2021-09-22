@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { MaterialInputTextComponent } from '../material-input-text/material-input-text.component';
+import { MaterialInputTextComponent } from '../../material-input-text/material-input-text.component';
 
 @Component({
     selector: 'lib-mobile-material-input-text',

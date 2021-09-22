@@ -26,15 +26,27 @@ export interface GroupSelect {
 }
 
 export interface MaterialDropdownSelectConfig extends BaseTableEventConfig {
+    // multipleSelect determines whether user is able to select more than
+    // one option for dropdown
     multipleSelect?: boolean;
-    selectAllLabel?: string;
-    style?: Object;
-    label?: string;
-    isGroupSelect?: boolean;
-}
 
-export interface MaterialDropdownSelectEvent {
-    isSelectAll: boolean;
+    // selectAllLabel is label for select option to has ability to select/deselect
+    // all options at once
+    //
+    // multipleSelect must be set for this to be visible
+    selectAllLabel?: string;
+
+    // style is object for styling component
+    style?: Object;
+
+    // label is text used when nothing is selected for dropdown
+    label?: string;
+
+    // isGroupSelect determines whether dropdown will display options in groups
+    // 
+    // If this is set, then the value passed to component's "value" input property
+    // must be instance of GroupSelect[]
+    isGroupSelect?: boolean;
 }
 
 @Component({

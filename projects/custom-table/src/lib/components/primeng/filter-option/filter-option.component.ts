@@ -5,25 +5,6 @@ import { RadioButton } from 'primeng/radiobutton';
 import { BaseTableEventConfig } from '../../../table-api'
 import { FilterConfig } from '../../component-config'
 
-// // FilterConfig is config used to determine what icon will be displayed
-// // with FilterConfig#type along with values that will be displayed
-// export interface FilterConfig{
-//   // type determines the icon that will be displayed
-//   type: 'textInput' | 'date',
-
-//   // options determines what list of values will be displayed for filter
-//   // along with ability to select default value
-//   options: FilterOptions;
-// }
-
-// // FilterOptions display filter options and ability to choose default option
-// export interface FilterOptions{
-//   // values is list of values to display
-//   values: SelectItem[];
-
-//   // selectValue is default value selected 
-//   selectedValue: any
-// }
 
 @Component({
     selector: 'app-filter-option',

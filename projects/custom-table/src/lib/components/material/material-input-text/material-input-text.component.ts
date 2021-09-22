@@ -177,7 +177,6 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
         console.log(this.nameField)
 
         this.initConfig();
-        // this.operator = 'contains';
         this.modelChangeSubscription = this.txtChanged
             .pipe(
                 debounceTime(this.config.inputDebounceTime),
