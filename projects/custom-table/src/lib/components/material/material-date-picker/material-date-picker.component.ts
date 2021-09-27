@@ -5,6 +5,7 @@ import { FilterConfig, FilterOptions } from '../../component-config'
 import * as moment from 'moment';
 import { DefaultConsts } from '../../../config';
 import { MaterialFilterOptionComponent } from '../material-filter-option/material-filter-option.component';
+import { SelectItem } from 'primeng';
 
 export interface MaterialDatePickerConfig {
     // dateLabel is label used for date input
@@ -28,7 +29,7 @@ export interface MaterialDatePickerConfig {
     style?: Object;
 
     // filterCfg is config used to determine filter options for date picker component
-    filterOptions?: FilterOptions;
+    filterOptions?: SelectItem[];
 }
 
 export interface MaterialDatePickerEvent {

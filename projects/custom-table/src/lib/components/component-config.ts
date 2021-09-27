@@ -1,3 +1,4 @@
+import { IConfig } from 'ngx-mask';
 import { SelectItem } from 'primeng/api';
 import { BaseTableEventConfig, ExportType } from '../table-api';
 
@@ -28,3 +29,6 @@ export interface CheckboxEvent {
     isHeaderCheckbox?: boolean;
 }
 
+export interface MaskConfig extends IConfig {
+    maskTemplate: string;
+}

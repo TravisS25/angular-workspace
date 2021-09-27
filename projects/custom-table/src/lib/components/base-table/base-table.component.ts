@@ -42,6 +42,7 @@ import {
     RowExpansionItems,
     BaseTableItems,
 } from '../../table-api';
+import _ from "lodash" // Import the entire lodash library
 import { DialogService } from 'primeng/dynamicdialog';
 import { DynamicBodyCellDirective } from '../../directives/dynamic-body-cell.directive';
 import { DynamicExpansionDirective } from '../../directives/dynamic-expansion.directive';
@@ -62,6 +63,7 @@ import { isNgTemplate } from '@angular/compiler/src/ml_parser/tags';
 import { getJSONFieldValue } from '../../util';
 import { ThrowStmt } from '@angular/compiler';
 import { DefaultTableEvents } from '../../config';
+import { MaterialInputTextComponent } from '../../../public-api';
 
 interface outputTemplateConfig {
     updateOutputTemplate: boolean;
@@ -80,6 +82,8 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         rowIdx: -1,
         field: '',
     }
+
+    private _testMap: Map<number, Type<any>> = new Map();
 
     // _rowExpandIdx is used to keep track of the experimental "expand all rows" functionality
     // This variable simply keeps track of which current row should be expanded
@@ -382,10 +386,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
 
-        if (this.config.getState != undefined) {
+        if (this.config.getFilterState != undefined) {
+            this.state = this.config.getFilterState(this.outerData);
+        } else if (this.config.getState != undefined) {
             this.state = this.config.getState(this.outerData);
-            console.log('state within basr table')
-            console.log(this.state)
         }
         if (this.config.resetEditedRowsOnTableFilter == undefined) {
             this.config.resetEditedRowsOnTableFilter = true;
@@ -409,6 +413,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         let columns: Column[] = [];
 
         for (let i = 0; i < this.config.columns.length; i++) {
+            // if (this.config.columns[i].columnFilter != undefined) {
+            //     this._testMap.set(i, this.config.columns[i].columnFilter.component);
+            // }
+
             let col: Column = deepCopyColumn(this.config.columns[i])
 
             if (col.sort != undefined) {
@@ -472,7 +480,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                         let columns: Column[] = this.dt.columns
 
                         const cf = this.cfr.resolveComponentFactory(
-                            columns[item.colIdx].columnFilter.component,
+                            columns[item.colIdx].columnFilter.component
                         );
 
                         const cr = item.viewContainerRef.createComponent(cf);
@@ -481,19 +489,16 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                         cr.instance.isColumnFilter = true;
                         cr.instance.isInputTemplate = false;
 
-                        if (columns[item.colIdx].columnFilter != undefined) {
-                            cr.instance.field = columns[item.colIdx].columnFilter.field;
-                            cr.instance.value = columns[item.colIdx].columnFilter.value;
-                            cr.instance.selectedValue = columns[item.colIdx].columnFilter.selectedValue;
-                            cr.instance.config = columns[item.colIdx].columnFilter.config;
-                            cr.instance.excludeFilter = columns[item.colIdx].columnFilter.excludeFilter;
+                        cr.instance.field = columns[item.colIdx].columnFilter.field;
+                        cr.instance.value = columns[item.colIdx].columnFilter.value;
+                        cr.instance.selectedValue = columns[item.colIdx].columnFilter.selectedValue;
+                        cr.instance.config = columns[item.colIdx].columnFilter.config;
+                        cr.instance.excludeFilter = columns[item.colIdx].columnFilter.excludeFilter;
 
-                            if (columns[item.colIdx].columnFilter.operator != undefined) {
-                                cr.instance.operator = columns[item.colIdx].columnFilter.operator;
-                            }
+                        if (columns[item.colIdx].columnFilter.operator != undefined) {
+                            cr.instance.operator = columns[item.colIdx].columnFilter.operator;
                         }
 
-                        cr.instance.onEvent = new EventEmitter<any>();
                         this.columnFilterCrs.push(cr);
                     });
                 }
@@ -519,7 +524,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         cr.instance.value = ce.value;
         cr.instance.operator = ce.operator;
         cr.instance.processRowData = ce.processRowData;
-        cr.instance.onEvent = new EventEmitter();
+        //cr.instance.onEvent = new EventEmitter();
 
         if (ce.getSelectedValue != undefined) {
             cr.instance.selectedValue = ce.getSelectedValue(dir.rowData);
@@ -732,7 +737,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             const cr = this.summaryDir.viewContainerRef.createComponent(cf);
             cr.instance.config = this.config.summary.config;
             cr.instance.baseTable = this;
-            cr.instance.onEvent = new EventEmitter<any>();
+            //cr.instance.onEvent = new EventEmitter<any>();
             this.summaryCr = cr;
         }
     }
@@ -1663,69 +1668,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
     }
-
-    // // onColumnHeaderChange is responsible for hiding/showing columns 
-    // // based on event passed
-    // public onColumnHeaderChange(event: any) {
-    //     let columns: Column[] = this.dt.columns;
-
-    //     if (event.itemValue != undefined) {
-    //         let values: any[] = event.value;
-    //         let isSelected = false;
-
-    //         values.forEach(item => {
-    //             if (item == event.itemValue) {
-    //                 isSelected = true;
-    //             }
-    //         });
-
-    //         columns.forEach(item => {
-    //             if (item.field == event.itemValue) {
-    //                 if (isSelected) {
-    //                     this.removeHiddenColumn(item.field);
-    //                 } else {
-    //                     this.addHiddenColumn(item.field);
-    //                 }
-    //             }
-    //         });
-    //     } else {
-    //         columns.forEach(item => {
-    //             if (item.showColumnOption) {
-    //                 if (event.value.length != 0) {
-    //                     if (item.hideColumn) {
-    //                         this.removeHiddenColumn(item.field);
-    //                     }
-    //                 } else {
-    //                     if (!item.hideColumn) {
-    //                         this.addHiddenColumn(item.field);
-    //                     }
-    //                 }
-    //             }
-    //         });
-    //     }
-    // }
-
-    // public columnHeaderChange(values: any[]) {
-    //     let columns: Column[] = this.dt.columns;
-
-    //     columns.forEach(x => {
-    //         if (x.showColumnOption) {
-    //             let found = false;
-
-    //             values.forEach(t => {
-    //                 if (x.field == t) {
-    //                     found = true
-    //                 }
-    //             })
-
-    //             if (found) {
-    //                 this.removeHiddenColumn(x.field)
-    //             } else {
-    //                 this.addHiddenColumn(x.field);
-    //             }
-    //         }
-    //     })
-    // }
 
     // toast adds ability to have a toast message based on message passed
     public toast(msg: Message) {

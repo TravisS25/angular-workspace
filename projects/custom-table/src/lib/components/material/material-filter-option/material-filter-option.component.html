@@ -3,8 +3,8 @@
 </span>
 <mat-menu #menu="matMenu">
     <mat-radio-group ngDefaultControl name="radio" aria-label="Select an option" [(ngModel)]="selectedValue">
-        <mat-radio-button *ngFor="let item of config.values" class="checkbox" (change)="radioChange($event)"
-            value="{{ item.value }}">
+        <mat-radio-button [checked]="item.value === selectedValue" *ngFor="let item of options" class="checkbox"
+            (change)="radioChange($event)" value="{{ item.value }}">
             {{ item.label }}
         </mat-radio-button>
     </mat-radio-group>

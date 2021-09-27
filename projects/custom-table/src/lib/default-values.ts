@@ -1,3 +1,5 @@
+// default values.ts
+
 import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, BaseActionConfig } from './table-api'
 import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { BaseTableComponent } from './components/base-table/base-table.component';
@@ -8,7 +10,9 @@ import { InputTextConfig } from './components/primeng/input-text/input-text.comp
 import { MaterialDropdownSelectConfig } from './components/material/material-dropdown-select/material-dropdown-select.component';
 import { MaterialDatePickerConfig } from './components/material/material-date-picker/material-date-picker.component';
 import { MaterialInputTextConfig } from './components/material/material-input-text/material-input-text.component';
-import { SelectItem } from 'primeng';
+import { SelectItem, TabPanel } from 'primeng';
+import { MaskConfig } from './components/component-config';
+import { TabPanelItem, TabViewConfig } from '../public-api';
 
 export function getDefaultDynamicDialogCfg(): DynamicDialogConfig {
     let cfg: DynamicDialogConfig = {
@@ -20,91 +24,201 @@ export function getDefaultDynamicDialogCfg(): DynamicDialogConfig {
     return cfg;
 }
 
+export function getDefaultTabViewConfig(panels: TabPanelItem[]): TabViewConfig {
+    return {
+        selectedIdx: 0,
+        panels: panels,
+    }
+}
+
+export function getDefaultTextMask(): MaskConfig {
+    return {
+        maskTemplate: '',
+        specialCharacters: [],
+        patterns: {},
+        prefix: '',
+        suffix: '',
+        thousandSeparator: ' ',
+        decimalMarker: '.',
+        dropSpecialCharacters: null,
+        hiddenInput: null,
+        showMaskTyped: null,
+        placeHolderCharacter: null,
+        shownMaskExpression: null,
+        showTemplate: null,
+        clearIfNotMatch: null,
+        validation: null,
+        separatorLimit: null,
+        allowNegativeNumbers: null,
+        leadZeroDateTime: null
+    }
+}
+
 export function getDefaultMaterialTextInputConfig(): MaterialInputTextConfig {
     let cfg: MaterialInputTextConfig = {
-        filterOptions: {
-            selectedValue: 'contains',
-            values: [
-                {
-                    label: 'Contains',
-                    value: 'contains',
-                },
-                {
-                    label: 'Does Not Contain',
-                    value: 'doesnotcontain',
-                },
-                {
-                    label: 'Equal',
-                    value: 'eq',
-                },
-                {
-                    label: 'Not Equal',
-                    value: 'neq',
-                },
-                {
-                    label: 'Begins With',
-                    value: 'startswith',
-                },
-                {
-                    label: 'Ends With',
-                    value: 'endswith',
-                },
-                {
-                    label: 'Null',
-                    value: 'isnull',
-                },
-                {
-                    label: 'Not Null',
-                    value: 'isnotnull',
-                },
-            ],
-        }
+        filterOptions: [
+            {
+                label: 'Contains',
+                value: 'contains',
+            },
+            {
+                label: 'Does Not Contain',
+                value: 'doesnotcontain',
+            },
+            {
+                label: 'Equal',
+                value: 'eq',
+            },
+            {
+                label: 'Not Equal',
+                value: 'neq',
+            },
+            {
+                label: 'Begins With',
+                value: 'startswith',
+            },
+            {
+                label: 'Ends With',
+                value: 'endswith',
+            },
+            {
+                label: 'Null',
+                value: 'isnull',
+            },
+            {
+                label: 'Not Null',
+                value: 'isnotnull',
+            },
+        ]
     }
     return cfg;
 }
 
 export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig {
     let cfg: MaterialDatePickerConfig = {
-        filterOptions: {
-            selectedValue: 'eq',
-            values: [
-                {
-                    label: 'Equal',
-                    value: 'eq'
-                },
-                {
-                    label: 'Not Equal',
-                    value: 'neq'
-                },
-                {
-                    label: 'After',
-                    value: 'gt'
-                },
-                {
-                    label: 'After And Equal',
-                    value: 'gte'
-                },
-                {
-                    label: 'Before',
-                    value: 'lt'
-                },
-                {
-                    label: 'Before And Equal',
-                    value: 'lte'
-                },
-                {
-                    label: 'Null',
-                    value: 'isnull'
-                },
-                {
-                    label: 'Not Null',
-                    value: 'isnotnull'
-                },
-            ]
-        },
+        filterOptions: [
+            // {
+            //     label: 'Equal',
+            //     value: 'eq'
+            // },
+            // {
+            //     label: 'Not Equal',
+            //     value: 'neq'
+            // },
+            {
+                label: 'After',
+                value: 'gt'
+            },
+            // {
+            //     label: 'After And Equal',
+            //     value: 'gte'
+            // },
+            {
+                label: 'Before',
+                value: 'lt'
+            },
+            // {
+            //     label: 'Before And Equal',
+            //     value: 'lte'
+            // },
+            {
+                label: 'Null',
+                value: 'isnull'
+            },
+            {
+                label: 'Not Null',
+                value: 'isnotnull'
+            },
+        ]
     }
     return cfg;
 }
+
+// export function getDefaultMaterialTextInputConfig(): MaterialInputTextConfig {
+//     let cfg: MaterialInputTextConfig = {
+//         filterOptions: {
+//             selectedValue: 'contains',
+//             values: [
+//                 {
+//                     label: 'Contains',
+//                     value: 'contains',
+//                 },
+//                 {
+//                     label: 'Does Not Contain',
+//                     value: 'doesnotcontain',
+//                 },
+//                 {
+//                     label: 'Equal',
+//                     value: 'eq',
+//                 },
+//                 {
+//                     label: 'Not Equal',
+//                     value: 'neq',
+//                 },
+//                 {
+//                     label: 'Begins With',
+//                     value: 'startswith',
+//                 },
+//                 {
+//                     label: 'Ends With',
+//                     value: 'endswith',
+//                 },
+//                 {
+//                     label: 'Null',
+//                     value: 'isnull',
+//                 },
+//                 {
+//                     label: 'Not Null',
+//                     value: 'isnotnull',
+//                 },
+//             ],
+//         }
+//     }
+//     return cfg;
+// }
+
+// export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig {
+//     let cfg: MaterialDatePickerConfig = {
+//         filterOptions: {
+//             selectedValue: 'eq',
+//             values: [
+//                 {
+//                     label: 'Equal',
+//                     value: 'eq'
+//                 },
+//                 {
+//                     label: 'Not Equal',
+//                     value: 'neq'
+//                 },
+//                 {
+//                     label: 'After',
+//                     value: 'gt'
+//                 },
+//                 {
+//                     label: 'After And Equal',
+//                     value: 'gte'
+//                 },
+//                 {
+//                     label: 'Before',
+//                     value: 'lt'
+//                 },
+//                 {
+//                     label: 'Before And Equal',
+//                     value: 'lte'
+//                 },
+//                 {
+//                     label: 'Null',
+//                     value: 'isnull'
+//                 },
+//                 {
+//                     label: 'Not Null',
+//                     value: 'isnotnull'
+//                 },
+//             ]
+//         },
+//     }
+//     return cfg;
+// }
 
 export function getDefaultDateFilterConfig(): DatePickerConfig {
     let cfg: DatePickerConfig = {

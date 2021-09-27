@@ -1,4 +1,4 @@
-import { Type, EventEmitter, SimpleChanges, OnInit, OnDestroy, Component, Input, Output } from '@angular/core';
+import { Type, EventEmitter, SimpleChanges, OnInit, OnDestroy, Component, Input, Output, ViewChild, ElementRef } from '@angular/core';
 import { Observable, of, Subscription } from 'rxjs';
 import { Table } from 'primeng/table/table'
 import { HttpClient, HttpResponse, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
@@ -45,7 +45,7 @@ export interface CompositeFilterDescriptor {
     /**
      * The nested filter expressions&mdash;either [`FilterDescriptor`]({% slug api_kendo-data-query_filterdescriptor %}), or [`CompositeFilterDescriptor`]({% slug api_kendo-data-query_compositefilterdescriptor %}). Supports the same options as `filter`. You can nest filters indefinitely.
      */
-    filters: Array<FilterDescriptor | CompositeFilterDescriptor>;
+    filters: Array<FilterDescriptor>;
 }
 
 export interface State {
@@ -141,6 +141,7 @@ export interface FieldName {
     newName: string;
 }
 
+// GET RID OF LATER!!
 export const BoolList: SelectItem[] = [
     {
         label: '--Select--',
@@ -359,10 +360,6 @@ export interface BaseTableEvent extends BaseTableEventConfig {
     event?: any;
 }
 
-export interface ColumnEvent extends BaseTableEvent {
-    columnName: string
-}
-
 // ParamConfig is config used to determine different param names that will
 // be sent to server for filtering, sorting, and grouping
 export interface ParamConfig {
@@ -412,6 +409,12 @@ export interface BaseTableConfig extends BaseEventOptions {
     // Setting this will set the table with initial state when making
     // first call to server
     getState?: (outerData: any) => State;
+
+    // getFilterState should be used when transitioning from mobile view to
+    // desktop view
+    // 
+    // This will override getState function if set
+    getFilterState?: (outerData: any) => State;
 
     // summary is config used to generate custom summary component
     summary?: Summary;
@@ -614,7 +617,6 @@ export interface BaseTableItemsI {
     config?: any;
     baseTable?: any;
     processEvent?: (event: BaseTableEvent, component: any) => void;
-    onEvent?: EventEmitter<BaseTableEvent>;
 }
 
 @Component({
@@ -623,9 +625,11 @@ export interface BaseTableItemsI {
 export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
     protected _subs: Subscription[] = [];
 
+    @ViewChild('element', { static: false }) public domElement: ElementRef;
+
     @Input() public config: any;
-    @Input() public baseTable: BaseTableComponent;
-    @Output() public onEvent: EventEmitter<any>;
+    @Input() public baseTable: any;
+    @Output() public onEvent: EventEmitter<any> = new EventEmitter();
 
     public processEvent: (event: BaseTableEvent, table: any) => void;
     public processInputTemplateEvent: (event: any, baseTable: BaseTableComponent) => void;
@@ -655,10 +659,8 @@ export interface BaseCaptionItemsI extends BaseTableItemsI {
 @Component({
     template: '',
 })
-export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItemsI, OnInit, OnDestroy {
-    protected _createSub: Subscription;
-
-    public outerData: any;
+export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItemsI, OnInit {
+    @Input() public outerData: any;
 
     constructor() {
         super()
@@ -667,30 +669,13 @@ export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItems
     public ngOnInit() {
 
     }
-
-    public ngOnDestroy() {
-        super.ngOnDestroy();
-
-        if (this._createSub != undefined && !this._createSub.closed) {
-            this._createSub.unsubscribe();
-        }
-
-        this._createSub = null;
-    }
 }
 
 @Component({
     template: '',
 })
 export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseCaptionItemsI, OnInit, OnDestroy {
-    @Output() public onRefresh: EventEmitter<any> = new EventEmitter<any>();
-    // @Output() public onClearFilters: EventEmitter<any> = new EventEmitter<any>();
-    // @Output() public onCloseRows: EventEmitter<any> = new EventEmitter<any>();
-    // @Output() public onColumnFilterChange: EventEmitter<string> = new EventEmitter<string>();
-    // @Output() public onCreate: EventEmitter<BaseActionConfig> = new EventEmitter<BaseActionConfig>();
-    // @Output() public onExport: EventEmitter<any> = new EventEmitter<any>();
-
-    private _tcCfg: BaseTableCaptionConfig;
+    public config: BaseTableCaptionConfig;
 
     // _rowMap is used for keeping track of what rows are currently selected
     // to be able to export those selected rows
@@ -700,6 +685,7 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
     // by field namae to properly show and hide columns
     protected _selectedColsMap: Map<string, boolean> = new Map();
 
+    // selectedColumns is array of values for column dropdown
     public selectedColumns: any[] = [];
 
     // columnOptions will be the available options to select from dropdown
@@ -730,8 +716,6 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
             }
 
             this.config = cfg;
-        } else {
-            this._tcCfg = this.config
         }
     }
 
@@ -802,12 +786,12 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
     }
 
     public create() {
-        if (this._tcCfg.createCfg.pageURL != undefined) {
-            this.router.navigateByUrl(this._tcCfg.createCfg.pageURL(this.baseTable.outerData));
-        } else if (this._tcCfg.createCfg.modal != undefined) {
-            this._tcCfg.createCfg.modal(this.baseTable);
-        } else if (this._tcCfg.createCfg.actionFn != undefined) {
-            this._tcCfg.createCfg.actionFn(this.baseTable);
+        if (this.config.createCfg.pageURL != undefined) {
+            this.router.navigateByUrl(this.config.createCfg.pageURL(this.baseTable.outerData));
+        } else if (this.config.createCfg.modal != undefined) {
+            this.config.createCfg.modal(this.baseTable);
+        } else if (this.config.createCfg.actionFn != undefined) {
+            this.config.createCfg.actionFn(this.baseTable);
         }
     }
 
@@ -817,15 +801,15 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
         switch (et) {
             case ExportType.csv:
                 et = ExportType.csv
-                url = this._tcCfg.exportCfg.csvURL;
+                url = this.config.exportCfg.csvURL;
                 break;
             case ExportType.xls:
                 et = ExportType.xls
-                url = this._tcCfg.exportCfg.xlsURL;
+                url = this.config.exportCfg.xlsURL;
                 break;
             case ExportType.xlsx:
                 et = ExportType.xlsx
-                url = this._tcCfg.exportCfg.xlsxURL;
+                url = this.config.exportCfg.xlsxURL;
                 break;
         }
 
@@ -838,7 +822,7 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
         })
 
         if (this._rowMap.size == 0) {
-            url += this.baseTable.getFilterParams() + '&' + this._tcCfg.exportCfg.columnHeadersParam + '=' +
+            url += this.baseTable.getFilterParams() + '&' + this.config.exportCfg.columnHeadersParam + '=' +
                 encodeURI(JSON.stringify(headers));
         } else {
             let ids = [];
@@ -847,18 +831,18 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
             })
 
             let filter: FilterDescriptor = {
-                field: this._tcCfg.exportCfg.idFilterParam,
+                field: this.config.exportCfg.idFilterParam,
                 operator: 'eq',
                 value: ids
             }
 
-            url += '?' + this._tcCfg.exportCfg.columnHeadersParam + '=' + encodeURI(JSON.stringify(headers)) + '&' +
+            url += '?' + this.config.exportCfg.columnHeadersParam + '=' + encodeURI(JSON.stringify(headers)) + '&' +
                 this.baseTable.config.paramConfig.filters + '=' +
                 encodeURI(JSON.stringify([filter])) + '&' + this.baseTable.config.paramConfig.sorts + '=' +
                 encodeURI(JSON.stringify(this.baseTable.state.sort));
         }
 
-        this.baseTable.exportData(et, url, this._tcCfg.exportCfg.fileName);
+        this.baseTable.exportData(et, url, this.config.exportCfg.fileName);
 
         const event: BaseTableEvent = {
             eventFieldName: DefaultTableEvents.Export,
@@ -871,6 +855,192 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
     }
 }
 
+// @Component({
+//     template: '',
+// })
+// export class BaseTableCaptionComponent extends BaseTableItems implements BaseCaptionItemsI, OnInit, OnDestroy {
+//     private _tcCfg: BaseTableCaptionConfig;
+
+//     // _rowMap is used for keeping track of what rows are currently selected
+//     // to be able to export those selected rows
+//     protected _rowMap: Map<number, string> = new Map();
+
+//     // _selectedColsMap is a map that keeps track of selected columns
+//     // by field namae to properly show and hide columns
+//     protected _selectedColsMap: Map<string, boolean> = new Map();
+
+//     // selectedColumns is array of values for column dropdown
+//     public selectedColumns: any[] = [];
+
+//     // columnOptions will be the available options to select from dropdown
+//     // to hide and show columns
+//     public columnOptions: SelectItem[] = [];
+
+//     constructor(
+//         public router: Router,
+//     ) {
+//         super();
+//     }
+
+//     private initConfig() {
+//         if (this.config == undefined) {
+//             let cfg: BaseTableCaptionConfig = {
+//                 showRefreshBtn: true,
+//                 showClearFiltersBtn: true,
+//                 showCollapseBtn: true,
+//                 showColumnSelect: true,
+//                 exportCfg: {
+//                     csvURL: '',
+//                     xlsURL: '',
+//                     xlsxURL: '',
+//                     fileName: '',
+//                     columnHeadersParam: '',
+//                     idFilterParam: '',
+//                 }
+//             }
+
+//             this.config = cfg;
+//         } else {
+//             this._tcCfg = this.config
+//         }
+//     }
+
+//     private initColumnFilterSelect() {
+//         let columns: Column[] = this.baseTable.dt.columns;
+
+//         columns.forEach(x => {
+//             if (x.showColumnOption) {
+//                 this.columnOptions.push({
+//                     value: x.field,
+//                     label: x.header,
+//                 });
+
+//                 if (x.hideColumn) {
+//                     this._selectedColsMap.set(x.field, false);
+//                 } else {
+//                     this.selectedColumns.push(x.field);
+//                     this._selectedColsMap.set(x.field, true);
+//                 }
+
+//             }
+//         })
+//     }
+
+//     public ngOnInit(): void {
+//         this.initConfig();
+//         this.initColumnFilterSelect();
+//     }
+
+//     public closeRows() {
+//         this.baseTable.closeExpandedRows();
+//         let event: BaseTableEvent = {
+//             eventFieldName: DefaultTableEvents.CloseRows,
+//         }
+//         this.onEvent.emit(event);
+//     }
+
+//     public clearFilters() {
+//         this.baseTable.clearFilters();
+//         let event: BaseTableEvent = {
+//             eventFieldName: DefaultTableEvents.ClearFilters,
+//         }
+//         this.onEvent.emit(event);
+//     }
+
+//     public refresh() {
+//         this.baseTable.refresh();
+//         let event: BaseTableEvent = {
+//             eventFieldName: DefaultTableEvents.Refresh,
+//         }
+//         this.onEvent.emit(event);
+//     }
+
+//     public columnFilterChange(val: string) {
+//         if (this._selectedColsMap.get(val)) {
+//             this.baseTable.addHiddenColumn(val);
+//             this._selectedColsMap.set(val, false);
+//         } else {
+//             this.baseTable.removeHiddenColumn(val);
+//             this._selectedColsMap.set(val, true);
+//         }
+
+//         let event: BaseTableEvent = {
+//             eventFieldName: DefaultTableEvents.ColumnFilter,
+//             event: val
+//         }
+//         this.onEvent.emit(event);
+//     }
+
+//     public create() {
+//         if (this._tcCfg.createCfg.pageURL != undefined) {
+//             this.router.navigateByUrl(this._tcCfg.createCfg.pageURL(this.baseTable.outerData));
+//         } else if (this._tcCfg.createCfg.modal != undefined) {
+//             this._tcCfg.createCfg.modal(this.baseTable);
+//         } else if (this._tcCfg.createCfg.actionFn != undefined) {
+//             this._tcCfg.createCfg.actionFn(this.baseTable);
+//         }
+//     }
+
+//     public export(et: ExportType) {
+//         let url: string;
+
+//         switch (et) {
+//             case ExportType.csv:
+//                 et = ExportType.csv
+//                 url = this._tcCfg.exportCfg.csvURL;
+//                 break;
+//             case ExportType.xls:
+//                 et = ExportType.xls
+//                 url = this._tcCfg.exportCfg.xlsURL;
+//                 break;
+//             case ExportType.xlsx:
+//                 et = ExportType.xlsx
+//                 url = this._tcCfg.exportCfg.xlsxURL;
+//                 break;
+//         }
+
+//         let headers: string[] = [];
+
+//         this._selectedColsMap.forEach((v, k) => {
+//             if (v) {
+//                 headers.push(k);
+//             }
+//         })
+
+//         if (this._rowMap.size == 0) {
+//             url += this.baseTable.getFilterParams() + '&' + this._tcCfg.exportCfg.columnHeadersParam + '=' +
+//                 encodeURI(JSON.stringify(headers));
+//         } else {
+//             let ids = [];
+//             this._rowMap.forEach((v, k) => {
+//                 ids.push(v)
+//             })
+
+//             let filter: FilterDescriptor = {
+//                 field: this._tcCfg.exportCfg.idFilterParam,
+//                 operator: 'eq',
+//                 value: ids
+//             }
+
+//             url += '?' + this._tcCfg.exportCfg.columnHeadersParam + '=' + encodeURI(JSON.stringify(headers)) + '&' +
+//                 this.baseTable.config.paramConfig.filters + '=' +
+//                 encodeURI(JSON.stringify([filter])) + '&' + this.baseTable.config.paramConfig.sorts + '=' +
+//                 encodeURI(JSON.stringify(this.baseTable.state.sort));
+//         }
+
+//         this.baseTable.exportData(et, url, this._tcCfg.exportCfg.fileName);
+
+//         const event: BaseTableEvent = {
+//             eventFieldName: DefaultTableEvents.Export,
+//         }
+//         this.onEvent.emit(event);
+//     }
+
+//     public ngOnDestroy() {
+//         super.ngOnDestroy();
+//     }
+// }
+
 export interface MobileFilterItemsI extends BaseTableItemsI {
     field?: string;
     value?: any;
@@ -882,10 +1052,12 @@ export interface MobileFilterItemsI extends BaseTableItemsI {
     template: '',
 })
 export class MobileFilterItems extends BaseTableItems implements MobileFilterItemsI, OnInit, OnDestroy {
+    protected _selectedValue: any;
+
     @Input() public field: string;
     @Input() public value: any;
     @Input() public selectedValue: any;
-    @Input() public operator: string;
+    @Input() public operator: any;
 
     protected emitFilterChange(val: any) {
         let filter: FilterDescriptor = {
@@ -912,14 +1084,14 @@ export class MobileFilterItems extends BaseTableItems implements MobileFilterIte
 
     constructor() {
         super();
-
-        if (this.operator == undefined) {
-            this.operator = 'eq';
-        }
     }
 
     public ngOnInit() {
         super.ngOnInit();
+
+        if (this.operator == undefined) {
+            this.operator = 'eq';
+        }
     }
 }
 

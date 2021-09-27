@@ -29,7 +29,11 @@ export function setColumnFilterValue(baseTable: BaseTableComponent, fieldMap: Ma
 
             filters.forEach(x => {
                 if (x.field == columnField) {
+                    console.log('found field!');
+                    console.log(x.field);
                     baseTable.columnFilterCrs[i].instance.selectedValue = x.value;
+                    console.log('some selected val')
+                    console.log(baseTable.columnFilterCrs[i].instance.selectedValue)
                 }
             })
         }

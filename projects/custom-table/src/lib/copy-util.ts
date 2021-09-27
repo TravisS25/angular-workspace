@@ -25,7 +25,7 @@ export function deepCopyColumn(column: Column): Column {
         if (val1 != undefined && val1 != null) {
             let cf = val1 as ColumnEntity;
             let newCF: ColumnEntity = _.cloneDeep(cf);
-            newCF.component = _.cloneDeep(cf.component);
+            //newCF.component = cf.component;
             newCF.config = _.cloneDeep(cf.config);
             newCF.selectedValue = cf.selectedValue;
             return newCF;
