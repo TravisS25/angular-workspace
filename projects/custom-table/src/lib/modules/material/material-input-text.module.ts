@@ -6,6 +6,9 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialFilterOptionModule } from './material-filter-option.module';
 import { NgxMaskModule } from 'ngx-mask';
+import { MaterialTextInputTemplateComponent } from '../../components/material/material-text-input-template/material-text-input-template.component';
+import { MaterialTextInputTemplateModule } from '../../modules/material/material-text-input-template.module'
+
 
 @NgModule({
     declarations: [
@@ -13,12 +16,7 @@ import { NgxMaskModule } from 'ngx-mask';
     ],
     imports: [
         CommonModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MaterialFilterOptionModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgxMaskModule.forRoot(),
+        MaterialTextInputTemplateModule,
     ],
     exports: [
         MaterialInputTextComponent,

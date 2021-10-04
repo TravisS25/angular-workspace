@@ -1,0 +1,38 @@
+<mat-form-field [style]="config.style">
+    <mat-label *ngIf="config.label">{{ config.label }}</mat-label>
+    <ng-container *ngIf="isInput; else block">
+        <input *ngIf="config.maskCfg.maskTemplate; else input" type="text" ngDefaultControl matInput
+            (ngModelChange)='onChangeEvent($event)' [ngModel]="selectedValue" placeholder="{{ config.placeHolder }}"
+            [mask]="config.maskCfg.maskTemplate" [specialCharacters]="config.maskCfg.specialCharacters"
+            [prefix]="config.maskCfg.prefix" [suffix]="config.maskCfg.suffix"
+            [dropSpecialCharacters]="config.maskCfg.dropSpecialCharacters"
+            [showMaskTyped]="config.maskCfg.showMaskTyped" [allowNegativeNumbers]="config.maskCfg.allowNegativeNumbers"
+            [placeHolderCharacter]="config.maskCfg.placeHolderCharacter"
+            [clearIfNotMatch]="config.maskCfg.clearIfNotMatch" [thousandSeparator]="config.maskCfg.thousandSeparator"
+            [leadZeroDateTime]="config.maskCfg.leadZeroDateTime" [validation]="config.maskCfg.validation"
+            [hiddenInput]="config.maskCfg.hiddenInput" [value]="value">
+        <ng-template #input>
+            <input type="text" [value]="value" ngDefaultControl matInput (ngModelChange)='onChangeEvent($event)'
+                [ngModel]="selectedValue" placeholder="{{ config.placeHolder }}">
+        </ng-template>
+    </ng-container>
+    <ng-template #block>
+        <textarea *ngIf="config.maskCfg.maskTemplate; else input" type="text" ngDefaultControl matInput
+            (ngModelChange)='onChangeEvent($event)' [ngModel]="selectedValue" placeholder="{{ config.placeHolder }}"
+            [mask]="config.maskCfg.maskTemplate" [specialCharacters]="config.maskCfg.specialCharacters"
+            [prefix]="config.maskCfg.prefix" [suffix]="config.maskCfg.suffix"
+            [dropSpecialCharacters]="config.maskCfg.dropSpecialCharacters"
+            [showMaskTyped]="config.maskCfg.showMaskTyped" [allowNegativeNumbers]="config.maskCfg.allowNegativeNumbers"
+            [placeHolderCharacter]="config.maskCfg.placeHolderCharacter"
+            [clearIfNotMatch]="config.maskCfg.clearIfNotMatch" [thousandSeparator]="config.maskCfg.thousandSeparator"
+            [leadZeroDateTime]="config.maskCfg.leadZeroDateTime" [validation]="config.maskCfg.validation"
+            [hiddenInput]="config.maskCfg.hiddenInput">{{ value }}</textarea>
+        <ng-template #input>
+            <textarea type="text" ngDefaultControl matInput (ngModelChange)='onChangeEvent($event)'
+                [ngModel]="selectedValue" placeholder="{{ config.placeHolder }}">{{ value }}</textarea>
+        </ng-template>
+    </ng-template>
+</mat-form-field>
+<lib-material-filter-option *ngIf="isInput" [selectedValue]="operator" [options]="config.filterOptions"
+    (onChange)="onFilterChange($event)">
+</lib-material-filter-option>

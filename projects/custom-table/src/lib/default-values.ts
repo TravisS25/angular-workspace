@@ -95,32 +95,16 @@ export function getDefaultMaterialTextInputConfig(): MaterialInputTextConfig {
 }
 
 export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig {
-    let cfg: MaterialDatePickerConfig = {
+    return {
         filterOptions: [
-            // {
-            //     label: 'Equal',
-            //     value: 'eq'
-            // },
-            // {
-            //     label: 'Not Equal',
-            //     value: 'neq'
-            // },
             {
                 label: 'After',
                 value: 'gt'
             },
-            // {
-            //     label: 'After And Equal',
-            //     value: 'gte'
-            // },
             {
                 label: 'Before',
                 value: 'lt'
             },
-            // {
-            //     label: 'Before And Equal',
-            //     value: 'lte'
-            // },
             {
                 label: 'Null',
                 value: 'isnull'
@@ -131,7 +115,40 @@ export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig {
             },
         ]
     }
-    return cfg;
+}
+
+export function getDefaultMaterialCurrencyConfig(): MaterialInputTextConfig {
+    return {
+        maskCfg: {
+            maskTemplate: '0000000000',
+        },
+        filterOptions: [
+            {
+                label: 'Greater Than',
+                value: 'gt'
+            },
+            {
+                label: 'Less Than',
+                value: 'lt'
+            },
+            {
+                label: 'Equal',
+                value: 'eq',
+            },
+            {
+                label: 'Not Equal',
+                value: 'neq',
+            },
+            {
+                label: 'Null',
+                value: 'isnull'
+            },
+            {
+                label: 'Not Null',
+                value: 'isnotnull'
+            },
+        ]
+    }
 }
 
 // export function getDefaultMaterialTextInputConfig(): MaterialInputTextConfig {

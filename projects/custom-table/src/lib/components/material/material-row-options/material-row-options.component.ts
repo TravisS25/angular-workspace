@@ -5,7 +5,7 @@ import { MaterialMenuItemModule } from '../../../modules/material/material-menu-
 import { BaseColumnItems, BaseTableEvent, BaseTableEventConfig, BaseTableItems } from '../../../table-api';
 import { MaterialMenuItemComponent } from '../material-menu-item/material-menu-item.component';
 
-export interface MaterialRowOptionConfig extends BaseTableEventConfig {
+export interface MaterialRowOptionConfig {
     items: MaterialMenuItem[];
 }
 
@@ -22,10 +22,8 @@ export class MaterialRowOptionsComponent extends BaseColumnItems implements OnIn
     public ngOnInit(): void {
         if (this.processRowData != undefined) {
             this.config = this.processRowData(this.rowData);
-        } else {
-            if (this.config == undefined) {
-                throw ('MUST SET MATERIAL ROW OPTION CONFIG FOR COL IDX ' + this.colIdx);
-            }
+        } else if (this.config == undefined) {
+            throw ('MUST SET MATERIAL ROW OPTION CONFIG FOR COL IDX ' + this.colIdx);
         }
     }
 

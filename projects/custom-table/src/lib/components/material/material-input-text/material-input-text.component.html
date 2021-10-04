@@ -1,4 +1,4 @@
-<mat-form-field [style]="config.style">
+<!-- <mat-form-field [style]="config.style">
     <mat-label *ngIf="config.label">{{ config.label }}</mat-label>
     <input *ngIf="config.maskCfg.maskTemplate; else input" type="text" ngDefaultControl matInput
         (ngModelChange)='onChangeEvent($event)' [ngModel]="selectedValue" placeholder="{{ config.placeHolder }}"
@@ -17,4 +17,8 @@
 </mat-form-field>
 <lib-material-filter-option [selectedValue]="operator" [options]="config.filterOptions"
     (onChange)="onFilterChange($event)">
-</lib-material-filter-option>
+</lib-material-filter-option> -->
+
+<lib-material-text-input-template [isInput]="true" [operator]="operator" [config]="config"
+    [selectedValue]="selectedValue" [value]="value">
+</lib-material-text-input-template>

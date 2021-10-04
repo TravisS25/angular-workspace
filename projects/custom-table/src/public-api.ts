@@ -26,6 +26,7 @@ export * from './lib/components/material/mobile/mobile-material-input-text/mobil
 export * from './lib/components/material/material-row-options/material-row-options.component';
 export * from './lib/components/material/material-menu-item/material-menu-item.component';
 export * from './lib/components/material/material-ellipsis-icon/material-ellipsis-icon.component';
+export * from './lib/components/material/material-text-area/material-text-area.component';
 
 // Primeng components
 export * from './lib/components/primeng/date-picker/date-picker.component';
@@ -77,6 +78,7 @@ export * from './lib/modules/material/material-checkbox-all.module';
 export * from './lib/modules/material/material-menu-item.module';
 export * from './lib/modules/material/material-ellipsis-icon.module';
 export * from './lib/modules/material/mobile/mobile-material-input-text.module';
+export * from './lib/modules/material/material-text-area.module';
 //export * from './lib/modules/material/material-autocomplete.module';
 
 // Utils
