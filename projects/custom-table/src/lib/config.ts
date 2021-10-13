@@ -15,6 +15,7 @@ export const DefaultConsts = {
 export const DefaultTableEvents = {
     Sort: 'sort',
     Search: 'search',
+    Create: 'create',
     Refresh: 'refresh',
     ClearFilters: 'clearFilters',
     TableFilter: 'tableFilter',

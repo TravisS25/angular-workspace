@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DefaultTableEvents } from 'projects/custom-table/src/public-api';
 import { BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 import { BaseColumnItems } from '../../../table-api';
 import { BaseTableComponent } from '../../base-table/base-table.component';
@@ -86,7 +87,8 @@ export class MaterialCheckboxComponent extends BaseColumnItems implements OnInit
         }
 
         let cfg: BaseTableEvent = {
-            eventFieldName: this.cfg.eventFieldName,
+            eventFieldName: DefaultTableEvents.ColumnFilter,
+            eventType: 'checkbox',
             event: cbe,
         }
 

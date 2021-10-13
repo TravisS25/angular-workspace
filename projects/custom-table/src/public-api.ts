@@ -22,7 +22,6 @@ export * from './lib/components/material/material-date-picker/material-date-pick
 export * from './lib/components/material/material-dropdown-select/material-dropdown-select.component';
 export * from './lib/components/material/material-filter-option/material-filter-option.component';
 export * from './lib/components/material/material-input-text/material-input-text.component';
-export * from './lib/components/material/mobile/mobile-material-input-text/mobile-material-input-text.component';
 export * from './lib/components/material/material-row-options/material-row-options.component';
 export * from './lib/components/material/material-menu-item/material-menu-item.component';
 export * from './lib/components/material/material-ellipsis-icon/material-ellipsis-icon.component';
@@ -77,7 +76,6 @@ export * from './lib/modules/material/material-date-picker.module';
 export * from './lib/modules/material/material-checkbox-all.module';
 export * from './lib/modules/material/material-menu-item.module';
 export * from './lib/modules/material/material-ellipsis-icon.module';
-export * from './lib/modules/material/mobile/mobile-material-input-text.module';
 export * from './lib/modules/material/material-text-area.module';
 //export * from './lib/modules/material/material-autocomplete.module';
 

@@ -54,7 +54,7 @@ export function getDefaultTextMask(): MaskConfig {
     }
 }
 
-export function getDefaultMaterialTextInputConfig(): MaterialInputTextConfig {
+export function getDefaultMaterialInputTextConfig(): MaterialInputTextConfig {
     let cfg: MaterialInputTextConfig = {
         filterOptions: [
             {
@@ -118,10 +118,12 @@ export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig {
 }
 
 export function getDefaultMaterialCurrencyConfig(): MaterialInputTextConfig {
+    const maskCfg = getDefaultTextMask()
+    maskCfg.maskTemplate = '0000000000';
+    maskCfg.allowNegativeNumbers = false;
+
     return {
-        maskCfg: {
-            maskTemplate: '0000000000',
-        },
+        maskCfg: maskCfg,
         filterOptions: [
             {
                 label: 'Greater Than',

@@ -1052,8 +1052,6 @@ export interface MobileFilterItemsI extends BaseTableItemsI {
     template: '',
 })
 export class MobileFilterItems extends BaseTableItems implements MobileFilterItemsI, OnInit, OnDestroy {
-    protected _selectedValue: any;
-
     @Input() public field: string;
     @Input() public value: any;
     @Input() public selectedValue: any;
@@ -1147,6 +1145,10 @@ export interface Caption extends BaseTableItemsI {
 
 export interface ColumnEntity extends BaseColumnItemsI {
     component: Type<BaseColumnItems>;
+}
+
+export interface MobileFilterEntity extends MobileFilterItemsI {
+    component: Type<MobileFilterItems>;
 }
 
 // RowExpansion is used to display expansion component of table

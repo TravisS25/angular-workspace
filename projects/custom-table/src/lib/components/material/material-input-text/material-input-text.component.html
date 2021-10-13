@@ -1,24 +1,3 @@
-<!-- <mat-form-field [style]="config.style">
-    <mat-label *ngIf="config.label">{{ config.label }}</mat-label>
-    <input *ngIf="config.maskCfg.maskTemplate; else input" type="text" ngDefaultControl matInput
-        (ngModelChange)='onChangeEvent($event)' [ngModel]="selectedValue" placeholder="{{ config.placeHolder }}"
-        mask="{{ config.maskCfg.maskTemplate }}" [specialCharacters]="config.maskCfg.specialCharacters"
-        prefix="{{ config.maskCfg.prefix }}" suffix="{{ config.maskCfg.suffix }}"
-        [dropSpecialCharacters]="config.maskCfg.dropSpecialCharacters" [showMaskTyped]="config.maskCfg.showMaskTyped"
-        [allowNegativeNumbers]="config.maskCfg.allowNegativeNumbers"
-        placeHolderCharacter="{{ config.maskCfg.placeHolderCharacter }}"
-        clearIfNotMatch="{{ config.maskCfg.clearIfNotMatch }}"
-        thousandSeparator="{{ config.maskCfg.thousandSeparator }}" [leadZeroDateTime]="config.maskCfg.leadZeroDateTime"
-        [validation]="config.maskCfg.validation" [hiddenInput]="config.maskCfg.hiddenInput">
-    <ng-template #input>
-        <input type="text" ngDefaultControl matInput (ngModelChange)='onChangeEvent($event)' [ngModel]="selectedValue"
-            placeholder="{{ config.placeHolder }}">
-    </ng-template>
-</mat-form-field>
-<lib-material-filter-option [selectedValue]="operator" [options]="config.filterOptions"
-    (onChange)="onFilterChange($event)">
-</lib-material-filter-option> -->
-
 <lib-material-text-input-template [isInput]="true" [operator]="operator" [config]="config"
     [selectedValue]="selectedValue" [value]="value">
 </lib-material-text-input-template>

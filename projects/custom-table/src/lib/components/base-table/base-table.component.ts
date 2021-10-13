@@ -83,8 +83,6 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         field: '',
     }
 
-    private _testMap: Map<number, Type<any>> = new Map();
-
     // _rowExpandIdx is used to keep track of the experimental "expand all rows" functionality
     // This variable simply keeps track of which current row should be expanded
     private _rowExpandIdx: number = 0;
