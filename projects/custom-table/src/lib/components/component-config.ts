@@ -1,6 +1,5 @@
 import { IConfig } from 'ngx-mask';
 import { SelectItem } from 'primeng/api';
-import { BaseTableEventConfig, ExportType } from '../table-api';
 
 export interface FilterConfig {
     // type determines the icon that will be displayed
@@ -31,4 +30,9 @@ export interface CheckboxEvent {
 
 export interface MaskConfig extends IConfig {
     maskTemplate: string;
+}
+
+export interface MaterialPagination {
+    pageSize?: number;
+    pageSizeOptions?: number[];
 }

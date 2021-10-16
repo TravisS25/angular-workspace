@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ChangeDetect
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { SelectItem } from 'primeng/api';
 import { RadioButton } from 'primeng/radiobutton';
-import { BaseTableEventConfig } from '../../../table-api'
 import { FilterConfig } from '../../component-config'
 
 

@@ -2,11 +2,12 @@ import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChi
 import { HttpClient } from '@angular/common/http';
 import { Checkbox } from 'primeng/checkbox';
 import { CheckboxEvent } from '../../component-config';
-import { BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { BaseTableEvent } from '../../../table-api';
 //import { MaterialCheckboxConfig } from '../../component-config';
 import { BaseColumnItems } from '../../../table-api';
 import { BaseTableComponent } from '../../base-table/base-table.component';
 import { MaterialCheckboxConfig } from '../material-checkbox/material-checkbox.component';
+import { DefaultTableEvents } from '../../../config';
 
 @Component({
     selector: 'lib-material-header-checkbox',
@@ -71,7 +72,7 @@ export class MaterialHeaderCheckboxComponent extends BaseColumnItems implements 
         }
 
         let cfg: BaseTableEvent = {
-            eventFieldName: this.cfg.eventFieldName,
+            eventType: DefaultTableEvents.ColumnFilter,
             event: cbe,
         }
         this.onEvent.emit(cfg)

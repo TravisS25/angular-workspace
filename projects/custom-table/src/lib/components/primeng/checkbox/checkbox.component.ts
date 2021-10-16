@@ -67,7 +67,7 @@ export class CheckboxComponent extends BaseColumnItems implements OnInit {
         }
 
         let cfg: BaseTableEvent = {
-            eventFieldName: this._cbCfg.eventFieldName,
+            eventType: this._cbCfg.eventType,
             event: cbe,
         }
 

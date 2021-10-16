@@ -54,6 +54,7 @@ export class MaterialMenuItemComponent implements OnInit {
         event.rowIdx = this.rowIdx;
 
         return {
+            eventType: DefaultEvents.Click,
             eventFieldName: fieldName,
             event: event,
         }

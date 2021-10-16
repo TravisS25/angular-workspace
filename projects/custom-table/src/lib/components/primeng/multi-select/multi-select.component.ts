@@ -122,7 +122,7 @@ export class MultiSelectComponent extends BaseColumnItems {
             }
 
             let event: BaseTableEvent = {
-                eventFieldName: this.field,
+                eventType: this.field,
                 event: cfg
             }
             this.onEvent.emit(event);

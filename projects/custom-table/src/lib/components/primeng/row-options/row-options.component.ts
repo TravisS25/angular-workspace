@@ -4,8 +4,9 @@ import { MenuItem } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { BaseTableComponent } from '../../base-table/base-table.component';
 import { deepCopyMenuItem } from '../../../copy-util';
+import { DefaultTableEvents } from '../../../config';
 
-export interface RowOptionsConfig extends BaseTableEventConfig {
+export interface RowOptionsConfig {
     items: MenuItem[];
 }
 
@@ -35,7 +36,7 @@ export class RowOptionsComponent extends BaseColumnItems implements OnInit, OnDe
             } else {
                 items[i].command = (event: any) => {
                     let cfg: BaseTableEvent = {
-                        eventFieldName: this._roConfig.eventFieldName,
+                        eventType: DefaultTableEvents.BodyCell,
                         event: event,
                     }
 

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { MaterialInputTextComponent } from '../material-input-text/material-input-text.component';
 import { BaseColumnItems } from '../../../table-api';
 import { MaterialInputTextConfig } from '../material-input-text/material-input-text.component';
 
@@ -11,26 +12,20 @@ export interface MaterialTextAreaConfig extends MaterialInputTextConfig {
     templateUrl: './material-text-area.component.html',
     styleUrls: ['./material-text-area.component.scss']
 })
-export class MaterialTextAreaComponent extends BaseColumnItems implements OnInit {
+export class MaterialTextAreaComponent extends MaterialInputTextComponent implements OnInit {
+    @Input() public config: MaterialTextAreaConfig;
 
-    constructor() { super() }
+    constructor(public cdr: ChangeDetectorRef) { super(cdr) }
 
-    private initConfig() {
-        if (this.config == undefined) {
-            throw ('MUST SET PROPERTY CONFIG FOR MATERIAL TEXT AREA!')
+    private initCfg() {
+        if (this.config.rows == undefined) {
+            this.config.rows = 3;
         }
-
-        const cfg: MaterialTextAreaConfig = this.config;
-
-        if (cfg.rows == undefined) {
-            cfg.rows = 3;
-        }
-
-        this.config = cfg;
     }
 
     public ngOnInit(): void {
-        this.initConfig();
+        super.ngOnInit();
+        this.initCfg();
     }
 
 }

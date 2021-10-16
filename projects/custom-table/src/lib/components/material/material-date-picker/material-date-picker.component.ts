@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { BaseColumnItems, BaseTableEvent, BaseTableEventConfig } from '../../../table-api'
+import { BaseColumnItems } from '../../../table-api'
 import { FilterConfig, FilterOptions } from '../../component-config'
 import * as moment from 'moment';
 import { DefaultConsts } from '../../../config';
@@ -65,7 +65,7 @@ export class MaterialDatePickerComponent extends BaseColumnItems implements OnIn
                 cfg.dateLabel = '--Date--';
             }
             if (cfg.style == undefined) {
-                cfg.style = { 'width': '80%' };
+                cfg.style = { 'width': '70%' };
             }
             if (cfg.disableInput == undefined) {
                 cfg.disableInput = true;
@@ -109,7 +109,7 @@ export class MaterialDatePickerComponent extends BaseColumnItems implements OnIn
         //     }
 
         //     let cfg: BaseTableEvent = {
-        //         eventFieldName: this.field,
+        //         eventType: this.field,
         //         event: eCfg,
         //     }
         //     this.onEvent.emit(cfg);

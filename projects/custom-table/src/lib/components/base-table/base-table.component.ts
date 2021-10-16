@@ -1167,7 +1167,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
             this._tableInit = true;
             this._onEvent.emit({
-                eventFieldName: DefaultTableEvents.TableFilter,
+                eventType: DefaultTableEvents.TableFilter,
                 event: res
             });
             this._onTableFilterEvent.emit(res);
@@ -1300,7 +1300,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this._onClearFiltersEvent.emit(null);
         this._onEvent.emit({
-            eventFieldName: DefaultTableEvents.ClearFilters
+            eventType: DefaultTableEvents.ClearFilters
         })
         this.columnFilterCrs.forEach(item => {
             item.instance.clearFilter();
@@ -1596,7 +1596,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this._onSortEvent.emit(event.field);
         this._onEvent.emit({
-            eventFieldName: DefaultTableEvents.Sort,
+            eventType: DefaultTableEvents.Sort,
             event: event.field
         })
 

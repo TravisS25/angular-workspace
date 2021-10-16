@@ -341,20 +341,20 @@ export interface BaseModalConfig {
 // BaseTableEventConfig is config that should be extended by all component's configs
 // that emit an event
 export interface BaseTableEventConfig {
-    // eventFieldName should be unique name of event that is triggered by table component
-    eventFieldName: string;
+    // eventType should be unique name of event that is triggered by table component
+    eventType: string;
 }
 
 // BaseTableEvent should be the interface that is emitted from every event
 // that occurs in table
 //
-// The eventFieldName that is extended from BaseTableEventConfig can be used
+// The eventType that is extended from BaseTableEventConfig can be used
 // as identifier of what kind of event has been emitted and use that to
 // cast our "event" property to appropriate type
 export interface BaseTableEvent extends BaseTableEventConfig {
-    // eventType is to describe what type of event has occured
+    // eventFieldName is to describe what type of event has occured
     // This is meant to give more meta data about event
-    eventType?: string;
+    eventFieldName?: string;
 
     // event should be custom event type that can be used by event listeners
     event?: any;
@@ -625,10 +625,9 @@ export interface BaseTableItemsI {
 export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
     protected _subs: Subscription[] = [];
 
-    @ViewChild('element', { static: false }) public domElement: ElementRef;
-
     @Input() public config: any;
     @Input() public baseTable: any;
+    @Input() public outerData: any;
     @Output() public onEvent: EventEmitter<any> = new EventEmitter();
 
     public processEvent: (event: BaseTableEvent, table: any) => void;
@@ -748,7 +747,7 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
     public closeRows() {
         this.baseTable.closeExpandedRows();
         let event: BaseTableEvent = {
-            eventFieldName: DefaultTableEvents.CloseRows,
+            eventType: DefaultTableEvents.CloseRows,
         }
         this.onEvent.emit(event);
     }
@@ -756,7 +755,7 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
     public clearFilters() {
         this.baseTable.clearFilters();
         let event: BaseTableEvent = {
-            eventFieldName: DefaultTableEvents.ClearFilters,
+            eventType: DefaultTableEvents.ClearFilters,
         }
         this.onEvent.emit(event);
     }
@@ -764,7 +763,7 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
     public refresh() {
         this.baseTable.refresh();
         let event: BaseTableEvent = {
-            eventFieldName: DefaultTableEvents.Refresh,
+            eventType: DefaultTableEvents.Refresh,
         }
         this.onEvent.emit(event);
     }
@@ -779,7 +778,7 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
         }
 
         let event: BaseTableEvent = {
-            eventFieldName: DefaultTableEvents.ColumnFilter,
+            eventType: DefaultTableEvents.ColumnFilter,
             event: val
         }
         this.onEvent.emit(event);
@@ -845,7 +844,7 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
         this.baseTable.exportData(et, url, this.config.exportCfg.fileName);
 
         const event: BaseTableEvent = {
-            eventFieldName: DefaultTableEvents.Export,
+            eventType: DefaultTableEvents.Export,
         }
         this.onEvent.emit(event);
     }
@@ -854,192 +853,6 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
         super.ngOnDestroy();
     }
 }
-
-// @Component({
-//     template: '',
-// })
-// export class BaseTableCaptionComponent extends BaseTableItems implements BaseCaptionItemsI, OnInit, OnDestroy {
-//     private _tcCfg: BaseTableCaptionConfig;
-
-//     // _rowMap is used for keeping track of what rows are currently selected
-//     // to be able to export those selected rows
-//     protected _rowMap: Map<number, string> = new Map();
-
-//     // _selectedColsMap is a map that keeps track of selected columns
-//     // by field namae to properly show and hide columns
-//     protected _selectedColsMap: Map<string, boolean> = new Map();
-
-//     // selectedColumns is array of values for column dropdown
-//     public selectedColumns: any[] = [];
-
-//     // columnOptions will be the available options to select from dropdown
-//     // to hide and show columns
-//     public columnOptions: SelectItem[] = [];
-
-//     constructor(
-//         public router: Router,
-//     ) {
-//         super();
-//     }
-
-//     private initConfig() {
-//         if (this.config == undefined) {
-//             let cfg: BaseTableCaptionConfig = {
-//                 showRefreshBtn: true,
-//                 showClearFiltersBtn: true,
-//                 showCollapseBtn: true,
-//                 showColumnSelect: true,
-//                 exportCfg: {
-//                     csvURL: '',
-//                     xlsURL: '',
-//                     xlsxURL: '',
-//                     fileName: '',
-//                     columnHeadersParam: '',
-//                     idFilterParam: '',
-//                 }
-//             }
-
-//             this.config = cfg;
-//         } else {
-//             this._tcCfg = this.config
-//         }
-//     }
-
-//     private initColumnFilterSelect() {
-//         let columns: Column[] = this.baseTable.dt.columns;
-
-//         columns.forEach(x => {
-//             if (x.showColumnOption) {
-//                 this.columnOptions.push({
-//                     value: x.field,
-//                     label: x.header,
-//                 });
-
-//                 if (x.hideColumn) {
-//                     this._selectedColsMap.set(x.field, false);
-//                 } else {
-//                     this.selectedColumns.push(x.field);
-//                     this._selectedColsMap.set(x.field, true);
-//                 }
-
-//             }
-//         })
-//     }
-
-//     public ngOnInit(): void {
-//         this.initConfig();
-//         this.initColumnFilterSelect();
-//     }
-
-//     public closeRows() {
-//         this.baseTable.closeExpandedRows();
-//         let event: BaseTableEvent = {
-//             eventFieldName: DefaultTableEvents.CloseRows,
-//         }
-//         this.onEvent.emit(event);
-//     }
-
-//     public clearFilters() {
-//         this.baseTable.clearFilters();
-//         let event: BaseTableEvent = {
-//             eventFieldName: DefaultTableEvents.ClearFilters,
-//         }
-//         this.onEvent.emit(event);
-//     }
-
-//     public refresh() {
-//         this.baseTable.refresh();
-//         let event: BaseTableEvent = {
-//             eventFieldName: DefaultTableEvents.Refresh,
-//         }
-//         this.onEvent.emit(event);
-//     }
-
-//     public columnFilterChange(val: string) {
-//         if (this._selectedColsMap.get(val)) {
-//             this.baseTable.addHiddenColumn(val);
-//             this._selectedColsMap.set(val, false);
-//         } else {
-//             this.baseTable.removeHiddenColumn(val);
-//             this._selectedColsMap.set(val, true);
-//         }
-
-//         let event: BaseTableEvent = {
-//             eventFieldName: DefaultTableEvents.ColumnFilter,
-//             event: val
-//         }
-//         this.onEvent.emit(event);
-//     }
-
-//     public create() {
-//         if (this._tcCfg.createCfg.pageURL != undefined) {
-//             this.router.navigateByUrl(this._tcCfg.createCfg.pageURL(this.baseTable.outerData));
-//         } else if (this._tcCfg.createCfg.modal != undefined) {
-//             this._tcCfg.createCfg.modal(this.baseTable);
-//         } else if (this._tcCfg.createCfg.actionFn != undefined) {
-//             this._tcCfg.createCfg.actionFn(this.baseTable);
-//         }
-//     }
-
-//     public export(et: ExportType) {
-//         let url: string;
-
-//         switch (et) {
-//             case ExportType.csv:
-//                 et = ExportType.csv
-//                 url = this._tcCfg.exportCfg.csvURL;
-//                 break;
-//             case ExportType.xls:
-//                 et = ExportType.xls
-//                 url = this._tcCfg.exportCfg.xlsURL;
-//                 break;
-//             case ExportType.xlsx:
-//                 et = ExportType.xlsx
-//                 url = this._tcCfg.exportCfg.xlsxURL;
-//                 break;
-//         }
-
-//         let headers: string[] = [];
-
-//         this._selectedColsMap.forEach((v, k) => {
-//             if (v) {
-//                 headers.push(k);
-//             }
-//         })
-
-//         if (this._rowMap.size == 0) {
-//             url += this.baseTable.getFilterParams() + '&' + this._tcCfg.exportCfg.columnHeadersParam + '=' +
-//                 encodeURI(JSON.stringify(headers));
-//         } else {
-//             let ids = [];
-//             this._rowMap.forEach((v, k) => {
-//                 ids.push(v)
-//             })
-
-//             let filter: FilterDescriptor = {
-//                 field: this._tcCfg.exportCfg.idFilterParam,
-//                 operator: 'eq',
-//                 value: ids
-//             }
-
-//             url += '?' + this._tcCfg.exportCfg.columnHeadersParam + '=' + encodeURI(JSON.stringify(headers)) + '&' +
-//                 this.baseTable.config.paramConfig.filters + '=' +
-//                 encodeURI(JSON.stringify([filter])) + '&' + this.baseTable.config.paramConfig.sorts + '=' +
-//                 encodeURI(JSON.stringify(this.baseTable.state.sort));
-//         }
-
-//         this.baseTable.exportData(et, url, this._tcCfg.exportCfg.fileName);
-
-//         const event: BaseTableEvent = {
-//             eventFieldName: DefaultTableEvents.Export,
-//         }
-//         this.onEvent.emit(event);
-//     }
-
-//     public ngOnDestroy() {
-//         super.ngOnDestroy();
-//     }
-// }
 
 export interface MobileFilterItemsI extends BaseTableItemsI {
     field?: string;
@@ -1064,6 +877,7 @@ export class MobileFilterItems extends BaseTableItems implements MobileFilterIte
             operator: this.operator,
         }
         let cfg: BaseTableEvent = {
+            eventType: DefaultTableEvents.ColumnFilter,
             eventFieldName: this.field,
             event: filter,
         }

@@ -60,7 +60,7 @@ export class HeaderCheckboxComponent extends BaseColumnItems implements OnInit, 
         }
 
         let cfg: BaseTableEvent = {
-            eventFieldName: this._hcbCfg.eventFieldName,
+            eventType: this._hcbCfg.eventType,
             event: cbe,
         }
         this.onEvent.emit(cfg)

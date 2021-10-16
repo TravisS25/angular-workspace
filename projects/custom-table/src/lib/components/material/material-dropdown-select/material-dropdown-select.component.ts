@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, Directive, Input, OnInit, 
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatOption } from '@angular/material/core';
 import { SelectItem } from 'primeng'
-import { BaseColumnItems, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { BaseColumnItems } from '../../../table-api';
 import { MatSelectChange } from '@angular/material/select';
 import { makeID } from '../../../util';
 
@@ -25,7 +25,7 @@ export interface GroupSelect {
     subgroups: SelectItem[];
 }
 
-export interface MaterialDropdownSelectConfig extends BaseTableEventConfig {
+export interface MaterialDropdownSelectConfig {
     // multipleSelect determines whether user is able to select more than
     // one option for dropdown
     multipleSelect?: boolean;
@@ -115,7 +115,7 @@ export class MaterialDropdownSelectComponent extends BaseColumnItems implements 
         //         isSelectAll: false
         //     }
         //     let event: BaseTableEvent = {
-        //         eventFieldName: this.cfg.eventFieldName,
+        //         eventType: this.cfg.eventType,
         //         event: sEvent,
         //     }
         //     this.onEvent.emit(event);
@@ -141,7 +141,7 @@ export class MaterialDropdownSelectComponent extends BaseColumnItems implements 
         //         isSelectAll: true
         //     }
         //     let event: BaseTableEvent = {
-        //         eventFieldName: this.cfg.eventFieldName,
+        //         eventType: this.cfg.eventType,
         //         event: sEvent
         //     }
 

@@ -6,7 +6,8 @@
     <mat-datepicker #dp [disabled]="config.disableIcon"></mat-datepicker>
 </mat-form-field>
 <span *ngIf="config && config.filterOptions" class="ellipse-icon">
-    <lib-material-filter-option [config]="config.filterOptions" (onChange)="onFilterChange($event)">
+    <lib-material-filter-option [options]="config.filterOptions" [selectedValue]="operator"
+        (onChange)="onFilterChange($event)">
     </lib-material-filter-option>
 </span>
 <span class="x-icon">

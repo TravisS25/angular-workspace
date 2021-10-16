@@ -11,7 +11,7 @@ import { MaterialDropdownSelectConfig } from './components/material/material-dro
 import { MaterialDatePickerConfig } from './components/material/material-date-picker/material-date-picker.component';
 import { MaterialInputTextConfig } from './components/material/material-input-text/material-input-text.component';
 import { SelectItem, TabPanel } from 'primeng';
-import { MaskConfig } from './components/component-config';
+import { MaskConfig, MaterialPagination } from './components/component-config';
 import { TabPanelItem, TabViewConfig } from '../public-api';
 
 export function getDefaultDynamicDialogCfg(): DynamicDialogConfig {
@@ -28,6 +28,13 @@ export function getDefaultTabViewConfig(panels: TabPanelItem[]): TabViewConfig {
     return {
         selectedIdx: 0,
         panels: panels,
+    }
+}
+
+export function getDefaultMaterialPagination(): MaterialPagination {
+    return {
+        pageSize: 20,
+        pageSizeOptions: [20, 50, 100],
     }
 }
 
@@ -55,7 +62,7 @@ export function getDefaultTextMask(): MaskConfig {
 }
 
 export function getDefaultMaterialInputTextConfig(): MaterialInputTextConfig {
-    let cfg: MaterialInputTextConfig = {
+    return {
         filterOptions: [
             {
                 label: 'Contains',
@@ -91,7 +98,6 @@ export function getDefaultMaterialInputTextConfig(): MaterialInputTextConfig {
             },
         ]
     }
-    return cfg;
 }
 
 export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig {
@@ -117,10 +123,10 @@ export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig {
     }
 }
 
-export function getDefaultMaterialCurrencyConfig(): MaterialInputTextConfig {
+export function getDefaultMaterialNumberConfig(): MaterialInputTextConfig {
     const maskCfg = getDefaultTextMask()
-    maskCfg.maskTemplate = '0000000000';
-    maskCfg.allowNegativeNumbers = false;
+    maskCfg.maskTemplate = 'separator.0';
+    maskCfg.thousandSeparator = ',';
 
     return {
         maskCfg: maskCfg,
@@ -153,95 +159,46 @@ export function getDefaultMaterialCurrencyConfig(): MaterialInputTextConfig {
     }
 }
 
-// export function getDefaultMaterialTextInputConfig(): MaterialInputTextConfig {
-//     let cfg: MaterialInputTextConfig = {
-//         filterOptions: {
-//             selectedValue: 'contains',
-//             values: [
-//                 {
-//                     label: 'Contains',
-//                     value: 'contains',
-//                 },
-//                 {
-//                     label: 'Does Not Contain',
-//                     value: 'doesnotcontain',
-//                 },
-//                 {
-//                     label: 'Equal',
-//                     value: 'eq',
-//                 },
-//                 {
-//                     label: 'Not Equal',
-//                     value: 'neq',
-//                 },
-//                 {
-//                     label: 'Begins With',
-//                     value: 'startswith',
-//                 },
-//                 {
-//                     label: 'Ends With',
-//                     value: 'endswith',
-//                 },
-//                 {
-//                     label: 'Null',
-//                     value: 'isnull',
-//                 },
-//                 {
-//                     label: 'Not Null',
-//                     value: 'isnotnull',
-//                 },
-//             ],
-//         }
-//     }
-//     return cfg;
-// }
+export function getDefaultMaterialCurrencyConfig(): MaterialInputTextConfig {
+    const maskCfg = getDefaultTextMask()
+    maskCfg.maskTemplate = 'separator.2';
+    //maskCfg.prefix = '$';
+    //maskCfg.suffix = '$';
+    maskCfg.thousandSeparator = ',';
 
-// export function getDefaultMaterialDateFilterConfig(): MaterialDatePickerConfig {
-//     let cfg: MaterialDatePickerConfig = {
-//         filterOptions: {
-//             selectedValue: 'eq',
-//             values: [
-//                 {
-//                     label: 'Equal',
-//                     value: 'eq'
-//                 },
-//                 {
-//                     label: 'Not Equal',
-//                     value: 'neq'
-//                 },
-//                 {
-//                     label: 'After',
-//                     value: 'gt'
-//                 },
-//                 {
-//                     label: 'After And Equal',
-//                     value: 'gte'
-//                 },
-//                 {
-//                     label: 'Before',
-//                     value: 'lt'
-//                 },
-//                 {
-//                     label: 'Before And Equal',
-//                     value: 'lte'
-//                 },
-//                 {
-//                     label: 'Null',
-//                     value: 'isnull'
-//                 },
-//                 {
-//                     label: 'Not Null',
-//                     value: 'isnotnull'
-//                 },
-//             ]
-//         },
-//     }
-//     return cfg;
-// }
+    return {
+        maskCfg: maskCfg,
+        filterOptions: [
+            {
+                label: 'Greater Than',
+                value: 'gt'
+            },
+            {
+                label: 'Less Than',
+                value: 'lt'
+            },
+            {
+                label: 'Equal',
+                value: 'eq',
+            },
+            {
+                label: 'Not Equal',
+                value: 'neq',
+            },
+            {
+                label: 'Null',
+                value: 'isnull'
+            },
+            {
+                label: 'Not Null',
+                value: 'isnotnull'
+            },
+        ]
+    }
+}
 
 export function getDefaultDateFilterConfig(): DatePickerConfig {
     let cfg: DatePickerConfig = {
-        eventFieldName: 'DatePicker',
         filterCfg: {
             type: 'date',
             options: {
@@ -406,7 +363,6 @@ export function getDefaultLogTableSettingsAPICfg(): APIConfig {
 
 export function getDefaultMaterialDropdownConfig(): MaterialDropdownSelectConfig {
     let cfg: MaterialDropdownSelectConfig = {
-        eventFieldName: 'MaterialDropdown',
         label: '--Select--',
         multipleSelect: true,
         style: { 'width': '90%' },

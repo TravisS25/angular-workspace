@@ -42,8 +42,7 @@ export interface MaterialInputTextConfig {
 })
 export class MaterialInputTextComponent extends BaseColumnItems implements OnInit, AfterViewInit, OnDestroy {
     protected modelChangeSubscription: Subscription;
-
-    public txtChanged: Subject<string> = new Subject<string>();
+    protected txtChanged: Subject<string> = new Subject<string>();
 
     constructor(public cdr: ChangeDetectorRef) {
         super();
@@ -58,7 +57,7 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
             throw ('MUST SET INPUT TEXT CONFIG FOR COLUMN INDEX ' + this.colIdx);
         }
 
-        let cfg: MaterialInputTextConfig = this.config;
+        const cfg: MaterialInputTextConfig = this.config;
 
         if (cfg.style == undefined) {
             cfg.style = { 'width': '80%' };
@@ -70,7 +69,7 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
             cfg.inputDebounceTime = 500;
         }
 
-        let mCfg = getDefaultTextMask();
+        const mCfg = getDefaultTextMask();
 
         if (this.selectedValue == undefined) {
             console.log('undefined select value!')
@@ -138,7 +137,6 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
 
     public ngOnInit(): void {
         super.ngOnInit();
-        console.log('material text init');
 
         this.initConfig();
         this.modelChangeSubscription = this.txtChanged
@@ -153,7 +151,6 @@ export class MaterialInputTextComponent extends BaseColumnItems implements OnIni
     }
 
     public ngAfterViewInit() {
-        console.log('material text afer view init');
         this.cdr.detectChanges()
     }
 
