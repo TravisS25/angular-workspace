@@ -651,29 +651,10 @@ export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
     }
 }
 
-export interface BaseCaptionItemsI extends BaseTableItemsI {
-    outerData?: any;
-}
-
 @Component({
     template: '',
 })
-export class BaseCaptionItems extends BaseTableItems implements BaseCaptionItemsI, OnInit {
-    @Input() public outerData: any;
-
-    constructor() {
-        super()
-    }
-
-    public ngOnInit() {
-
-    }
-}
-
-@Component({
-    template: '',
-})
-export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseCaptionItemsI, OnInit, OnDestroy {
+export class BaseTableCaptionComponent extends BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
     public config: BaseTableCaptionConfig;
 
     // _rowMap is used for keeping track of what rows are currently selected
@@ -854,7 +835,27 @@ export class BaseTableCaptionComponent extends BaseCaptionItems implements BaseC
     }
 }
 
-export interface MobileFilterItemsI extends BaseTableItemsI {
+export interface BaseDisplayItemI extends BaseTableItemsI {
+    value?: any;
+    processRowData?: (rowData: any) => any;
+}
+
+@Component({
+    template: '',
+})
+export class BaseDisplayItem extends BaseTableItems implements BaseDisplayItemI, OnInit, OnDestroy {
+    @Input() public rowData: any;
+    @Input() public rowIdx: number;
+    @Input() public value: any;
+    @Input() public processRowData: (rowData: any) => any;
+
+    constructor() { super() }
+
+    public ngOnInit(): void {
+    }
+}
+
+export interface BaseMobileFilterItemsI extends BaseTableItemsI {
     field?: string;
     value?: any;
     selectedValue?: any;
@@ -864,7 +865,7 @@ export interface MobileFilterItemsI extends BaseTableItemsI {
 @Component({
     template: '',
 })
-export class MobileFilterItems extends BaseTableItems implements MobileFilterItemsI, OnInit, OnDestroy {
+export class BaseMobileFilterItems extends BaseTableItems implements BaseMobileFilterItemsI, OnInit, OnDestroy {
     @Input() public field: string;
     @Input() public value: any;
     @Input() public selectedValue: any;
@@ -908,7 +909,7 @@ export class MobileFilterItems extends BaseTableItems implements MobileFilterIte
 }
 
 
-export interface BaseColumnItemsI extends MobileFilterItemsI {
+export interface BaseColumnItemsI extends BaseMobileFilterItemsI {
     getSelectedValue?: (rowData: any) => any;
     processRowData?: (rowData: any) => any;
     excludeFilter?: boolean;
@@ -917,7 +918,7 @@ export interface BaseColumnItemsI extends MobileFilterItemsI {
 @Component({
     template: '',
 })
-export class BaseColumnItems extends MobileFilterItems implements BaseColumnItemsI, OnInit, OnDestroy {
+export class BaseColumnItems extends BaseMobileFilterItems implements BaseColumnItemsI, OnInit, OnDestroy {
     @Input() public colIdx: number;
     @Input() public rowIdx: number;
     @Input() public rowData: any;
@@ -954,15 +955,15 @@ export class RowExpansionItems implements RowExpansionItemsI {
 
 // Caption is used to display caption component in caption part of table
 export interface Caption extends BaseTableItemsI {
-    component: Type<BaseCaptionItems>;
+    component: Type<BaseTableItems>;
 }
 
 export interface ColumnEntity extends BaseColumnItemsI {
     component: Type<BaseColumnItems>;
 }
 
-export interface MobileFilterEntity extends MobileFilterItemsI {
-    component: Type<MobileFilterItems>;
+export interface MobileFilterEntity extends BaseMobileFilterItemsI {
+    component: Type<BaseMobileFilterItems>;
 }
 
 // RowExpansion is used to display expansion component of table

@@ -37,8 +37,6 @@ import {
     ColumnEntity,
     BaseColumnItemsI,
     EditEvent,
-    BaseCaptionItemsI,
-    BaseCaptionItems,
     RowExpansionItems,
     BaseTableItems,
 } from '../../table-api';
@@ -201,7 +199,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // captionCr keeps a reference to dynamically created caption component which can be 
     // modified through different events and will be destroyed on component destruction
-    public captionCr: ComponentRef<BaseCaptionItems>;
+    public captionCr: ComponentRef<BaseTableItems>;
 
     // summaryCr keeps a reference to dynamically created summary component which can be 
     // modified through different events and will be destroyed on component destruction
