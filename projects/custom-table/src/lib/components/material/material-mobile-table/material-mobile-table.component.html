@@ -1,0 +1,22 @@
+<div *ngIf="config.pageHeader" [innerHTML]="config.pageHeader(outerData)"></div>
+<ng-template [appMobileTableCaption]></ng-template>
+<mat-accordion *ngIf="data" #mobileTable="matAccordion" multi>
+    <mat-expansion-panel [style]="config.panelStyle" [ngClass]="config.panelClass" [appMobileExpansionPanel]
+        [rowIdx]="i" [disabled]="true" *ngFor="let item of data; let i = index">
+        <mat-expansion-panel-header (click)="panelClick($event, item)">
+            <mat-panel-title>
+                <ng-template [appMobileTablePanelTitle] [rowData]="item" [rowIdx]="i"></ng-template>
+            </mat-panel-title>
+            <mat-panel-description>
+                <ng-template [appMobileTablePanelDescription] [rowData]="item" [rowIdx]="i"></ng-template>
+            </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div *ngIf="config.expansion" [style]="config.expansion.borderStyle" [ngClass]="config.expansion.borderClass">
+            <ng-template [appMobileTableExpansion] [rowIdx]="i"></ng-template>
+        </div>
+    </mat-expansion-panel>
+</mat-accordion>
+<mat-paginator *ngIf="config.pagination" (page)="onPage($event)" [length]="total"
+    [pageSize]="config.pagination.pageSize" [pageSizeOptions]="config.pagination.pageSizeOptions"
+    aria-label="Select page">
+</mat-paginator>

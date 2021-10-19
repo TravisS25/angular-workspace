@@ -9,6 +9,7 @@ import { MultiSelectModule } from 'primeng';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { DefaultConsts, DefaultTableEvents } from './config';
+import { MaterialPagination } from '../public-api';
 
 //---------------- FILTERS ----------------------- 
 
@@ -167,6 +168,16 @@ export interface HTTPOptions {
     reportProgress?: boolean;
     responseType?: 'json' | 'blob';
     withCredentials?: boolean;
+}
+
+// TableStateI is interface used in util component BaseIndexComponent
+// that allows user to switch between mobile and desktop tables
+export interface TableStateI {
+    state: State
+}
+
+export interface TableChangeStateI {
+    getTableChangeState?: (any) => State;
 }
 
 // ExportMenuItem extends MenuItem to add our exportAPI function
@@ -403,21 +414,65 @@ export interface BaseTableCaptionConfig {
     createCfg?: BaseActionConfig;
 }
 
-// BaseTableConfig is the main config that is used against our table api
-export interface BaseTableConfig extends BaseEventOptions {
+// MobileTableConfig is the main config used for mobile table
+export interface MobileTableConfig extends TableChangeStateI {
+    // captionCfg is config used to generate dynamic caption component with settings
+    captionCfg?: CaptionEntity;
+
+    // panelTitleCfg is config used generate dynamic component for mobile table with settings
+    panelTitleCfg?: DisplayItemEntity;
+
+    // panelDescriptionCfg is config used generate dynamic component for mobile table with settings
+    panelDescriptionCfg?: DisplayItemEntity;
+
+    // tableAPICfg is config used to call api from server
+    tableAPICfg?: APIConfig;
+
+    // panelHeaderEvent is function that will be called whenever panel header of mobile is clicked
+    // The event parameter can be used to determine what to do with event
+    panelHeaderEvent?: (event: any, rowData: any, table: any) => void;
+
+    // outerDataHeader takes in outerData and returns header for page
+    outerDataHeader?: (outerData: any) => string;
+
+    // processEvent will process any event made from mobile table
+    processEvent?: (event: BaseTableEvent, table: any) => void;
+
     // getState is the filter state of the table that will be sent to server
     // Setting this will set the table with initial state when making
     // first call to server
     getState?: (outerData: any) => State;
 
-    // getFilterState should be used when transitioning from mobile view to
-    // desktop view
-    // 
-    // This will override getState function if set
-    getFilterState?: (outerData: any) => State;
+    // customSearch will override default search of mobile table to implement own
+    // request to server
+    customSearch?: (table: any) => void;
+
+    // pagination is config used to determine table's page settings such as rows per page
+    pagination?: MaterialPagination;
+
+    // panelHeaderStyle is styling to be used for panel header of mobile stable
+    panelHeaderStyle?: Object;
+
+    // panelHeaderClass is classes to be used for panel header of mobile stable
+    panelHeaderClass?: string;
+
+    // expansion is config used to expand an inner table with current mobile table
+    expansion?: MobileRowExpansionEntity;
+
+    // paramCfg is config used to determine parameter names that will be sent to server
+    paramCfg?: ParamConfig;
+}
+
+
+// BaseTableConfig is the main config that is used against our table api
+export interface BaseTableConfig extends BaseEventOptions, TableChangeStateI {
+    // getState is the filter state of the table that will be sent to server
+    // Setting this will set the table with initial state when making
+    // first call to server
+    getState?: (outerData: any) => State;
 
     // summary is config used to generate custom summary component
-    summary?: Summary;
+    summary?: SummaryEntity;
 
     // paramConfig set param names that will be sent to server
     paramConfig?: ParamConfig;
@@ -460,10 +515,10 @@ export interface BaseTableConfig extends BaseEventOptions {
 
     // rowExpansion is ability to inject component into table expansion to
     // display related items of particular row
-    rowExpansion?: RowExpansion;
+    rowExpansion?: RowExpansionEntity;
 
     // caption is ability to inject component into table caption header
-    caption?: Caption;
+    caption?: CaptionEntity;
 
     // Height of the scroll viewport in fixed pixels or the "flex" keyword for a dynamic size.
     // 
@@ -610,25 +665,26 @@ export interface BaseTableConfig extends BaseEventOptions {
 // classes below
 //////////////////////////////////////////////////////////////////////////////////
 
-// BaseTableItemsI is base interface config used for column api
+// BaseTableI is base interface config used for column api
 // This config should be extended by various parts of the table api
 // like caption, column header etc.
-export interface BaseTableItemsI {
+export interface BaseTableI {
     config?: any;
-    baseTable?: any;
     processEvent?: (event: BaseTableEvent, component: any) => void;
 }
 
 @Component({
     template: '',
 })
-export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
+export class BaseTable implements BaseTableI, OnInit, OnDestroy {
     protected _subs: Subscription[] = [];
 
     @Input() public config: any;
     @Input() public baseTable: any;
     @Input() public outerData: any;
     @Output() public onEvent: EventEmitter<any> = new EventEmitter();
+
+    public state: State;
 
     public processEvent: (event: BaseTableEvent, table: any) => void;
     public processInputTemplateEvent: (event: any, baseTable: BaseTableComponent) => void;
@@ -654,7 +710,7 @@ export class BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
 @Component({
     template: '',
 })
-export class BaseTableCaptionComponent extends BaseTableItems implements BaseTableItemsI, OnInit, OnDestroy {
+export class BaseTableCaptionComponent extends BaseTable implements BaseTableI, OnInit, OnDestroy {
     public config: BaseTableCaptionConfig;
 
     // _rowMap is used for keeping track of what rows are currently selected
@@ -700,7 +756,7 @@ export class BaseTableCaptionComponent extends BaseTableItems implements BaseTab
     }
 
     private initColumnFilterSelect() {
-        let columns: Column[] = this.baseTable.dt.columns;
+        const columns: Column[] = this.baseTable.dt.columns;
 
         columns.forEach(x => {
             if (x.showColumnOption) {
@@ -758,7 +814,7 @@ export class BaseTableCaptionComponent extends BaseTableItems implements BaseTab
             this._selectedColsMap.set(val, true);
         }
 
-        let event: BaseTableEvent = {
+        const event: BaseTableEvent = {
             eventType: DefaultTableEvents.ColumnFilter,
             event: val
         }
@@ -793,7 +849,7 @@ export class BaseTableCaptionComponent extends BaseTableItems implements BaseTab
                 break;
         }
 
-        let headers: string[] = [];
+        const headers: string[] = [];
 
         this._selectedColsMap.forEach((v, k) => {
             if (v) {
@@ -805,12 +861,12 @@ export class BaseTableCaptionComponent extends BaseTableItems implements BaseTab
             url += this.baseTable.getFilterParams() + '&' + this.config.exportCfg.columnHeadersParam + '=' +
                 encodeURI(JSON.stringify(headers));
         } else {
-            let ids = [];
+            const ids = [];
             this._rowMap.forEach((v, k) => {
                 ids.push(v)
             })
 
-            let filter: FilterDescriptor = {
+            const filter: FilterDescriptor = {
                 field: this.config.exportCfg.idFilterParam,
                 operator: 'eq',
                 value: ids
@@ -835,7 +891,7 @@ export class BaseTableCaptionComponent extends BaseTableItems implements BaseTab
     }
 }
 
-export interface BaseDisplayItemI extends BaseTableItemsI {
+export interface BaseDisplayItemI extends BaseTableI {
     value?: any;
     processRowData?: (rowData: any) => any;
 }
@@ -843,7 +899,7 @@ export interface BaseDisplayItemI extends BaseTableItemsI {
 @Component({
     template: '',
 })
-export class BaseDisplayItem extends BaseTableItems implements BaseDisplayItemI, OnInit, OnDestroy {
+export class BaseDisplayItem extends BaseTable implements BaseDisplayItemI, OnInit, OnDestroy {
     @Input() public rowData: any;
     @Input() public rowIdx: number;
     @Input() public value: any;
@@ -855,7 +911,7 @@ export class BaseDisplayItem extends BaseTableItems implements BaseDisplayItemI,
     }
 }
 
-export interface BaseMobileFilterItemsI extends BaseTableItemsI {
+export interface BaseMobileFilterI extends BaseTableI {
     field?: string;
     value?: any;
     selectedValue?: any;
@@ -865,7 +921,7 @@ export interface BaseMobileFilterItemsI extends BaseTableItemsI {
 @Component({
     template: '',
 })
-export class BaseMobileFilterItems extends BaseTableItems implements BaseMobileFilterItemsI, OnInit, OnDestroy {
+export class BaseMobileFilter extends BaseTable implements BaseMobileFilterI, OnInit, OnDestroy {
     @Input() public field: string;
     @Input() public value: any;
     @Input() public selectedValue: any;
@@ -909,7 +965,7 @@ export class BaseMobileFilterItems extends BaseTableItems implements BaseMobileF
 }
 
 
-export interface BaseColumnItemsI extends BaseMobileFilterItemsI {
+export interface BaseColumnI extends BaseMobileFilterI {
     getSelectedValue?: (rowData: any) => any;
     processRowData?: (rowData: any) => any;
     excludeFilter?: boolean;
@@ -918,7 +974,7 @@ export interface BaseColumnItemsI extends BaseMobileFilterItemsI {
 @Component({
     template: '',
 })
-export class BaseColumnItems extends BaseMobileFilterItems implements BaseColumnItemsI, OnInit, OnDestroy {
+export class BaseColumn extends BaseMobileFilter implements BaseColumnI, OnInit, OnDestroy {
     @Input() public colIdx: number;
     @Input() public rowIdx: number;
     @Input() public rowData: any;
@@ -936,7 +992,13 @@ export class BaseColumnItems extends BaseMobileFilterItems implements BaseColumn
     }
 }
 
-export interface RowExpansionItemsI {
+export interface BaseMobileRowExpansionI extends BaseTableI {
+    expansionMap: Map<string, MobileRowExpansionEntity>;
+    borderStyle?: Object;
+    borderClass?: string;
+}
+
+export interface BaseRowExpansionI {
     config?: any;
     renderCallback?: EventEmitter<any>
     outerData?: any;
@@ -945,7 +1007,7 @@ export interface RowExpansionItemsI {
 @Component({
     template: '',
 })
-export class RowExpansionItems implements RowExpansionItemsI {
+export class BaseRowExpansion implements BaseRowExpansionI {
     @Input() public config: any;
     @Input() public renderCallback: EventEmitter<any>;
     @Input() public outerData: any;
@@ -953,27 +1015,40 @@ export class RowExpansionItems implements RowExpansionItemsI {
 
 // ---------------- COLUMN IMPLEMENTATION ------------------
 
-// Caption is used to display caption component in caption part of table
-export interface Caption extends BaseTableItemsI {
-    component: Type<BaseTableItems>;
+// CaptionEntity is used to display caption component in caption part of table
+export interface CaptionEntity extends BaseTableI {
+    component: Type<BaseTable>;
 }
 
-export interface ColumnEntity extends BaseColumnItemsI {
-    component: Type<BaseColumnItems>;
+export interface ColumnEntity extends BaseColumnI {
+    component: Type<BaseColumn>;
 }
 
-export interface MobileFilterEntity extends BaseMobileFilterItemsI {
-    component: Type<BaseMobileFilterItems>;
+export interface DisplayItemEntity extends BaseDisplayItemI {
+    component: Type<BaseDisplayItem>;
 }
 
-// RowExpansion is used to display expansion component of table
-export interface RowExpansion extends RowExpansionItemsI {
+export interface MobileFilterEntity extends BaseMobileFilterI {
+    component: Type<BaseMobileFilter>;
+}
+
+export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI {
+    component: Type<BaseTable>;
+}
+
+// RowExpansionEntity is used to display expansion component of table
+export interface RowExpansionEntity extends BaseRowExpansionI {
     // component is component to use for expansion of table
-    component: Type<RowExpansionItems>;
+    component: Type<BaseRowExpansion>;
 }
 
-export interface Summary extends BaseTableItemsI {
-    component: Type<BaseTableItems>;
+export interface SummaryEntity extends BaseTableI {
+    component: Type<BaseTable>;
+}
+
+export interface BaseIndexTableEntity {
+    component: Type<TableStateI>;
+    config: TableChangeStateI;
 }
 
 // ------------------ COLUMN CONFIGS -----------------------
@@ -1163,7 +1238,7 @@ export interface TabPanelItem {
 
     // contentComponent is the component that will be the generated within tab panel
     // This will override contentHTML
-    contentComponent?: Type<RowExpansionItemsI>;
+    contentComponent?: Type<BaseRowExpansionI>;
 
     // leftIcon will load css icon class to left of header
     leftIcon?: string;

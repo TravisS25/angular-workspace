@@ -1,0 +1,4 @@
+<ng-template [libMobileTable] *ngIf="isMobileTable; else block"></ng-template>
+<ng-template #block>
+    <ng-template [libTable]></ng-template>
+</ng-template>

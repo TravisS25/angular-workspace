@@ -19,12 +19,12 @@ export const DefaultTableEvents = {
     Refresh: 'refresh',
     ClearFilters: 'clearFilters',
     TableFilter: 'tableFilter',
-    Caption: 'caption',
+    CaptionEntity: 'caption',
     ColumnFilter: 'columnFilter',
     BodyCell: 'bodyCell',
     CloseRows: 'closeRows',
     Export: 'export',
-    Summary: 'summary',
+    SummaryEntity: 'summary',
 }
 
 export const DefaultEvents = {

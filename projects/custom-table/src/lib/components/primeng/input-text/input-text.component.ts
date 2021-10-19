@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, ViewChild, Output, EventEmitter, Elem
 import * as moment from 'moment';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { BaseColumnItems } from '../../../table-api';
+import { BaseColumn } from '../../../table-api';
 import { FilterConfig } from '.././../component-config';
 
 // InputTextConfig is config for InputTextComponent
@@ -26,7 +26,7 @@ export interface InputTextConfig {
     templateUrl: './input-text.component.html',
     styleUrls: ['./input-text.component.scss']
 })
-export class InputTextComponent extends BaseColumnItems implements OnInit, OnDestroy {
+export class InputTextComponent extends BaseColumn implements OnInit, OnDestroy {
     public modelChanged: Subject<string> = new Subject<string>();
     protected modelChangeSubscription: Subscription;
 

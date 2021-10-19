@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DefaultTableEvents } from '../../../config';
 import { BaseTableEvent } from '../../../table-api';
-import { BaseColumnItems } from '../../../table-api';
+import { BaseColumn } from '../../../table-api';
 import { BaseTableComponent } from '../../base-table/base-table.component';
 import { CheckboxEvent } from '../../component-config';
 
@@ -22,7 +22,7 @@ export interface MaterialCheckboxConfig {
     templateUrl: './material-checkbox.component.html',
     styleUrls: ['./material-checkbox.component.scss']
 })
-export class MaterialCheckboxComponent extends BaseColumnItems implements OnInit {
+export class MaterialCheckboxComponent extends BaseColumn implements OnInit {
     public checked: boolean = false;
     public cfg: MaterialCheckboxConfig
 

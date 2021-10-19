@@ -1,0 +1,6 @@
+<ng-container *ngFor="let item of config">
+    <lib-display-item [config]="item.config" [outerData]="outerData" [baseTable]="baseTable" [rowData]="rowData"
+        [rowIdx]="rowIdx" [processEvent]="item.processEvent" [processRowData]="item.processRowData"
+        (onEvent)="displayEvent($event)">
+    </lib-display-item>
+</ng-container>

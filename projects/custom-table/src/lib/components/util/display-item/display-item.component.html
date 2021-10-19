@@ -1,1 +1,6 @@
-<span (click)="onClick()" [ngClass]="config.class" [style]="config.style" [innerHTML]="config.value"></span>
+<ng-container *ngIf="config.entity; else block">
+    <ng-template [displayItemDirective]></ng-template>
+</ng-container>
+<ng-template #block>
+    <span (click)="onClick()" [ngClass]="config.class" [style]="config.style" [innerHTML]="value"></span>
+</ng-template>

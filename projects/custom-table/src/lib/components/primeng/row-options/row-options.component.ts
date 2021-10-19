@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, EventEmitter } from '@angular/core';
-import { BaseColumnItems, BaseModalConfig, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { BaseColumn, BaseModalConfig, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 import { MenuItem } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { BaseTableComponent } from '../../base-table/base-table.component';
@@ -20,7 +20,7 @@ export interface RowOptionsChangeEvent extends BaseTableEvent {
     templateUrl: './row-options.component.html',
     styleUrls: ['./row-options.component.scss']
 })
-export class RowOptionsComponent extends BaseColumnItems implements OnInit, OnDestroy {
+export class RowOptionsComponent extends BaseColumn implements OnInit, OnDestroy {
     private _roConfig: RowOptionsConfig;
 
     public newList: MenuItem[] = [];

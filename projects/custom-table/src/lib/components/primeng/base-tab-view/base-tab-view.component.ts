@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ViewChildren, QueryList, AfterViewInit, ChangeDetectorRef, ComponentFactoryResolver, OnDestroy, ComponentRef, EventEmitter } from '@angular/core';
-import { TabPanelItem, TabViewConfig, RowExpansionItemsI } from '../../../table-api';
+import { TabPanelItem, TabViewConfig, BaseRowExpansionI } from '../../../table-api';
 import { DynamicTabPanelDirective } from '../../../directives/dynamic-tab-panel.directive';
 import { TabView } from 'primeng/tabview';
 import { Subscribable, Subscription } from 'rxjs';
@@ -11,7 +11,7 @@ import { Subscribable, Subscription } from 'rxjs';
 })
 export class BaseTabViewComponent implements OnInit, AfterViewInit, OnDestroy {
     private _openedPanelIdxs: number[] = [];
-    private _panelCrs: ComponentRef<RowExpansionItemsI>[] = [];
+    private _panelCrs: ComponentRef<BaseRowExpansionI>[] = [];
 
     @Input() public config: TabViewConfig;
     @Input() public outerData: any;

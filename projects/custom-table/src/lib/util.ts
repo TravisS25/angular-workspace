@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { BaseTableComponent } from './components/base-table/base-table.component';
 import { CheckboxEvent, MaterialMenuItem } from '../public-api';
-import { State, FilterDescriptor } from './table-api';
+import { State, FilterDescriptor, ParamConfig } from './table-api';
 
 // setColumnFilterValue sets the column filter reference values in table passed with
 // the values found in map passed
@@ -38,17 +38,6 @@ export function setColumnFilterValue(baseTable: BaseTableComponent, fieldMap: Ma
             })
         }
     }
-}
-
-export function makeID(length) {
-    var result = '';
-    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for (var i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() *
-            charactersLength));
-    }
-    return result;
 }
 
 export function defaultProcessError(err: any) {
@@ -96,6 +85,36 @@ export function getJSONFieldValue(field: string, data: Object): any {
     }
 
     return val;
+}
+
+export function encodeURIState(state: State, cfg: ParamConfig): string {
+    let url = '?'
+
+    if (state.take != undefined && cfg.take) {
+        url += cfg.take + '=' + state.take.toString() + '&';
+    }
+    if (state.skip != undefined && cfg.skip) {
+        url += cfg.skip + '=' + state.skip.toString() + '&';
+    }
+    if (state.filter != undefined) {
+        const filters = state.filter.filters as FilterDescriptor[];
+
+        if (filters && cfg.filters) {
+            url += cfg.filters + '=' + encodeURI(JSON.stringify(filters)) + '&';
+        }
+    }
+    if (state.group != undefined && cfg.groups) {
+        url += cfg.groups + '=' + encodeURI(JSON.stringify(state.group)) + '&';
+    }
+    if (state.sort != undefined && cfg.sorts) {
+        url += cfg.sorts + '=' + encodeURI(JSON.stringify(state.sort)) + '&';
+    }
+
+    if (url == '?') {
+        return '';
+    }
+
+    return url;
 }
 
 export function instanceOfCheckboxEvent(object: any): object is CheckboxEvent {

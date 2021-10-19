@@ -1,7 +1,7 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef } from '@angular/core';
 import * as moment from 'moment';
 import { DefaultConsts } from '../../../config';
-import { BaseColumnItems, BaseTableEvent } from '../../../table-api';
+import { BaseColumn, BaseTableEvent } from '../../../table-api';
 import { FilterConfig } from '../../component-config';
 
 // DatePickerConfig is config used for date picker option
@@ -46,7 +46,7 @@ export interface DatePickerEvent {
     templateUrl: './date-picker.component.html',
     styleUrls: ['./date-picker.component.scss']
 })
-export class DatePickerComponent extends BaseColumnItems implements OnInit {
+export class DatePickerComponent extends BaseColumn implements OnInit {
     constructor() {
         super();
     }

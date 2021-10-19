@@ -4,7 +4,7 @@ import { Checkbox } from 'primeng/checkbox';
 import { CheckboxEvent } from '../../component-config';
 import { BaseTableEvent } from '../../../table-api';
 //import { MaterialCheckboxConfig } from '../../component-config';
-import { BaseColumnItems } from '../../../table-api';
+import { BaseColumn } from '../../../table-api';
 import { BaseTableComponent } from '../../base-table/base-table.component';
 import { MaterialCheckboxConfig } from '../material-checkbox/material-checkbox.component';
 import { DefaultTableEvents } from '../../../config';
@@ -14,7 +14,7 @@ import { DefaultTableEvents } from '../../../config';
     templateUrl: './material-header-checkbox.component.html',
     styleUrls: ['./material-header-checkbox.component.scss']
 })
-export class MaterialHeaderCheckboxComponent extends BaseColumnItems implements OnInit, OnDestroy {
+export class MaterialHeaderCheckboxComponent extends BaseColumn implements OnInit, OnDestroy {
     public checked: boolean = false;
     public cfg: MaterialCheckboxConfig;
     // public cfg: MaterialCheckboxConfig

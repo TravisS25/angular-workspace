@@ -2,7 +2,7 @@ import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChi
 import { HttpClient } from '@angular/common/http';
 import { Checkbox } from 'primeng/checkbox';
 import { CheckboxEvent } from '../../component-config';
-import { BaseColumnItems, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { BaseColumn, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 import { BaseTableComponent } from '../../base-table/base-table.component';
 
 @Component({
@@ -10,7 +10,7 @@ import { BaseTableComponent } from '../../base-table/base-table.component';
     templateUrl: './header-checkbox.component.html',
     styleUrls: ['./header-checkbox.component.scss']
 })
-export class HeaderCheckboxComponent extends BaseColumnItems implements OnInit, OnDestroy {
+export class HeaderCheckboxComponent extends BaseColumn implements OnInit, OnDestroy {
     public checked: boolean = false;
     private _hcbCfg: BaseTableEventConfig
 

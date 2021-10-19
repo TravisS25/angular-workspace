@@ -1,6 +1,6 @@
 // default values.ts
 
-import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, BaseActionConfig } from './table-api'
+import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, BaseActionConfig, State, ParamConfig } from './table-api'
 import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { BaseTableComponent } from './components/base-table/base-table.component';
 import { defaultProcessError } from './util';
@@ -156,6 +156,29 @@ export function getDefaultMaterialNumberConfig(): MaterialInputTextConfig {
                 value: 'isnotnull'
             },
         ]
+    }
+}
+
+export function getDefaultState(): State {
+    return {
+        take: 20,
+        skip: 0,
+        filter: {
+            logic: 'and',
+            filters: [],
+        },
+        sort: [],
+        group: [],
+    }
+}
+
+export function getDefaultParamConfig(): ParamConfig {
+    return {
+        take: 'take',
+        skip: 'skip',
+        filters: 'filters',
+        sorts: 'sorts',
+        groups: 'groups',
     }
 }
 

@@ -28,17 +28,17 @@ import {
     FieldName,
     BoolList,
     ExportType,
-    RowExpansionItemsI,
-    BaseTableItemsI,
+    BaseRowExpansionI,
+    BaseTableI,
     BaseTableEvent,
     APIConfig,
     ParamConfig,
-    BaseColumnItems,
+    BaseColumn,
     ColumnEntity,
-    BaseColumnItemsI,
+    BaseColumnI,
     EditEvent,
-    RowExpansionItems,
-    BaseTableItems,
+    BaseRowExpansion,
+    BaseTable,
 } from '../../table-api';
 import _ from "lodash" // Import the entire lodash library
 import { DialogService } from 'primeng/dynamicdialog';
@@ -58,10 +58,11 @@ import { DynamicInputTemplateDirective } from '../../directives/dynamic-input-te
 import { DynamicSummaryDirective } from '../../directives/dynamic-summary.directive';
 import { DynamicBaseCellDirective } from '../../directives/dynamic-base-cell.directive';
 import { isNgTemplate } from '@angular/compiler/src/ml_parser/tags';
-import { getJSONFieldValue } from '../../util';
+import { encodeURIState, getJSONFieldValue } from '../../util';
 import { ThrowStmt } from '@angular/compiler';
 import { DefaultTableEvents } from '../../config';
 import { MaterialInputTextComponent } from '../../../public-api';
+import { getDefaultState } from '../../default-values';
 
 interface outputTemplateConfig {
     updateOutputTemplate: boolean;
@@ -74,7 +75,7 @@ interface outputTemplateConfig {
     templateUrl: './base-table.component.html',
     styleUrls: ['./base-table.component.scss'],
 })
-export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
+export class BaseTableComponent extends BaseTable implements OnInit, AfterViewInit, OnDestroy {
     private _outputTemplateCfg: outputTemplateConfig = {
         updateOutputTemplate: false,
         rowIdx: -1,
@@ -154,7 +155,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // private _createSub: Subscription;
 
     // _subs is used to keep a reference to all subscriptions within table
-    private _subs: Subscription[] = [];
+    //private _subs: Subscription[] = [];
 
     // _bodyCellSubs is used to keep reference to explicitly body cell subscriptions
     // and will properly unsubscribe from them when new data is loaded into table
@@ -180,30 +181,30 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // columnFilterCrs keeps a list of references to dynamically created column filters
     // components which can be modified through different events and will be destroyed on 
     // component destruction
-    public columnFilterCrs: ComponentRef<BaseColumnItems>[] = [];
+    public columnFilterCrs: ComponentRef<BaseColumn>[] = [];
 
     // rowExpansionCrs keeps a list of references to dynamically created expanded row
     // components which can be modified through different events and will be destroyed on 
     // component destruction
-    public rowExpansionCrs: ComponentRef<RowExpansionItems>[] = [];
+    public rowExpansionCrs: ComponentRef<BaseRowExpansion>[] = [];
 
     // bodyCellCrs keeps a list of references to dynamically created body cell 
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    public bodyCellCrs: ComponentRef<BaseColumnItems>[] = [];
+    public bodyCellCrs: ComponentRef<BaseColumn>[] = [];
 
     // outputTemplateCrMap keeps a list of references to dynamically created output template
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    public outputTemplateCrMap: Map<number, Map<string, ComponentRef<BaseColumnItems>>> = new Map();
+    public outputTemplateCrMap: Map<number, Map<string, ComponentRef<BaseColumn>>> = new Map();
 
     // captionCr keeps a reference to dynamically created caption component which can be 
     // modified through different events and will be destroyed on component destruction
-    public captionCr: ComponentRef<BaseTableItems>;
+    public captionCr: ComponentRef<BaseTable>;
 
     // summaryCr keeps a reference to dynamically created summary component which can be 
     // modified through different events and will be destroyed on component destruction
-    public summaryCr: ComponentRef<BaseTableItems>;
+    public summaryCr: ComponentRef<BaseTable>;
 
     public tableCellDirMap: Map<number, Map<string, DynamicTableCellDirective>> = new Map();
 
@@ -269,22 +270,13 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // state keeps track of the current table's filter state and is the info that is 
     // sent to the server whenever a column filter is used or pagination occurs
-    public state: State = {
-        skip: 0,
-        take: 20,
-        filter: {
-            logic: 'and',
-            filters: new Array<FilterDescriptor>()
-        },
-        sort: new Array<SortDescriptor>(),
-        group: new Array<GroupDescriptor>(),
-    };
+    public state: State;
 
     constructor(
         public cdr: ChangeDetectorRef,
         public cfr: ComponentFactoryResolver,
         public http: HttpClient,
-    ) { }
+    ) { super() }
 
     ///////////////////////////////////////////
     // INIT DEFAULT VALUES
@@ -366,7 +358,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         if (this.config.paramConfig == undefined) {
-            this.config.paramConfig = pCfg;
+            this.config.paramConfig = {};
         } else {
             if (this.config.paramConfig.skip == undefined) {
                 this.config.paramConfig.skip = pCfg.skip;
@@ -382,11 +374,14 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
 
-        if (this.config.getFilterState != undefined) {
-            this.state = this.config.getFilterState(this.outerData);
+        if (this.config.getTableChangeState != undefined) {
+            this.state = this.config.getTableChangeState(this.outerData);
         } else if (this.config.getState != undefined) {
             this.state = this.config.getState(this.outerData);
+        } else {
+            this.state = getDefaultState();
         }
+
         if (this.config.resetEditedRowsOnTableFilter == undefined) {
             this.config.resetEditedRowsOnTableFilter = true;
         }
@@ -506,7 +501,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // createCellComponentRef creates and return a component reference based on the directive
     // and ComponentRef passed
-    private createCellComponentRef(dir: DynamicBaseCellDirective, ce: ColumnEntity): ComponentRef<BaseColumnItems> {
+    private createCellComponentRef(dir: DynamicBaseCellDirective, ce: ColumnEntity): ComponentRef<BaseColumn> {
         const cf = this.cfr.resolveComponentFactory(ce.component);
         const cr = dir.viewContainerRef.createComponent(cf);
         cr.instance.baseTable = this;
@@ -594,7 +589,7 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
                         if (this._updateOutputTemplateComponents) {
                             const cr = this.createCellComponentRef(item, ce);
-                            let rowCrMap: Map<string, ComponentRef<BaseColumnItems>>;
+                            let rowCrMap: Map<string, ComponentRef<BaseColumn>>;
 
                             if (this.outputTemplateCrMap.has(item.rowIdx)) {
                                 rowCrMap = this.outputTemplateCrMap.get(item.rowIdx);
@@ -1339,7 +1334,10 @@ export class BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.config.tableAPIConfig.apiURL(this.outerData) != "" &&
                 this.config.tableAPIConfig.apiURL(this.outerData) != null
             ) {
-                this.getGridInfo(this.config.tableAPIConfig.apiURL(this.outerData) + this.getFilterParams());
+                this.getGridInfo(
+                    this.config.tableAPIConfig.apiURL(this.outerData) +
+                    encodeURIState(this.state, this.config.paramConfig)
+                );
             } else {
                 this.dt.loading = false;
             }

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { BaseColumnItems } from '../../../table-api'
+import { BaseColumn } from '../../../table-api'
 import { FilterConfig, FilterOptions } from '../../component-config'
 import * as moment from 'moment';
 import { DefaultConsts } from '../../../config';
@@ -42,7 +42,7 @@ export interface MaterialDatePickerEvent {
     templateUrl: './material-date-picker.component.html',
     styleUrls: ['./material-date-picker.component.scss']
 })
-export class MaterialDatePickerComponent extends BaseColumnItems implements OnInit {
+export class MaterialDatePickerComponent extends BaseColumn implements OnInit {
     @ViewChild(MaterialFilterOptionComponent) public filterOption: MaterialFilterOptionComponent;
 
     constructor() {

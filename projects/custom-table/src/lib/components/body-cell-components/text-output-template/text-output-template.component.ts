@@ -1,6 +1,6 @@
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit } from '@angular/core';
-import { BaseColumnItems, } from '../../../table-api';
+import { BaseColumn, } from '../../../table-api';
 import { BaseTableComponent } from '../../base-table/base-table.component';
 
 export interface TextOutputTemplateConfig {
@@ -13,7 +13,7 @@ export interface TextOutputTemplateConfig {
     templateUrl: './text-output-template.component.html',
     styleUrls: ['./text-output-template.component.scss'],
 })
-export class TextOutputTemplateComponent extends BaseColumnItems implements OnInit {
+export class TextOutputTemplateComponent extends BaseColumn implements OnInit {
     public label: string;
 
     constructor() {

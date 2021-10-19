@@ -2,7 +2,7 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MaterialMenuItem } from '../material-menu-item/material-menu-item.component';
 import { Menu } from 'primeng';
 import { MaterialMenuItemModule } from '../../../modules/material/material-menu-item.module';
-import { BaseColumnItems, BaseTableEvent, } from '../../../table-api';
+import { BaseColumn, BaseTableEvent, } from '../../../table-api';
 import { MaterialMenuItemComponent } from '../material-menu-item/material-menu-item.component';
 
 export interface MaterialRowOptionConfig {
@@ -14,7 +14,7 @@ export interface MaterialRowOptionConfig {
     templateUrl: './material-row-options.component.html',
     styleUrls: ['./material-row-options.component.scss']
 })
-export class MaterialRowOptionsComponent extends BaseColumnItems implements OnInit {
+export class MaterialRowOptionsComponent extends BaseColumn implements OnInit {
     constructor() {
         super();
     }

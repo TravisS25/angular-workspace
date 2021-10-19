@@ -2,9 +2,8 @@ import { AfterViewInit, ChangeDetectorRef, Component, Directive, Input, OnInit, 
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatOption } from '@angular/material/core';
 import { SelectItem } from 'primeng'
-import { BaseColumnItems } from '../../../table-api';
+import { BaseColumn } from '../../../table-api';
 import { MatSelectChange } from '@angular/material/select';
-import { makeID } from '../../../util';
 
 @Directive({
     selector: '[matOptionDirective]'
@@ -54,12 +53,11 @@ export interface MaterialDropdownSelectConfig {
     templateUrl: './material-dropdown-select.component.html',
     styleUrls: ['./material-dropdown-select.component.scss']
 })
-export class MaterialDropdownSelectComponent extends BaseColumnItems implements OnInit, AfterViewInit {
+export class MaterialDropdownSelectComponent extends BaseColumn implements OnInit, AfterViewInit {
     @ViewChild('selectAll') public selectAll: MatOption;
     @ViewChildren(MatOptionDirective) public options: QueryList<MatOptionDirective>;
 
     public cfg: MaterialDropdownSelectConfig;
-    public nameField = makeID(15);
 
     constructor(public cdr: ChangeDetectorRef) {
         super();

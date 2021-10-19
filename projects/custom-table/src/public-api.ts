@@ -6,6 +6,14 @@
 // COMPONENTS
 /////////////////////////////////////
 
+// Util Components
+export * from './lib/components/util/display-item/display-item.component';
+export * from './lib/components/util/display-item-list/display-item-list.component';
+export * from './lib/components/util/base-index/base-index.component';
+
+// Services
+export * from './lib/services/window-resize.service';
+
 export * from './lib/components/component-config';
 export * from './lib/components/base-table/base-table.component';
 export * from './lib/components/body-cell-components/bool-body-cell/bool-body-cell.component';
@@ -26,6 +34,7 @@ export * from './lib/components/material/material-row-options/material-row-optio
 export * from './lib/components/material/material-menu-item/material-menu-item.component';
 export * from './lib/components/material/material-ellipsis-icon/material-ellipsis-icon.component';
 export * from './lib/components/material/material-text-area/material-text-area.component';
+export * from './lib/components/material/material-mobile-table/material-mobile-table.component';
 
 // Primeng components
 export * from './lib/components/primeng/date-picker/date-picker.component';
@@ -52,6 +61,10 @@ export * from './lib/directives/dynamic-input-template.directive';
 export * from './lib/directives/dynamic-table-cell.directive';
 
 // Modules
+export * from './lib/modules/util/display-item.module';
+export * from './lib/modules/util/display-item-list.module';
+export * from './lib/modules/util/base-index.module';
+
 export * from './lib/modules/base-table.module';
 export * from './lib/modules/primeng/base-tab-view.module'
 export * from './lib/modules/bool-body-cell.module';

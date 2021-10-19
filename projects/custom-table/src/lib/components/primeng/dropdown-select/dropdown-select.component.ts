@@ -1,6 +1,6 @@
 import { Component, ViewChild, ComponentFactoryResolver, ChangeDetectorRef, OnInit } from '@angular/core';
 import { Dropdown } from 'primeng/dropdown';
-import { BaseColumnItems, BaseTableEvent } from '../../../table-api';
+import { BaseColumn, BaseTableEvent } from '../../../table-api';
 import { GalleriaThumbnails } from 'primeng';
 import { DefaultTableEvents } from '../../../config';
 
@@ -30,7 +30,7 @@ export interface DropdownSelectEvent {
     templateUrl: './dropdown-select.component.html',
     styleUrls: ['./dropdown-select.component.scss']
 })
-export class DropdownSelectComponent extends BaseColumnItems implements OnInit {
+export class DropdownSelectComponent extends BaseColumn implements OnInit {
     private initConfig() {
         if (this.config == undefined) {
             throw ('MUST SET CONFIG FOR DROPDOWN SELECT');
