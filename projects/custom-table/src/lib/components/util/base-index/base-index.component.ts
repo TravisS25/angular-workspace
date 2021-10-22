@@ -1,10 +1,9 @@
 import { ThrowStmt } from '@angular/compiler';
-import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Directive, Input, OnDestroy, OnInit, QueryList, Type, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
-import { BaseTableConfig, MobileTableConfig, State, BaseTable } from '../../../table-api';
+import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, Type, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
+import { BaseTableConfig, MobileTableConfig, State, BaseTable, BaseIndexTableEntity, TableSwitchI } from '../../../table-api';
 import { Observable, Subject, Subscription } from 'rxjs';
 import _ from "lodash" // Import the entire lodash library
 import { WindowResizeService } from '../../../services/window-resize.service';
-import { BaseIndexTableEntity, TableStateI } from 'projects/custom-table/src/public-api';
 
 
 @Directive({
@@ -28,13 +27,12 @@ export class MobileTableDirective {
 })
 export class BaseIndexComponent implements OnInit {
     private _isMobilePrevious: boolean = null;
-    private _windowSub: Subscription;
+    private _sub: Subscription = new Subscription();
     private _currentState: State;
+    private _isViewInit = false;
 
-    private _tableCR: ComponentRef<TableStateI>;
-    private _mobileTableCR: ComponentRef<TableStateI>;
-
-    protected processWindowResize: (width: number, table: any) => void;
+    private _tableCR: ComponentRef<TableSwitchI>;
+    private _mobileTableCR: ComponentRef<TableSwitchI>;
 
     public isMobileTable: boolean = false;
 
@@ -45,6 +43,7 @@ export class BaseIndexComponent implements OnInit {
     @Input() public disableTableChange: boolean = false;
     @Input() public tableEntity: BaseIndexTableEntity;
     @Input() public mobileTableEntity: BaseIndexTableEntity;
+    @Output() public windowChange: EventEmitter<number> = new EventEmitter();
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -52,93 +51,130 @@ export class BaseIndexComponent implements OnInit {
         public windowResizeService: WindowResizeService,
     ) { }
 
-    private setCurrentState() {
-        if (this.isMobileTable) {
-            if (this.mobileTableDir && !this._mobileTableCR) {
-                const arr = this.mobileTableDir.toArray();
+    private subscribeDirChanges() {
+        this._sub.add(
+            this.tableDir.changes.subscribe(r => {
+                console.log('table dir changes')
+                console.log(r)
 
-                if (arr.length > 0) {
-                    this._mobileTableCR = arr[0].viewContainerRef.createComponent(
-                        this.cfr.resolveComponentFactory(
-                            this.mobileTableEntity.component
-                        ),
-                    );
+                if (r.length > 0) {
+                    this.tableEntity.config.getTableStateChange = (outerData: any): State => {
+                        return this._currentState;
+                    }
+
+                    this.destroyCr()
+                    this.createCr();
+                    this.cdr.detectChanges();
+                }
+            })
+        )
+        this._sub.add(
+            this.mobileTableDir.changes.subscribe(r => {
+                console.log('mobile table dir changes')
+                console.log(r)
+
+                this.mobileTableEntity.config.getTableStateChange = (outerData: any): State => {
+                    return this._currentState;
                 }
 
-                this._currentState = this._mobileTableCR.instance.state;
+                if (r.length > 0) {
+                    this.destroyCr()
+                    this.createCr();
+                    this.cdr.detectChanges();
+                }
+            })
+        )
+    }
+
+    private createCr() {
+        if (this.isMobileTable) {
+            console.log('creating mobile table!')
+            this._mobileTableCR = this.mobileTableDir.toArray()[0].viewContainerRef.createComponent(
+                this.cfr.resolveComponentFactory(
+                    this.mobileTableEntity.component
+                ),
+            );
+
+            this._mobileTableCR.instance.config = this.mobileTableEntity.config;
+            this._mobileTableCR.onDestroy(() => { console.log('mobile destroyed') })
+        } else {
+            console.log('creating table!')
+            this._tableCR = this.tableDir.toArray()[0].viewContainerRef.createComponent(
+                this.cfr.resolveComponentFactory(
+                    this.tableEntity.component
+                ),
+            );
+
+            this._tableCR.instance.config = this.tableEntity.config;
+            this._tableCR.onDestroy(() => { console.log('table destroyed') });
+        }
+    }
+
+    private destroyCr() {
+        if (this.isMobileTable) {
+            if (this._tableCR != undefined) {
+                this._tableCR.destroy();
+                this._tableCR = undefined;
             }
         } else {
-            if (this.tableDir && !this._tableCR) {
-                const arr = this.tableDir.toArray();
-
-                if (arr.length > 0) {
-                    this._tableCR = arr[0].viewContainerRef.createComponent(
-                        this.cfr.resolveComponentFactory(
-                            this.tableEntity.component
-                        ),
-                    );
-                }
-
-                this._currentState = this._tableCR.instance.state;
+            if (this._mobileTableCR != undefined) {
+                this._mobileTableCR.destroy();
+                this._mobileTableCR = undefined;
             }
         }
     }
 
-    private setTableSettings(width: number, windowResizing: boolean) {
-        this.setCurrentState();
+    // private destroyCr(destroyMobile: boolean) {
+    //     if (destroyMobile) {
+    //         if (this._mobileTableCR != undefined) {
+    //             this._mobileTableCR.destroy();
+    //             this._mobileTableCR = undefined;
+    //         }
+    //     } else {
+    //         if (this._tableCR != undefined) {
+    //             this._tableCR.destroy();
+    //             this._tableCR = undefined;
+    //         }
+    //     }
+    // }
 
-        // If window size is smaller than bootstrap lg settings, then 
-        // we are in mobile view 
-        //
-        // Else we are considered on large screen / desktop
-        if (width < this.tableChangeWidth) {
-            // If window is resizing and previous was setting was not, then we
-            // are going from large / desktop screen to mobile screen
-            // This will usually occur with tablets where vertial is mobile
-            // but horizontal is desktop
-            if (windowResizing && this._isMobilePrevious !== null && this._isMobilePrevious === false) {
-                console.log('_current state')
-                console.log(this._currentState)
-
-                this.mobileTableEntity.config.getTableChangeState = (outerData: any): State => {
-                    return this._currentState;
-                }
-            }
-
-            if (!this.disableTableChange) {
-                this.isMobileTable = true;
-            }
+    private setCurrentState() {
+        if (this.isMobileTable) {
+            this._currentState = this._mobileTableCR.instance.state;
         } else {
-            if (windowResizing && this._isMobilePrevious !== null && this._isMobilePrevious === true) {
-                console.log('_current state')
-                console.log(this._currentState)
+            this._currentState = this._tableCR.instance.state;
+        }
+    }
 
-                this.tableEntity.config.getTableChangeState = (outerData: any): State => {
-                    return this._currentState;
-                }
-            }
-
-            if (!this.disableTableChange) {
+    private setTableSettings(width: number) {
+        if (!this.disableTableChange) {
+            if (width < this.tableChangeWidth) {
+                this.isMobileTable = true;
+            } else {
                 this.isMobileTable = false;
             }
         }
     }
 
-    private unsubscribeWindow() {
-        if (this._windowSub && !this._windowSub.closed) {
-            this._windowSub.unsubscribe();
+    private unsubscribeSub() {
+        if (this._sub && !this._sub.closed) {
+            this._sub.unsubscribe();
         }
+        this._sub = null;
     }
 
     private subscribeWindow() {
-        this._windowSub = this.windowResizeService.getWindowSizeObs().subscribe(r => {
-            this.setTableSettings(r, true);
-            this._isMobilePrevious = this.isMobileTable;
-
-            if (this.processWindowResize != undefined) {
-                this.processWindowResize(r, this);
-            }
-        })
+        window.onresize = () => {
+            this.windowResizeService.setWindowSize(window.innerWidth);
+        }
+        this._sub.add(
+            this.windowResizeService.getWindowSizeObs().subscribe(r => {
+                this.setCurrentState();
+                this.setTableSettings(r);
+                this._isMobilePrevious = this.isMobileTable;
+                this.windowChange.emit(r);
+            })
+        )
     }
 
     public ngOnInit(): void {
@@ -146,17 +182,19 @@ export class BaseIndexComponent implements OnInit {
             throw ('MUST SET BOTH "tableEntity" AND "mobileTableEntity" INPUTS!')
         }
 
-        this.setTableSettings(this.windowResizeService.getwindowSize(), false);
         this.subscribeWindow();
+        this.setTableSettings(window.innerWidth);
     }
 
     public ngAfterViewInit() {
-        this.setCurrentState();
+        this._isViewInit = true;
+        this.createCr()
+        this.subscribeDirChanges();
+        this.cdr.detectChanges();
     }
 
     public ngOnDestroy() {
-        this.unsubscribeWindow();
-        this._windowSub = null;
+        this.unsubscribeSub();
     }
 
 }

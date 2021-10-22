@@ -14,14 +14,20 @@ import { SelectItem, TabPanel } from 'primeng';
 import { MaskConfig, MaterialPagination } from './components/component-config';
 import { TabPanelItem, TabViewConfig } from '../public-api';
 
+export function getDefaultPostHeader(csrfToken: string): HttpHeaders {
+    return new HttpHeaders({
+        'Content-Type': 'application/json',
+        'X-Csrf-Token': csrfToken
+    });
+}
+
 export function getDefaultDynamicDialogCfg(): DynamicDialogConfig {
-    let cfg: DynamicDialogConfig = {
+    return {
         width: '90%',
         closable: true,
         dismissableMask: false,
         data: {},
     }
-    return cfg;
 }
 
 export function getDefaultTabViewConfig(panels: TabPanelItem[]): TabViewConfig {

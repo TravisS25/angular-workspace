@@ -1,8 +1,8 @@
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, Directive, Input, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { DefaultEvents } from '../../../config';
-import { BaseTableEvent, BaseDisplayItem, DisplayItemEntity } from '../../../table-api';
+import { DefaultEvents } from '../../../../config';
+import { BaseTableEvent, BaseDisplayItem, DisplayItemEntity } from '../../../../table-api';
 
 export interface DisplayItemConfig {
     style?: Object;

@@ -1,12 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BaseIndexComponent } from '../../components/util/base-index/base-index.component';
+import { BaseIndexComponent, TableDirective, MobileTableDirective } from '../../components/util/base-index/base-index.component';
 
 
 
 @NgModule({
     declarations: [
-        BaseIndexComponent
+        BaseIndexComponent,
+        TableDirective,
+        MobileTableDirective,
     ],
     imports: [
         CommonModule

@@ -270,7 +270,7 @@ export class BaseTableComponent extends BaseTable implements OnInit, AfterViewIn
 
     // state keeps track of the current table's filter state and is the info that is 
     // sent to the server whenever a column filter is used or pagination occurs
-    public state: State;
+    public state: State = getDefaultState();
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -374,8 +374,8 @@ export class BaseTableComponent extends BaseTable implements OnInit, AfterViewIn
             }
         }
 
-        if (this.config.getTableChangeState != undefined) {
-            this.state = this.config.getTableChangeState(this.outerData);
+        if (this.config.getTableStateChange != undefined) {
+            this.state = this.config.getTableStateChange(this.outerData);
         } else if (this.config.getState != undefined) {
             this.state = this.config.getState(this.outerData);
         } else {
@@ -569,8 +569,8 @@ export class BaseTableComponent extends BaseTable implements OnInit, AfterViewIn
                 }
             }),
             this.outputTemplateDirs.changes.subscribe(val => {
-                console.log('output template dir change');
-                console.log(val)
+                // console.log('output template dir change');
+                // console.log(val)
 
                 let results = val._results as DynamicOutputTemplateDirective[];
 
@@ -622,8 +622,8 @@ export class BaseTableComponent extends BaseTable implements OnInit, AfterViewIn
                 this._outputTemplateCfg.field = '';
             }),
             this.inputTemplateDirs.changes.subscribe(val => {
-                console.log('input template dir change');
-                console.log(val);
+                // console.log('input template dir change');
+                // console.log(val);
 
                 let results = val._results as DynamicInputTemplateDirective[];
 

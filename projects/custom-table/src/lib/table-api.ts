@@ -9,7 +9,8 @@ import { MultiSelectModule } from 'primeng';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { DefaultConsts, DefaultTableEvents } from './config';
-import { MaterialPagination } from '../public-api';
+import { BaseFormComponent } from './components/util/form/base-form/base-form.component';
+import { MaterialPagination } from './components/component-config'
 
 //---------------- FILTERS ----------------------- 
 
@@ -168,16 +169,6 @@ export interface HTTPOptions {
     reportProgress?: boolean;
     responseType?: 'json' | 'blob';
     withCredentials?: boolean;
-}
-
-// TableStateI is interface used in util component BaseIndexComponent
-// that allows user to switch between mobile and desktop tables
-export interface TableStateI {
-    state: State
-}
-
-export interface TableChangeStateI {
-    getTableChangeState?: (any) => State;
 }
 
 // ExportMenuItem extends MenuItem to add our exportAPI function
@@ -353,7 +344,7 @@ export interface BaseModalConfig {
 // that emit an event
 export interface BaseTableEventConfig {
     // eventType should be unique name of event that is triggered by table component
-    eventType: string;
+    eventType: any;
 }
 
 // BaseTableEvent should be the interface that is emitted from every event
@@ -415,7 +406,7 @@ export interface BaseTableCaptionConfig {
 }
 
 // MobileTableConfig is the main config used for mobile table
-export interface MobileTableConfig extends TableChangeStateI {
+export interface MobileTableConfig extends TableStateChangeI {
     // captionCfg is config used to generate dynamic caption component with settings
     captionCfg?: CaptionEntity;
 
@@ -465,7 +456,7 @@ export interface MobileTableConfig extends TableChangeStateI {
 
 
 // BaseTableConfig is the main config that is used against our table api
-export interface BaseTableConfig extends BaseEventOptions, TableChangeStateI {
+export interface BaseTableConfig extends BaseEventOptions, TableStateChangeI {
     // getState is the filter state of the table that will be sent to server
     // Setting this will set the table with initial state when making
     // first call to server
@@ -665,11 +656,26 @@ export interface BaseTableConfig extends BaseEventOptions, TableChangeStateI {
 // classes below
 //////////////////////////////////////////////////////////////////////////////////
 
+
+
+@Component({
+    template: '',
+})
+export class BaseComponent {
+    protected _subs: Subscription[] = [];
+
+    @Input() public config: any;
+    @Output() public onEvent: EventEmitter<any> = new EventEmitter();
+}
+
+export interface ConfigI {
+    config?: any;
+}
+
 // BaseTableI is base interface config used for column api
 // This config should be extended by various parts of the table api
 // like caption, column header etc.
-export interface BaseTableI {
-    config?: any;
+export interface BaseTableI extends ConfigI {
     processEvent?: (event: BaseTableEvent, component: any) => void;
 }
 
@@ -1013,43 +1019,110 @@ export class BaseRowExpansion implements BaseRowExpansionI {
     @Input() public outerData: any;
 }
 
-// ---------------- COLUMN IMPLEMENTATION ------------------
+// ---------------- TABLE CONFIGURATION ------------------
+
+// TableSwitchI is interface used in util component BaseIndexComponent
+// that allows user to switch between mobile and desktop tables
+export interface TableSwitchI {
+    state: State;
+    config: TableStateChangeI;
+}
+
+//
+// NOTE MAY CHANGE THIS AFTER REFACTOR!!!
+//
+// TableStateChangeI is interface used to make sure any table component
+// injected into BaseIndexComponent has ability to take 
+export interface TableStateChangeI {
+    getTableStateChange?: (any) => State;
+}
+
+// ---------------- TABLE IMPLEMENTATION ------------------
+
+export interface BaseIndexTableEntity {
+    component: Type<TableSwitchI>;
+    config: TableStateChangeI;
+}
+
+export interface PopupFormEntity extends BaseTableI {
+    component: Type<BaseTableI>;
+    successDismiss?: any;
+}
+
+export interface PopupDisplayEntity extends ConfigI {
+    component: Type<ConfigI>;
+}
 
 // CaptionEntity is used to display caption component in caption part of table
 export interface CaptionEntity extends BaseTableI {
-    component: Type<BaseTable>;
+    component: Type<any>;
 }
 
+
+// ---------------- COLUMN IMPLEMENTATION ------------------
+
 export interface ColumnEntity extends BaseColumnI {
-    component: Type<BaseColumn>;
+    component: Type<any>;
 }
 
 export interface DisplayItemEntity extends BaseDisplayItemI {
-    component: Type<BaseDisplayItem>;
+    component: Type<any>;
 }
 
 export interface MobileFilterEntity extends BaseMobileFilterI {
-    component: Type<BaseMobileFilter>;
+    component: Type<any>;
 }
 
 export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI {
-    component: Type<BaseTable>;
+    component: Type<any>;
 }
 
 // RowExpansionEntity is used to display expansion component of table
 export interface RowExpansionEntity extends BaseRowExpansionI {
     // component is component to use for expansion of table
-    component: Type<BaseRowExpansion>;
+    component: Type<any>;
 }
 
 export interface SummaryEntity extends BaseTableI {
-    component: Type<BaseTable>;
+    component: Type<any>;
 }
 
-export interface BaseIndexTableEntity {
-    component: Type<TableStateI>;
-    config: TableChangeStateI;
-}
+
+// // CaptionEntity is used to display caption component in caption part of table
+// export interface CaptionEntity extends BaseTableI {
+//     component: Type<BaseTable>;
+// }
+
+// export interface ColumnEntity extends BaseColumnI {
+//     component: Type<BaseColumn>;
+// }
+
+// export interface DisplayItemEntity extends BaseDisplayItemI {
+//     component: Type<BaseDisplayItem>;
+// }
+
+// export interface MobileFilterEntity extends BaseMobileFilterI {
+//     component: Type<BaseMobileFilter>;
+// }
+
+// export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI {
+//     component: Type<BaseTable>;
+// }
+
+// // RowExpansionEntity is used to display expansion component of table
+// export interface RowExpansionEntity extends BaseRowExpansionI {
+//     // component is component to use for expansion of table
+//     component: Type<BaseRowExpansion>;
+// }
+
+// export interface SummaryEntity extends BaseTableI {
+//     component: Type<BaseTable>;
+// }
+
+// export interface BaseIndexTableEntity {
+//     component: Type<TableSwitchI>;
+//     config: TableStateChangeI;
+// }
 
 // ------------------ COLUMN CONFIGS -----------------------
 

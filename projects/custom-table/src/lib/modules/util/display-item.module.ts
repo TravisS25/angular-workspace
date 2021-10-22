@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DisplayItemComponent } from '../../components/util/display-item/display-item.component';
+import { DisplayItemComponent } from '../../components/util/display/display-item/display-item.component';
 
 
 

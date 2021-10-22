@@ -36,3 +36,9 @@ export interface MaterialPagination {
     pageSize?: number;
     pageSizeOptions?: number[];
 }
+
+export interface DisplayFormat {
+    item: string;
+    borderClass?: string;
+    borderStyle?: Object;
+}

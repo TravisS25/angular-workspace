@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BaseDisplayItem, BaseTableEvent } from '../../../table-api';
+import { BaseDisplayItem, BaseTableEvent } from '../../../../table-api';
 
 @Component({
     selector: 'lib-display-item-list',

@@ -13,51 +13,56 @@ import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/combineLatest';
 import { take } from 'rxjs/operators';
 import { BaseDisplayItem, BaseTable, MobileTableConfig, DisplayItemEntity, State, FilterData } from '../../../table-api';
+import { BaseMobileTableDirective } from '../../../directives/table/mobile/base-mobile-table.directive';
+import { MobileTableExpansionDirective } from '../../../directives/table/mobile/mobile-table-expansion.directive';
+import { MobileTableCaptionDirective } from '../../../directives/table/mobile/mobile-table-caption.directive';
+import { MobileTablePanelTitleDirective } from '../../../directives/table/mobile/mobile-table-panel-title.directive';
+import { MobileTablePanelDescriptionDirective } from '../../../directives/table/mobile/mobile-table-panel-description.directive';
+import { MobileTableExpansionPanelDirective } from '../../../directives/table/mobile/mobile-table-expansion-panel.directive';
 
+// @Directive({
+//     selector: '[appBaseMobileTable]'
+// })
+// export class BaseMobileTableDirective {
+//     @Input() public rowIdx: number;
+//     @Input() public rowData: any;
+//     constructor() { }
+// }
 
-@Directive({
-    selector: '[appBaseMobileTable]'
-})
-export class BaseMobileTableDirective {
-    @Input() public rowIdx: number;
-    @Input() public rowData: any;
-    constructor() { }
-}
+// @Directive({
+//     selector: '[appMobileTableExpansion]'
+// })
+// export class MobileTableExpansionDirective extends BaseMobileTableDirective {
+//     constructor(public viewContainerRef: ViewContainerRef) { super() }
+// }
 
-@Directive({
-    selector: '[appMobileTableExpansion]'
-})
-export class MobileTableExpansionDirective extends BaseMobileTableDirective {
-    constructor(public viewContainerRef: ViewContainerRef) { super() }
-}
+// @Directive({
+//     selector: '[appMobileTableCaption]'
+// })
+// export class MobileTableCaptionDirective {
+//     constructor(public viewContainerRef: ViewContainerRef) { }
+// }
 
-@Directive({
-    selector: '[appMobileTableCaption]'
-})
-export class MobileTableCaptionDirective {
-    constructor(public viewContainerRef: ViewContainerRef) { }
-}
+// @Directive({
+//     selector: '[appMobileTablePanelTitle]'
+// })
+// export class MobileTablePanelTitleDirective extends BaseMobileTableDirective {
+//     constructor(public viewContainerRef: ViewContainerRef) { super() }
+// }
 
-@Directive({
-    selector: '[appMobileTablePanelTitle]'
-})
-export class MobileTablePanelTitleDirective extends BaseMobileTableDirective {
-    constructor(public viewContainerRef: ViewContainerRef) { super() }
-}
+// @Directive({
+//     selector: '[appMobileTablePanelDescription]'
+// })
+// export class MobileTablePanelDescriptionDirective extends BaseMobileTableDirective {
+//     constructor(public viewContainerRef: ViewContainerRef) { super() }
+// }
 
-@Directive({
-    selector: '[appMobileTablePanelDescription]'
-})
-export class MobileTablePanelDescriptionDirective extends BaseMobileTableDirective {
-    constructor(public viewContainerRef: ViewContainerRef) { super() }
-}
-
-@Directive({
-    selector: '[appMobileExpansionPanel]'
-})
-export class MobileExpansionPanelDirective extends BaseMobileTableDirective {
-    constructor(public viewContainerRef: MatExpansionPanel) { super() }
-}
+// @Directive({
+//     selector: '[appMobileExpansionPanel]'
+// })
+// export class MobileExpansionPanelDirective extends BaseMobileTableDirective {
+//     constructor(public viewContainerRef: MatExpansionPanel) { super() }
+// }
 
 
 @Component({
@@ -105,7 +110,7 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
     public total: number;
 
     // state is current filter state of table
-    public state: State;
+    public state: State = getDefaultState();
 
     public captionCr: ComponentRef<BaseTable>;
     public panelTitleCrs: ComponentRef<BaseDisplayItem>[] = [];
@@ -115,7 +120,7 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
     @ViewChild(MatAccordion) public table: MatAccordion;
     @ViewChild(MobileTableCaptionDirective) public captionDir: MobileTableCaptionDirective;
     @ViewChildren(MobileTableExpansionDirective) public tableExpansionDirs: QueryList<MobileTableExpansionDirective>;
-    @ViewChildren(MobileExpansionPanelDirective) public expansionPanelDirs: QueryList<MobileExpansionPanelDirective>;
+    @ViewChildren(MobileTableExpansionPanelDirective) public expansionPanelDirs: QueryList<MobileTableExpansionPanelDirective>;
     @ViewChildren(MobileTablePanelDescriptionDirective) public panelDescriptionDirs: QueryList<MobileTablePanelDescriptionDirective>;
     @ViewChildren(MobileTablePanelTitleDirective) public panelTitleDirs: QueryList<MobileTablePanelTitleDirective>;
 
@@ -194,12 +199,10 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
     }
 
     private initValues() {
-        if (this.config.getTableChangeState != undefined) {
-            this.state = this.config.getTableChangeState(this.outerData);
+        if (this.config.getTableStateChange != undefined) {
+            this.state = this.config.getTableStateChange(this.outerData);
         } else if (this.config.getState != undefined) {
             this.state = this.config.getState(this.outerData);
-        } else {
-            this.state = getDefaultState();
         }
 
         if (this.config.paramCfg == undefined) {
@@ -256,7 +259,6 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
                             this.panelTitleCrs.push(cr);
                         });
 
-                        //console.log('panel title render activate!');
                         this._panelTitleRenderer.next();
                         this._updatePanelTitle = false;
                         this.cdr.detectChanges();
@@ -278,7 +280,6 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
                             this.panelDescriptionCrs.push(cr);
                         });
 
-                        // console.log('panel description render activate!');
                         this._panelDescriptionRenderer.next();
                         this._updatePanelDescription = false;
                         this.cdr.detectChanges();
@@ -356,9 +357,6 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
         this.initValues();
         this.initCRSEvents();
         this.search();
-
-        console.log('expansion')
-        console.log(this.config.expansion)
     }
 
     public ngAfterViewInit() {
@@ -424,8 +422,6 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
 
                     cr.instance.config = expandCfg.config;
                     cr.instance.outerData = rowData;
-
-                    cr.onDestroy(() => { console.log('inner table destroyed') })
                     this.tableExpansionCrs.set(idx, cr);
                 }
             })
