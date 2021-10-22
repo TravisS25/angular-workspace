@@ -1,6 +1,6 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { BaseColumn, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
-import { BaseTableComponent } from '../../base-table/base-table.component';
+import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { CheckboxEvent } from '../../component-config';
 
 @Component({

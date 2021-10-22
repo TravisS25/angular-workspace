@@ -12,34 +12,34 @@ export const DefaultConsts = {
     TokenHeader: 'X-Csrf-Token'
 }
 
-export enum FormEvents {
-    close = 1,
-    submit,
-    submitSuccess,
-    submitError,
-    formComplete,
-}
+// export enum FormEvents {
+//     close = 1,
+//     submit,
+//     submitSuccess,
+//     submitError,
+//     formComplete,
+// }
 
-export enum TableEvents {
-    sort = 1,
-    search,
-    create,
-    refresh,
-    clearFilters,
-    tableFilters,
-    caption,
-    columnFilter,
-    bodyCell,
-    closeRows,
-    export,
-    summary,
-}
+// export enum TableEvents {
+//     sort = 1,
+//     search,
+//     create,
+//     refresh,
+//     clearFilters,
+//     tableFilters,
+//     caption,
+//     columnFilter,
+//     bodyCell,
+//     closeRows,
+//     export,
+//     summary,
+// }
 
-export enum ActionEvents {
-    mouseEnter = 1,
-    mouseLeave,
-    click
-}
+// export enum ActionEvents {
+//     mouseEnter = 1,
+//     mouseLeave,
+//     click
+// }
 
 export const DefaultTableEvents = {
     Sort: 'sort',

@@ -1,7 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Directive, EventEmitter, OnDestroy, OnInit, Output, Type, ViewChild, ViewContainerRef } from '@angular/core';
 import { BaseFormComponent } from '../base-form/base-form.component'
-import { FormEvents } from '../../../../config'
-import { PopupFormEntity, BaseTableI } from '../../../../table-api';
+import { PopupFormEntity, BaseTableI, FormEvents } from '../../../../table-api';
 import { PopupDirective } from '../../../../directives/popup.directive';
 
 

@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { getDefaultPostHeader } from '../../../../default-values';
-import { FormEvents } from '../../../../config';
+import { FormEvents } from '../../../../table-api';
 
 @Component({
     selector: 'lib-base-form',

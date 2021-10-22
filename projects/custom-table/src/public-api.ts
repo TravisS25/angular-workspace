@@ -20,7 +20,6 @@ export * from './lib/services/window-resize.service';
 export * from './lib/components/component-config';
 export * from './lib/components/base-table/base-table.component';
 export * from './lib/components/body-cell-components/bool-body-cell/bool-body-cell.component';
-export * from './lib/components/body-cell-components/table-expansion/table-expansion.component';
 export * from './lib/components/body-cell-components/table-modal/table-modal.component';
 export * from './lib/components/filter-components/sort-icon/sort-icon.component';
 export * from './lib/components/body-cell-components/text-output-template/text-output-template.component';
@@ -51,6 +50,8 @@ export * from './lib/components/primeng/input-text/input-text.component';
 export * from './lib/components/primeng/multi-select/multi-select.component';
 export * from './lib/components/primeng/base-tab-view/base-tab-view.component';
 export * from './lib/components/primeng/row-options/row-options.component';
+export * from './lib/components/primeng/primeng-table/primeng-table.component';
+export * from './lib/components/primeng/primeng-table-expansion/primeng-table-expansion.component';
 
 // Directives
 export * from './lib/directives/column-checkbox.directive';
@@ -71,18 +72,20 @@ export * from './lib/directives/table/mobile/mobile-table-expansion-panel.direct
 export * from './lib/directives/table/mobile/mobile-table-panel-description.directive';
 export * from './lib/directives/table/mobile/mobile-table-panel-title.directive';
 
-// Modules
+// -------------------Modules------------------------------
+
+// Util Modules
 export * from './lib/modules/util/display-item.module';
 export * from './lib/modules/util/display-item-list.module';
 export * from './lib/modules/util/base-index.module';
 export * from './lib/modules/util/info-display.module';
 export * from './lib/modules/table/mobile/mobile-table-directive.module';
 
+// Primeng Modules
 export * from './lib/modules/base-table.module';
 export * from './lib/modules/primeng/base-tab-view.module'
 export * from './lib/modules/bool-body-cell.module';
 export * from './lib/modules/primeng/checkbox-all.module';
-export * from './lib/modules/common-table.module'
 export * from './lib/modules/primeng/date-picker.module';
 export * from './lib/modules/primeng/dropdown-select.module';
 export * from './lib/modules/dynamic-tab-view.module';
@@ -90,11 +93,13 @@ export * from './lib/modules/primeng/filter-option.module';
 export * from './lib/modules/primeng/input-text.module';
 export * from './lib/modules/primeng/multiple-select.module';
 export * from './lib/modules/primeng/row-options.module';
+export * from './lib/modules/primeng/primeng-table-expansion.module';
 export * from './lib/modules/sort-icon.module';
 export * from './lib/modules/table-dynamic-component.module';
 export * from './lib/modules/table-modal.module';
 export * from './lib/modules/text-output-template.module';
 
+// Material Modules
 export * from './lib/modules/material/material-dropdown-select.module';
 export * from './lib/modules/material/material-input-text.module';
 export * from './lib/modules/material/material-row-options.module';

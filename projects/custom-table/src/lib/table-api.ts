@@ -2,15 +2,46 @@ import { Type, EventEmitter, SimpleChanges, OnInit, OnDestroy, Component, Input,
 import { Observable, of, Subscription } from 'rxjs';
 import { Table } from 'primeng/table/table'
 import { HttpClient, HttpResponse, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
-import { SelectItem, MessageService, Message, MenuItem } from 'primeng/api';
+import { MessageService, Message, MenuItem } from 'primeng/api';
 import { DynamicDialogConfig, DialogService } from 'primeng/dynamicdialog';
-import { BaseTableComponent } from './components/base-table/base-table.component';
+import { BaseTableComponent } from './components/table/base-table/base-table.component';
 import { MultiSelectModule } from 'primeng';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { DefaultConsts, DefaultTableEvents } from './config';
 import { BaseFormComponent } from './components/util/form/base-form/base-form.component';
 import { MaterialPagination } from './components/component-config'
+
+//---------------- EVENT ENUMS ----------------------- 
+
+export enum FormEvents {
+    close = 1,
+    submit,
+    submitSuccess,
+    submitError,
+    formComplete,
+}
+
+export enum TableEvents {
+    sort = 1,
+    search,
+    create,
+    refresh,
+    clearFilters,
+    tableFilters,
+    caption,
+    columnFilter,
+    bodyCell,
+    closeRows,
+    export,
+    summary,
+}
+
+export enum ActionEvents {
+    mouseEnter = 1,
+    mouseLeave,
+    click
+}
 
 //---------------- FILTERS ----------------------- 
 
@@ -137,6 +168,11 @@ export interface AggregateDescriptor {
 }
 
 //---------------- MISC ----------------------- 
+
+export interface SelectItem {
+    label: string;
+    value: any;
+}
 
 export interface FieldName {
     oldName: string;
@@ -608,29 +644,29 @@ export interface BaseTableConfig extends BaseEventOptions, TableStateChangeI {
     // Callback to invoke when a cell switches to edit mode
     //
     // Default: Empty function
-    onEditInit?: (event: EditEvent, baseTable: BaseTableComponent) => void;
+    onEditInit?: (event: EditEvent, baseTable: any) => void;
 
     // Callback to invoke when cell edit is completed
     //
     // Default: Empty function
-    onEditComplete?: (event: EditEvent, baseTable: BaseTableComponent) => void;
+    onEditComplete?: (event: EditEvent, baseTable: any) => void;
 
     // Callback to invoke when cell edit is cancelled with escape key
     //
     // Default: Empty function
-    onEditCancel?: (event: EditEvent, baseTable: BaseTableComponent) => void;
+    onEditCancel?: (event: EditEvent, baseTable: any) => void;
 
     // customTableSearch is for overriding the default search functionality built into the table itself
     // when searching for entries of external datasource
     //
     // Default: undefined
-    customTableSearch?(baseTable: BaseTableComponent): void;
+    customTableSearch?(baseTable: any): void;
 
     // customTableSearch is for overriding the default search functionality built into the table itself
     // when searching for table settings of external datasource
     //
     // Default: undefined
-    customTableSettingsSearch?(baseTable: BaseTableComponent): void;
+    customTableSettingsSearch?(baseTable: any): void;
 
     // outerDataHeader is used for inner tables where outerData is the data passed
     // from the "above" table and can be used to display a header for the inner table
@@ -693,13 +729,13 @@ export class BaseTable implements BaseTableI, OnInit, OnDestroy {
     public state: State;
 
     public processEvent: (event: BaseTableEvent, table: any) => void;
-    public processInputTemplateEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processBodyCellEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processCaptionEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processTableFilterEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processColumnFilterEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processClearFiltersEvent: (event: any, baseTable: BaseTableComponent) => void;
-    public processSortEvent: (event: any, baseTable: BaseTableComponent) => void;
+    public processInputTemplateEvent: (event: any, baseTable: any) => void;
+    public processBodyCellEvent: (event: any, baseTable: any) => void;
+    public processCaptionEvent: (event: any, baseTable: any) => void;
+    public processTableFilterEvent: (event: any, baseTable: any) => void;
+    public processColumnFilterEvent: (event: any, baseTable: any) => void;
+    public processClearFiltersEvent: (event: any, baseTable: any) => void;
+    public processSortEvent: (event: any, baseTable: any) => void;
 
     constructor() { }
 
@@ -1154,14 +1190,14 @@ export interface BaseEventOptions {
     // This function will only activate if bodyCell#field property is set 
     // to field that is exposed when a body cell creates an event which
     // should be based off the BaseTableEvent interface
-    processBodyCellEvent?: (event: any, baseTable: BaseTableComponent) => void;
+    processBodyCellEvent?: (event: any, baseTable: any) => void;
 
     // processCaptionEvent activates whenever an event is broadcast from the caption
-    processCaptionEvent?: (event: any, baseTable: BaseTableComponent) => void;
+    processCaptionEvent?: (event: any, baseTable: any) => void;
 
     // processTableFilterEvent activates whenever the table changes data through
     // a column filter change, pagination etc.
-    processTableFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
+    processTableFilterEvent?: (event: any, baseTable: any) => void;
 
     // processColumnFilterEvent processes an event from column filter for current column
     // There is no need to make explicit api request within this function as the table
@@ -1170,21 +1206,21 @@ export interface BaseEventOptions {
     // The main purpose of this function is to be able to do various checks and
     // potentially modify BaseTableComponent#state variable before it is sent to 
     // server by table api
-    processColumnFilterEvent?: (event: any, baseTable: BaseTableComponent) => void;
+    processColumnFilterEvent?: (event: any, baseTable: any) => void;
 
     // processClearFiltersEvent activates whenever the "Clear Filters" button
     // is used by user
-    processClearFiltersEvent?: (event: any, baseTable: BaseTableComponent) => void;
+    processClearFiltersEvent?: (event: any, baseTable: any) => void;
 
     // processSortEvent is activated whenever a column is sorted
-    processSortEvent?: (event: any, baseTable: BaseTableComponent) => void;
+    processSortEvent?: (event: any, baseTable: any) => void;
 
     // processOuterEvent is activated whenever an event outside of the table
     // occurs but we may want to process it and modify something within the table
-    processOuterEvent?: (event: any, baseTable: BaseTableComponent) => void;
+    processOuterEvent?: (event: any, baseTable: any) => void;
 
     // processEditEvent is activated whenever an cell or row edit event occurs
-    processInputTemplateEvent?: (event: any, baseTable: BaseTableComponent) => void;
+    processInputTemplateEvent?: (event: any, baseTable: any) => void;
 }
 
 // TemplateConfig is config used for cell/row editing and determines

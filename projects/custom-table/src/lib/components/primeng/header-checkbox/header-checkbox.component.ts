@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Checkbox } from 'primeng/checkbox';
 import { CheckboxEvent } from '../../component-config';
 import { BaseColumn, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
-import { BaseTableComponent } from '../../base-table/base-table.component';
+import { BaseTableComponent } from '../../table/base-table/base-table.component';
 
 @Component({
     selector: 'app-header-checkbox',

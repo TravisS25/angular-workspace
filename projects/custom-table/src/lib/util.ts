@@ -2,7 +2,7 @@ import { SelectItem, Message } from 'primeng/api';
 import _ from "lodash" // Import the entire lodash library
 import { Subscription } from 'rxjs';
 import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-import { BaseTableComponent } from './components/base-table/base-table.component';
+import { BaseTableComponent } from './components/table/base-table/base-table.component';
 import { CheckboxEvent, MaterialMenuItem } from '../public-api';
 import { State, FilterDescriptor, ParamConfig } from './table-api';
 
@@ -10,7 +10,7 @@ import { State, FilterDescriptor, ParamConfig } from './table-api';
 // the values found in map passed
 //
 // This is intended to mainly be used in BaseTableConfig#tableSettingsAPIConfig#processResult function
-export function setColumnFilterValue(baseTable: BaseTableComponent, fieldMap: Map<string, SelectItem[]>, state?: State) {
+export function setColumnFilterValue(baseTable: any, fieldMap: Map<string, SelectItem[]>, state?: State) {
     for (let i = 0; i < baseTable.columnFilterCrs.length; i++) {
         // fieldMap.forEach((v, k) => {
         //     if (baseTable.columnFilterCrs[i].instance.field == k) {

@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Input, OnInit, ViewChild } from '@angular/core';
-import { DisplayDirective } from 'projects/custom-table/src/lib/directives/display.directive';
+import { DisplayDirective } from '../../../../directives/display.directive';
 import { ConfigI, PopupDisplayEntity } from 'projects/custom-table/src/public-api';
 
 @Component({

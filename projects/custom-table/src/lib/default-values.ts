@@ -2,7 +2,7 @@
 
 import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, BaseActionConfig, State, ParamConfig } from './table-api'
 import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
-import { BaseTableComponent } from './components/base-table/base-table.component';
+import { BaseTableComponent } from './components/table/base-table/base-table.component';
 import { defaultProcessError } from './util';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { DatePickerConfig } from './components/primeng/date-picker/date-picker.component';
@@ -356,35 +356,6 @@ export function getDefaultTableSettingsAPICfg(): APIConfig {
         processError: (err: HttpErrorResponse) => {
             defaultProcessError(err);
         },
-    }
-
-    return cfg;
-}
-
-export function getDefaultLogTableSettingsAPICfg(): APIConfig {
-    let cfg: APIConfig = {
-        apiURL: (rowData: any): string => {
-            throw ('need to implement apiURL!');
-        },
-        apiOptions: {
-            withCredentials: true,
-            observe: 'response',
-        },
-        processResult: (result: any, baseTable: BaseTableComponent) => {
-            console.log('result first')
-            console.log(result)
-            let r = result as HttpResponse<any>;
-            let users = r.body;
-
-            for (let i = 0; i < baseTable.columnFilterCrs.length; i++) {
-                if (baseTable.columnFilterCrs[i].instance.field == 'userProfile.id') {
-                    baseTable.columnFilterCrs[i].instance.value = users;
-                }
-            }
-        },
-        processError: (err: HttpErrorResponse) => {
-            defaultProcessError(err);
-        }
     }
 
     return cfg;

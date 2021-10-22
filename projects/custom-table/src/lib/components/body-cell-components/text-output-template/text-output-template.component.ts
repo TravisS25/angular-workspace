@@ -1,7 +1,6 @@
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit } from '@angular/core';
 import { BaseColumn, } from '../../../table-api';
-import { BaseTableComponent } from '../../base-table/base-table.component';
 
 export interface TextOutputTemplateConfig {
     changeBackgroundColor?: string;
