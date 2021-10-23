@@ -12,13 +12,10 @@ export * from './lib/components/util/display/display-item-list/display-item-list
 export * from './lib/components/util/base-index/base-index.component';
 export * from './lib/components/util/form/base-form/base-form.component';
 export * from './lib/components/util/form/base-popup-form/base-popup-form.component';
-export * from './lib/components/util/display/info-display/info-display.component';
 
 // Services
 export * from './lib/services/window-resize.service';
 
-export * from './lib/components/component-config';
-export * from './lib/components/base-table/base-table.component';
 export * from './lib/components/body-cell-components/bool-body-cell/bool-body-cell.component';
 export * from './lib/components/body-cell-components/table-modal/table-modal.component';
 export * from './lib/components/filter-components/sort-icon/sort-icon.component';
@@ -75,10 +72,8 @@ export * from './lib/directives/table/mobile/mobile-table-panel-title.directive'
 // -------------------Modules------------------------------
 
 // Util Modules
-export * from './lib/modules/util/display-item.module';
-export * from './lib/modules/util/display-item-list.module';
+export * from './lib/modules/util/display/display-item.module';
 export * from './lib/modules/util/base-index.module';
-export * from './lib/modules/util/info-display.module';
 export * from './lib/modules/table/mobile/mobile-table-directive.module';
 
 // Primeng Modules

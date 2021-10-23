@@ -2,7 +2,8 @@ import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, Directive, Input, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { DefaultEvents } from '../../../../config';
-import { BaseTableEvent, BaseDisplayItem, DisplayItemEntity } from '../../../../table-api';
+import { BaseTableEvent, DisplayItemEntity } from '../../../../table-api';
+import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
 
 export interface DisplayItemConfig {
     style?: Object;
@@ -27,9 +28,7 @@ export class DisplayItemDirective {
     templateUrl: './display-item.component.html',
     styleUrls: ['./display-item.component.scss']
 })
-export class DisplayItemComponent extends BaseDisplayItem implements OnInit, AfterViewInit, OnDestroy {
-    private _sub: Subscription = new Subscription();
-
+export class DisplayItemComponent extends BaseDisplayItemComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild(DisplayItemDirective) public dir: DisplayItemDirective;
     @Input() public config: DisplayItemConfig;
 
@@ -41,7 +40,7 @@ export class DisplayItemComponent extends BaseDisplayItem implements OnInit, Aft
     private initValues() {
         if (this.config == undefined && this.processRowData == undefined) {
             throw (
-                'MUST SET CONFIG OR PROCESS ROW DATA FOR DISPLAY ITEM COMPONENT AT IDX ' + this.rowIdx + '!'
+                'MUST SET CONFIG OR PROCESS ROW DATA FOR DISPLAY ITEM COMPONENT AT COL IDX ' + this.colIdx + '!'
             );
         }
         if (this.processRowData != undefined) {
@@ -60,19 +59,20 @@ export class DisplayItemComponent extends BaseDisplayItem implements OnInit, Aft
             cr.instance.outerData = this.outerData;
             cr.instance.rowData = this.rowData;
             cr.instance.rowIdx = this.rowIdx;
-            cr.instance.baseTable = this.baseTable;
+            cr.instance.componentRef = this.componentRef;
             cr.instance.value = this.config.entity.value;
             cr.instance.config = this.config.entity.config;
-            cr.instance.processEvent = this.config.entity.processEvent;
             cr.instance.processRowData = this.config.entity.processRowData;
 
-            if (cr.instance.processEvent != undefined) {
-                this._sub.add(
-                    cr.instance.onEvent.subscribe(r => {
-                        cr.instance.processEvent(r, this.baseTable);
-                    })
-                );
-            }
+            this._sub.add(
+                cr.instance.onEvent.subscribe(r => {
+                    if (cr.instance.processBodyCellEvent != undefined) {
+                        cr.instance.processBodyCellEvent(r, this.componentRef)
+                    }
+                })
+            );
+
+            this.cdr.detectChanges();
         }
     }
 
@@ -102,8 +102,8 @@ export class DisplayItemComponent extends BaseDisplayItem implements OnInit, Aft
 
         this.onEvent.emit(cfg);
 
-        if (this.processEvent != undefined) {
-            this.processEvent(cfg, this.baseTable);
+        if (this.processBodyCellEvent != undefined) {
+            this.processBodyCellEvent(cfg, this.componentRef);
         }
     }
 

@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
-import { BaseColumn, Column, FilterDescriptor } from '../../../table-api';
 import { RowToggler } from 'primeng/table';
 import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 import { TableEvents } from '../../../table-api';
+import { BaseTableEvent } from 'projects/custom-table/src/public-api';
 
 
 @Component({
@@ -28,18 +28,15 @@ export class PrimengTableExpansionComponent extends BaseColumnComponent implemen
     }
 
     private initEvents() {
-        this._subs.push(
-            this.onEvent.subscribe(r => {
-                switch (r) {
-                    case TableEvents.clearFilters, TableEvents.columnFilter, TableEvents.tableFilters:
-                        this.closeExpansion();
-                }
-
-                if (this.processEvent != undefined) {
-                    this.processEvent(r, this);
-                }
-            })
-        )
+        this.processColumnFilterEvent = (event: any, baseTable: any) => {
+            this.closeExpansion();
+        }
+        this.processTableFilterEvent = (event: any, baseTable: any) => {
+            this.closeExpansion();
+        }
+        this.processClearFiltersEvent = (event: any, baseTable: any) => {
+            this.closeExpansion();
+        }
     }
 
     public ngOnInit(): void {
@@ -47,7 +44,7 @@ export class PrimengTableExpansionComponent extends BaseColumnComponent implemen
     }
 
     public ngAfterViewInit() {
-        this._subs.push(
+        this._sub.add(
             this.toggler.dt.onRowExpand.subscribe(r => {
                 if (r.data.id == this.rowData.id) {
                     this.expanded = true;

@@ -1,6 +1,6 @@
 // default values.ts
 
-import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, BaseActionConfig, State, ParamConfig } from './table-api'
+import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, BaseActionConfig, State, ParamConfig, SelectItem } from './table-api'
 import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { BaseTableComponent } from './components/table/base-table/base-table.component';
 import { defaultProcessError } from './util';
@@ -10,9 +10,7 @@ import { InputTextConfig } from './components/primeng/input-text/input-text.comp
 import { MaterialDropdownSelectConfig } from './components/material/material-dropdown-select/material-dropdown-select.component';
 import { MaterialDatePickerConfig } from './components/material/material-date-picker/material-date-picker.component';
 import { MaterialInputTextConfig } from './components/material/material-input-text/material-input-text.component';
-import { SelectItem, TabPanel } from 'primeng';
-import { MaskConfig, MaterialPagination } from './components/component-config';
-import { TabPanelItem, TabViewConfig } from '../public-api';
+import { TabPanelItem, TabViewConfig, MaskConfig, MaterialPagination } from './table-api';
 
 export function getDefaultPostHeader(csrfToken: string): HttpHeaders {
     return new HttpHeaders({

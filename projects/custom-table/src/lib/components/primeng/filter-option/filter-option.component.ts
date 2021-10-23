@@ -1,8 +1,7 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ChangeDetectorRef, AfterViewInit, ViewChildren, QueryList } from '@angular/core';
 import { OverlayPanel } from 'primeng/overlaypanel';
-import { SelectItem } from 'primeng/api';
 import { RadioButton } from 'primeng/radiobutton';
-import { FilterConfig } from '../../component-config'
+import { FilterConfig } from '../../../table-api';
 
 
 @Component({

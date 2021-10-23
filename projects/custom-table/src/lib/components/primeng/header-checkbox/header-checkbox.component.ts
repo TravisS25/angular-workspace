@@ -1,21 +1,20 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Checkbox } from 'primeng/checkbox';
-import { CheckboxEvent } from '../../component-config';
-import { BaseColumn, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { CheckboxEvent, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
+import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 
 @Component({
     selector: 'app-header-checkbox',
     templateUrl: './header-checkbox.component.html',
     styleUrls: ['./header-checkbox.component.scss']
 })
-export class HeaderCheckboxComponent extends BaseColumn implements OnInit, OnDestroy {
+export class HeaderCheckboxComponent extends BaseColumnComponent implements OnInit, OnDestroy {
     public checked: boolean = false;
     private _hcbCfg: BaseTableEventConfig
 
     constructor(
-        public http: HttpClient,
         public cfr: ComponentFactoryResolver,
         public cdr: ChangeDetectorRef,
     ) {
@@ -33,16 +32,16 @@ export class HeaderCheckboxComponent extends BaseColumn implements OnInit, OnDes
     }
 
     private initProcessEvents() {
-        this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
-            this.checked = false
-        }
-        this.processBodyCellEvent = (event: BaseTableEvent, baseTable: BaseTableComponent) => {
-            let cfg = event.event as CheckboxEvent;
+        // this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
+        //     this.checked = false
+        // }
+        // this.processBodyCellEvent = (event: BaseTableEvent, baseTable: BaseTableComponent) => {
+        //     let cfg = event.event as CheckboxEvent;
 
-            if (!cfg.checked) {
-                this.checked = false;
-            }
-        }
+        //     if (!cfg.checked) {
+        //         this.checked = false;
+        //     }
+        // }
     }
 
     public ngOnInit(): void {

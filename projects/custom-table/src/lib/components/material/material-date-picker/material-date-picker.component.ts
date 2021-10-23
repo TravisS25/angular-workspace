@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { BaseColumn } from '../../../table-api'
-import { FilterConfig, FilterOptions } from '../../component-config'
 import * as moment from 'moment';
 import { DefaultConsts } from '../../../config';
 import { MaterialFilterOptionComponent } from '../material-filter-option/material-filter-option.component';
 import { SelectItem } from 'primeng';
+import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 
 export interface MaterialDatePickerConfig {
     // dateLabel is label used for date input
@@ -42,7 +41,7 @@ export interface MaterialDatePickerEvent {
     templateUrl: './material-date-picker.component.html',
     styleUrls: ['./material-date-picker.component.scss']
 })
-export class MaterialDatePickerComponent extends BaseColumn implements OnInit {
+export class MaterialDatePickerComponent extends BaseColumnComponent implements OnInit {
     @ViewChild(MaterialFilterOptionComponent) public filterOption: MaterialFilterOptionComponent;
 
     constructor() {

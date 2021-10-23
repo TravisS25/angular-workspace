@@ -19,7 +19,7 @@ export function deepCopyColumn(column: Column): Column {
     c.sort = _.cloneDeep(column.sort);
     c.colStyle = _.cloneDeep(column.colStyle);
     c.headerStyle = _.cloneDeep(column.headerStyle);
-    c.headerFilterStyle = _.cloneDeep(column.headerFilterStyle);
+    c.columnFilterStyle = _.cloneDeep(column.columnFilterStyle);
     c.bodyCellStyle = _.cloneDeep(column.bodyCellStyle);
     c.columnFilter = _.cloneDeepWith(column.columnFilter, function (val1) {
         if (val1 != undefined && val1 != null) {

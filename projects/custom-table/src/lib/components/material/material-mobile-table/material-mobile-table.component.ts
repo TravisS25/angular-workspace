@@ -12,57 +12,21 @@ import { encodeURIState } from '../../../util';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/combineLatest';
 import { take } from 'rxjs/operators';
-import { BaseDisplayItem, BaseTable, MobileTableConfig, DisplayItemEntity, State, FilterData } from '../../../table-api';
+import { MobileTableConfig, DisplayItemEntity, State, FilterData } from '../../../table-api';
 import { BaseMobileTableDirective } from '../../../directives/table/mobile/base-mobile-table.directive';
 import { MobileTableExpansionDirective } from '../../../directives/table/mobile/mobile-table-expansion.directive';
 import { MobileTableCaptionDirective } from '../../../directives/table/mobile/mobile-table-caption.directive';
 import { MobileTablePanelTitleDirective } from '../../../directives/table/mobile/mobile-table-panel-title.directive';
 import { MobileTablePanelDescriptionDirective } from '../../../directives/table/mobile/mobile-table-panel-description.directive';
 import { MobileTableExpansionPanelDirective } from '../../../directives/table/mobile/mobile-table-expansion-panel.directive';
-
-// @Directive({
-//     selector: '[appBaseMobileTable]'
-// })
-// export class BaseMobileTableDirective {
-//     @Input() public rowIdx: number;
-//     @Input() public rowData: any;
-//     constructor() { }
-// }
-
-// @Directive({
-//     selector: '[appMobileTableExpansion]'
-// })
-// export class MobileTableExpansionDirective extends BaseMobileTableDirective {
-//     constructor(public viewContainerRef: ViewContainerRef) { super() }
-// }
-
-// @Directive({
-//     selector: '[appMobileTableCaption]'
-// })
-// export class MobileTableCaptionDirective {
-//     constructor(public viewContainerRef: ViewContainerRef) { }
-// }
-
-// @Directive({
-//     selector: '[appMobileTablePanelTitle]'
-// })
-// export class MobileTablePanelTitleDirective extends BaseMobileTableDirective {
-//     constructor(public viewContainerRef: ViewContainerRef) { super() }
-// }
-
-// @Directive({
-//     selector: '[appMobileTablePanelDescription]'
-// })
-// export class MobileTablePanelDescriptionDirective extends BaseMobileTableDirective {
-//     constructor(public viewContainerRef: ViewContainerRef) { super() }
-// }
-
-// @Directive({
-//     selector: '[appMobileExpansionPanel]'
-// })
-// export class MobileExpansionPanelDirective extends BaseMobileTableDirective {
-//     constructor(public viewContainerRef: MatExpansionPanel) { super() }
-// }
+import { BaseComponent } from '../../base/base.component';
+import { BaseTableCaptionComponent } from '../../table/base-table-caption/base-table-caption.component';
+import { BaseDisplayItemComponent } from '../../table/base-display-item/base-display-item.component';
+import { BaseTableComponent } from '../../table/base-table/base-table.component';
+import { BaseMobileTableComponent } from '../../table/mobile/base-mobile-table/base-mobile-table.component';
+import { BaseMobileDisplayItemComponent } from '../../table/mobile/base-mobile-display-item/base-mobile-display-item.component';
+import { MobileDisplayItemEntity } from 'projects/custom-table/src/public-api';
+import { BaseMobileTableEventComponent } from '../../table/mobile/base-mobile-table-event/base-mobile-table-event.component';
 
 
 @Component({
@@ -70,7 +34,7 @@ import { MobileTableExpansionPanelDirective } from '../../../directives/table/mo
     templateUrl: './material-mobile-table.component.html',
     styleUrls: ['./material-mobile-table.component.scss']
 })
-export class MaterialMobileTableComponent extends BaseTable implements OnInit {
+export class MaterialMobileTableComponent extends BaseMobileTableComponent implements OnInit {
     // _isInit is used as flag to indicate whether the mobile table component
     // has been initalized or not
     // This will be set to true once table has been initialized
@@ -99,8 +63,8 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
     // section of mobile table is done rendering
     private _panelTitleRenderer: Subject<void> = new Subject();
 
-    private _panelTitleEventSubs: Subscription[] = [];
-    private _panelDescriptionEventSubs: Subscription[] = [];
+    private _panelTitleEventSub: Subscription = new Subscription()
+    private _panelDescriptionEventSub: Subscription = new Subscription();
 
     // data is info received from server
     public data: any[];
@@ -112,10 +76,10 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
     // state is current filter state of table
     public state: State = getDefaultState();
 
-    public captionCr: ComponentRef<BaseTable>;
-    public panelTitleCrs: ComponentRef<BaseDisplayItem>[] = [];
-    public panelDescriptionCrs: ComponentRef<BaseDisplayItem>[] = [];
-    public tableExpansionCrs: Map<number, ComponentRef<BaseTable>> = new Map();
+    public captionCr: ComponentRef<BaseMobileTableEventComponent>;
+    public panelTitleCrs: ComponentRef<BaseMobileDisplayItemComponent>[] = [];
+    public panelDescriptionCrs: ComponentRef<BaseMobileDisplayItemComponent>[] = [];
+    public tableExpansionCrs: Map<number, ComponentRef<BaseMobileTableComponent>> = new Map();
 
     @ViewChild(MatAccordion) public table: MatAccordion;
     @ViewChild(MobileTableCaptionDirective) public captionDir: MobileTableCaptionDirective;
@@ -186,18 +150,6 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
         this.tableExpansionCrs.clear();
     }
 
-    private unsubscribePanelTitleEvents() {
-        this._panelTitleEventSubs.forEach(x => {
-            x.unsubscribe();
-        });
-    }
-
-    private unsubscribePanelDescriptionEvents() {
-        this._panelDescriptionEventSubs.forEach(x => {
-            x.unsubscribe();
-        });
-    }
-
     private initValues() {
         if (this.config.getTableStateChange != undefined) {
             this.state = this.config.getTableStateChange(this.outerData);
@@ -211,27 +163,26 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
     }
 
     protected refreshCleanUp() {
-        this.unsubscribePanelDescriptionEvents();
-        this.unsubscribePanelTitleEvents();
+        this._panelTitleEventSub.unsubscribe();
+        this._panelDescriptionEventSub.unsubscribe();
         this.destroyPanelTitleCRs();
         this.destroyPanelDescriptionCRs();
         this.destroyTableExpansionCRs();
     }
 
     private initCRs() {
-        let that = this;
+        const that = this;
 
-        let setCr = function (
-            cr: ComponentRef<BaseDisplayItem>,
+        const setCr = function (
+            cr: ComponentRef<BaseMobileDisplayItemComponent>,
             dir: BaseMobileTableDirective,
-            panelCfg: DisplayItemEntity,
+            panelCfg: MobileDisplayItemEntity,
         ) {
             cr.instance.config = panelCfg.config;
-            cr.instance.baseTable = that;
+            cr.instance.componentRef = that;
             cr.instance.outerData = that.outerData;
             cr.instance.rowData = dir.rowData
             cr.instance.rowIdx = dir.rowIdx;
-            cr.instance.processEvent = panelCfg.processEvent;
             cr.instance.processRowData = panelCfg.processRowData;
         }
 
@@ -241,13 +192,12 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
             )
 
             this.captionCr.instance.config = this.config.captionCfg.config;
-            this.captionCr.instance.baseTable = this;
+            this.captionCr.instance.componentRef = this;
             this.captionCr.instance.outerData = this.outerData;
-            this.captionCr.instance.processEvent = this.config.captionCfg.processEvent;
         }
 
         if (this.config.panelTitleCfg != undefined) {
-            this._subs.push(
+            this._sub.add(
                 this.panelTitleDirs.changes.subscribe(val => {
                     if (this._updatePanelTitle) {
                         let results = val._results as MobileTablePanelTitleDirective[];
@@ -268,7 +218,7 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
         }
 
         if (this.config.panelDescriptionCfg != undefined) {
-            this._subs.push(
+            this._sub.add(
                 this.panelDescriptionDirs.changes.subscribe(val => {
                     if (this._updatePanelDescription) {
                         let results = val._results as MobileTablePanelDescriptionDirective[];
@@ -293,23 +243,23 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
 
 
     private initCRSEvents() {
-        this._subs.push(
+        this._sub.add(
             combineLatest([this._panelDescriptionRenderer, this._panelTitleRenderer]).subscribe(r => {
                 if (!this._isInit) {
                     this._isInit = true;
-                    this._subs.push(
+                    this._sub.add(
                         this.captionCr.instance.onEvent.subscribe(r => {
-                            if (this.config.processEvent != undefined) {
-                                this.config.processEvent(r, this);
+                            if (this.config.processCaptionEvent != undefined) {
+                                this.config.processCaptionEvent(r, this);
                             }
                             this.panelTitleCrs.forEach(item => {
-                                if (item.instance.processEvent != undefined) {
-                                    item.instance.processEvent(r, this);
+                                if (item.instance.processCaptionEvent != undefined) {
+                                    item.instance.processCaptionEvent(r, this);
                                 }
                             })
                             this.panelDescriptionCrs.forEach(item => {
-                                if (item.instance.processEvent != undefined) {
-                                    item.instance.processEvent(r, this);
+                                if (item.instance.processCaptionEvent != undefined) {
+                                    item.instance.processCaptionEvent(r, this);
                                 }
                             })
                         })
@@ -317,32 +267,32 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
                 }
 
                 for (let i = 0; i < this.panelTitleCrs.length; i++) {
-                    this._panelTitleEventSubs.push(
+                    this._panelTitleEventSub.add(
                         this.panelTitleCrs[i].instance.onEvent.subscribe(r => {
-                            if (this.config.processEvent != undefined) {
-                                this.config.processEvent(r, this);
+                            if (this.config.processPanelTitleEvent != undefined) {
+                                this.config.processPanelTitleEvent(r, this);
                             }
-                            if (this.captionCr.instance.processEvent != undefined) {
-                                this.captionCr.instance.processEvent(r, this);
+                            if (this.captionCr.instance.processPanelTitleEvent != undefined) {
+                                this.captionCr.instance.processPanelTitleEvent(r, this);
                             }
-                            if (this.panelTitleCrs[i].instance.processEvent != undefined) {
-                                this.panelTitleCrs[i].instance.processEvent(r, this);
+                            if (this.panelTitleCrs[i].instance.processPanelTitleEvent != undefined) {
+                                this.panelTitleCrs[i].instance.processPanelTitleEvent(r, this);
                             }
                         })
                     );
                 }
 
                 for (let i = 0; i < this.panelDescriptionCrs.length; i++) {
-                    this._panelDescriptionEventSubs.push(
+                    this._panelDescriptionEventSub.add(
                         this.panelDescriptionCrs[i].instance.onEvent.subscribe(r => {
-                            if (this.config.processEvent != undefined) {
-                                this.config.processEvent(r, this);
+                            if (this.config.processPanelDescriptionEvent != undefined) {
+                                this.config.processPanelDescriptionEvent(r, this);
                             }
-                            if (this.captionCr.instance.processEvent != undefined) {
-                                this.captionCr.instance.processEvent(r, this);
+                            if (this.captionCr.instance.processPanelDescriptionEvent != undefined) {
+                                this.captionCr.instance.processPanelDescriptionEvent(r, this);
                             }
-                            if (this.panelDescriptionCrs[i].instance.processEvent != undefined) {
-                                this.panelDescriptionCrs[i].instance.processEvent(r, this);
+                            if (this.panelDescriptionCrs[i].instance.processPanelDescriptionEvent != undefined) {
+                                this.panelDescriptionCrs[i].instance.processPanelDescriptionEvent(r, this);
                             }
                         })
                     );
@@ -437,17 +387,6 @@ export class MaterialMobileTableComponent extends BaseTable implements OnInit {
 
     public ngOnDestroy() {
         this.refreshCleanUp();
-
-        this._subs.forEach(x => {
-            x.unsubscribe()
-        })
-
-        this._subs = null;
-        this._panelTitleEventSubs = null;
-        this._panelDescriptionEventSubs = null;
-        this.panelTitleCrs = null;
-        this.panelDescriptionCrs = null;
+        this._sub.unsubscribe();
     }
-
-
 }

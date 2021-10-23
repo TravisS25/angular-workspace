@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TableEvents, BaseTableCaptionConfig, SelectItem, Column, BaseTableEvent, ExportType, FilterDescriptor } from '../../../table-api';
+import { BaseComponent } from '../../base/base.component';
+import { BaseTableEventComponent } from '../base-table-event/base-table-event.component';
 import { BaseTableComponent } from '../base-table/base-table.component';
 
 @Component({
@@ -8,7 +10,9 @@ import { BaseTableComponent } from '../base-table/base-table.component';
     templateUrl: './base-table-caption.component.html',
     styleUrls: ['./base-table-caption.component.scss']
 })
-export abstract class BaseTableCaptionComponent extends BaseTableComponent implements OnInit {
+export abstract class BaseTableCaptionComponent extends BaseTableEventComponent implements OnInit {
+    public outerData: any;
+
     public config: BaseTableCaptionConfig;
 
     // _rowMap is used for keeping track of what rows are currently selected
@@ -34,7 +38,7 @@ export abstract class BaseTableCaptionComponent extends BaseTableComponent imple
 
     private initConfig() {
         if (this.config == undefined) {
-            let cfg: BaseTableCaptionConfig = {
+            const cfg: BaseTableCaptionConfig = {
                 showRefreshBtn: true,
                 showClearFiltersBtn: true,
                 showCollapseBtn: true,
@@ -54,7 +58,7 @@ export abstract class BaseTableCaptionComponent extends BaseTableComponent imple
     }
 
     private initColumnFilterSelect() {
-        const columns: Column[] = this.baseTable.dt.columns;
+        const columns: Column[] = this.componentRef.dt.columns;
 
         columns.forEach(x => {
             if (x.showColumnOption) {
@@ -80,24 +84,24 @@ export abstract class BaseTableCaptionComponent extends BaseTableComponent imple
     }
 
     public closeRows() {
-        this.baseTable.closeExpandedRows();
-        let event: BaseTableEvent = {
+        this.componentRef.closeExpandedRows();
+        const event: BaseTableEvent = {
             eventType: TableEvents.closeRows
         }
         this.onEvent.emit(event);
     }
 
     public clearFilters() {
-        this.baseTable.clearFilters();
-        let event: BaseTableEvent = {
+        this.componentRef.clearFilters();
+        const event: BaseTableEvent = {
             eventType: TableEvents.clearFilters,
         }
         this.onEvent.emit(event);
     }
 
     public refresh() {
-        this.baseTable.refresh();
-        let event: BaseTableEvent = {
+        this.componentRef.refresh();
+        const event: BaseTableEvent = {
             eventType: TableEvents.refresh,
         }
         this.onEvent.emit(event);
@@ -105,10 +109,10 @@ export abstract class BaseTableCaptionComponent extends BaseTableComponent imple
 
     public columnFilterChange(val: string) {
         if (this._selectedColsMap.get(val)) {
-            this.baseTable.addHiddenColumn(val);
+            this.componentRef.addHiddenColumn(val);
             this._selectedColsMap.set(val, false);
         } else {
-            this.baseTable.removeHiddenColumn(val);
+            this.componentRef.removeHiddenColumn(val);
             this._selectedColsMap.set(val, true);
         }
 
@@ -121,11 +125,11 @@ export abstract class BaseTableCaptionComponent extends BaseTableComponent imple
 
     public create() {
         if (this.config.createCfg.pageURL != undefined) {
-            this.router.navigateByUrl(this.config.createCfg.pageURL(this.baseTable.outerData));
+            this.router.navigateByUrl(this.config.createCfg.pageURL(this.componentRef.outerData));
         } else if (this.config.createCfg.modal != undefined) {
-            this.config.createCfg.modal(this.baseTable);
+            this.config.createCfg.modal(this.componentRef);
         } else if (this.config.createCfg.actionFn != undefined) {
-            this.config.createCfg.actionFn(this.baseTable);
+            this.config.createCfg.actionFn(this.componentRef);
         }
     }
 
@@ -156,7 +160,7 @@ export abstract class BaseTableCaptionComponent extends BaseTableComponent imple
         })
 
         if (this._rowMap.size == 0) {
-            url += this.baseTable.getFilterParams() + '&' + this.config.exportCfg.columnHeadersParam + '=' +
+            url += this.componentRef.getFilterParams() + '&' + this.config.exportCfg.columnHeadersParam + '=' +
                 encodeURI(JSON.stringify(headers));
         } else {
             const ids = [];
@@ -171,12 +175,12 @@ export abstract class BaseTableCaptionComponent extends BaseTableComponent imple
             }
 
             url += '?' + this.config.exportCfg.columnHeadersParam + '=' + encodeURI(JSON.stringify(headers)) + '&' +
-                this.baseTable.config.paramConfig.filters + '=' +
-                encodeURI(JSON.stringify([filter])) + '&' + this.baseTable.config.paramConfig.sorts + '=' +
-                encodeURI(JSON.stringify(this.baseTable.state.sort));
+                this.componentRef.config.paramConfig.filters + '=' +
+                encodeURI(JSON.stringify([filter])) + '&' + this.componentRef.config.paramConfig.sorts + '=' +
+                encodeURI(JSON.stringify(this.componentRef.state.sort));
         }
 
-        this.baseTable.exportData(et, url, this.config.exportCfg.fileName);
+        this.componentRef.exportData(et, url, this.config.exportCfg.fileName);
 
         const event: BaseTableEvent = {
             eventType: TableEvents.export,

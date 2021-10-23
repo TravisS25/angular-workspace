@@ -8,12 +8,11 @@ import { Subscription } from 'rxjs';
     styleUrls: ['./base.component.scss']
 })
 export abstract class BaseComponent implements OnInit, OnDestroy {
-    protected _subs: Subscription[] = [];
+    protected _sub: Subscription = new Subscription();
 
     @Input() public config: any;
-    @Output() public onEvent: EventEmitter<any> = new EventEmitter();
-
-    public processEvent: (event: BaseTableEvent, componentRef: any) => void;
+    @Input() public outerData: any;
+    @Input() public componentRef: any;
 
     constructor() { }
 
@@ -21,9 +20,6 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy() {
-        this._subs.forEach(item => {
-            item.unsubscribe()
-        })
-        this._subs = null;
+        this._sub.unsubscribe();
     }
 }

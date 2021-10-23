@@ -3,14 +3,15 @@ import { Observable, of, Subscription } from 'rxjs';
 import { Table } from 'primeng/table/table'
 import { HttpClient, HttpResponse, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { MessageService, Message, MenuItem } from 'primeng/api';
-import { DynamicDialogConfig, DialogService } from 'primeng/dynamicdialog';
-import { BaseTableComponent } from './components/table/base-table/base-table.component';
-import { MultiSelectModule } from 'primeng';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-import { DefaultConsts, DefaultTableEvents } from './config';
-import { BaseFormComponent } from './components/util/form/base-form/base-form.component';
-import { MaterialPagination } from './components/component-config'
+import { IConfig } from 'ngx-mask';
+import { BaseTableCaptionComponent } from './components/table/base-table-caption/base-table-caption.component';
+import { BaseColumnComponent } from './components/table/base-column/base-column.component';
+import { BaseDisplayItemComponent } from './components/table/base-display-item/base-display-item.component';
+import { BaseMobileFilterComponent } from './components/table/mobile/base-mobile-filter/base-mobile-filter.component';
+import { BaseRowExpansionComponent } from './components/table/base-row-expansion/base-row-expansion.component';
+import { BaseMobileTableComponent } from './components/table/mobile/base-mobile-table/base-mobile-table.component';
+import { BaseMobileDisplayItemComponent } from './components/table/mobile/base-mobile-display-item/base-mobile-display-item.component';
+import { BaseMobileTableEventComponent } from './components/table/mobile/base-mobile-table-event/base-mobile-table-event.component';
 
 //---------------- EVENT ENUMS ----------------------- 
 
@@ -28,7 +29,7 @@ export enum TableEvents {
     create,
     refresh,
     clearFilters,
-    tableFilters,
+    tableFilter,
     caption,
     columnFilter,
     bodyCell,
@@ -179,22 +180,6 @@ export interface FieldName {
     newName: string;
 }
 
-// GET RID OF LATER!!
-export const BoolList: SelectItem[] = [
-    {
-        label: '--Select--',
-        value: null,
-    },
-    {
-        label: 'True',
-        value: true,
-    },
-    {
-        label: 'False',
-        value: false,
-    }
-]
-
 
 // HTTPOptions is just a type safe way of applying api options
 // to HTTPClient#get parameter
@@ -210,10 +195,10 @@ export interface HTTPOptions {
 // ExportMenuItem extends MenuItem to add our exportAPI function
 // and fileName property
 // This is mainly used in the "ExportFormats" interface which is used
-// for the BaseTableConfig#exportConfig property setting
+// for the TableConfig#exportConfig property setting
 //
 // The "command" function of MenuItem is overwritten when used in 
-// BaseTableConfig#exportConfig property setting to handle the appropriate
+// TableConfig#exportConfig property setting to handle the appropriate
 // export type in "ExportFormats"
 export interface ExportMenuItem extends MenuItem {
     // exportAPI takes in outerData and should return url that will be used 
@@ -284,7 +269,7 @@ export interface TableCaptionExportConfig {
     idFilterParam: string;
 }
 
-// ExportConfig is config used in BaseTableConfig to construct
+// ExportConfig is config used in TableConfig to construct
 // settings to use for the export button like styling, file name,
 // file format etc.
 export interface ExportConfig {
@@ -371,7 +356,7 @@ export interface BaseModalConfig {
 
     // processOnClose takes in result from closing of modal
     // and updates table based on results
-    processOnClose?: (result: any, baseTable: BaseTableComponent) => void
+    processOnClose?: (result: any, componentRef: any) => void
 }
 
 // ------------------ TABLE INTERFACES -----------------------
@@ -380,7 +365,7 @@ export interface BaseModalConfig {
 // that emit an event
 export interface BaseTableEventConfig {
     // eventType should be unique name of event that is triggered by table component
-    eventType: any;
+    eventType?: any;
 }
 
 // BaseTableEvent should be the interface that is emitted from every event
@@ -442,15 +427,15 @@ export interface BaseTableCaptionConfig {
 }
 
 // MobileTableConfig is the main config used for mobile table
-export interface MobileTableConfig extends TableStateChangeI {
+export interface MobileTableConfig extends MobileTableEventOptions, TableStateChangeI {
     // captionCfg is config used to generate dynamic caption component with settings
-    captionCfg?: CaptionEntity;
+    captionCfg?: MobileCaptionEntity;
 
     // panelTitleCfg is config used generate dynamic component for mobile table with settings
-    panelTitleCfg?: DisplayItemEntity;
+    panelTitleCfg?: MobileDisplayItemEntity;
 
     // panelDescriptionCfg is config used generate dynamic component for mobile table with settings
-    panelDescriptionCfg?: DisplayItemEntity;
+    panelDescriptionCfg?: MobileDisplayItemEntity;
 
     // tableAPICfg is config used to call api from server
     tableAPICfg?: APIConfig;
@@ -463,7 +448,7 @@ export interface MobileTableConfig extends TableStateChangeI {
     outerDataHeader?: (outerData: any) => string;
 
     // processEvent will process any event made from mobile table
-    processEvent?: (event: BaseTableEvent, table: any) => void;
+    //processEvent?: (event: BaseTableEvent, table: any) => void;
 
     // getState is the filter state of the table that will be sent to server
     // Setting this will set the table with initial state when making
@@ -491,15 +476,15 @@ export interface MobileTableConfig extends TableStateChangeI {
 }
 
 
-// BaseTableConfig is the main config that is used against our table api
-export interface BaseTableConfig extends BaseEventOptions, TableStateChangeI {
+// TableConfig is the main config that is used against our table api
+export interface TableConfig extends TableEventOptions, TableStateChangeI {
     // getState is the filter state of the table that will be sent to server
     // Setting this will set the table with initial state when making
     // first call to server
     getState?: (outerData: any) => State;
 
     // summary is config used to generate custom summary component
-    summary?: SummaryEntity;
+    // summary?: SummaryEntity;
 
     // paramConfig set param names that will be sent to server
     paramConfig?: ParamConfig;
@@ -644,29 +629,29 @@ export interface BaseTableConfig extends BaseEventOptions, TableStateChangeI {
     // Callback to invoke when a cell switches to edit mode
     //
     // Default: Empty function
-    onEditInit?: (event: EditEvent, baseTable: any) => void;
+    onEditInit?: (event: EditEvent, componentRef: any) => void;
 
     // Callback to invoke when cell edit is completed
     //
     // Default: Empty function
-    onEditComplete?: (event: EditEvent, baseTable: any) => void;
+    onEditComplete?: (event: EditEvent, componentRef: any) => void;
 
     // Callback to invoke when cell edit is cancelled with escape key
     //
     // Default: Empty function
-    onEditCancel?: (event: EditEvent, baseTable: any) => void;
+    onEditCancel?: (event: EditEvent, componentRef: any) => void;
 
     // customTableSearch is for overriding the default search functionality built into the table itself
     // when searching for entries of external datasource
     //
     // Default: undefined
-    customTableSearch?(baseTable: any): void;
+    customTableSearch?(componentRef: any): void;
 
     // customTableSearch is for overriding the default search functionality built into the table itself
     // when searching for table settings of external datasource
     //
     // Default: undefined
-    customTableSettingsSearch?(baseTable: any): void;
+    customTableSettingsSearch?(componentRef: any): void;
 
     // outerDataHeader is used for inner tables where outerData is the data passed
     // from the "above" table and can be used to display a header for the inner table
@@ -677,335 +662,26 @@ export interface BaseTableConfig extends BaseEventOptions, TableStateChangeI {
 
 // ------------------ COLUMN CONFIGURATION -----------------------
 
-//////////////////////////////////////////////////////////////////////////////////
-// The below configurations are used in the column api to set up
-// various functionality for a column
-// There are interfaces and corresponding concrete clases that implement those 
-// interfaces although all the interfaces have optional properties
-// This is used in our "COLUMN IMPLEMENTATION" section and the reason the
-// interface properties are all optional is so they don't have to be set 
-// when using the column api and the concrete classes simply take in the 
-// properties that are set and use them in the dynamically created components
-//
-// There are built in components with different styles but if one wanted to 
-// implement custom components, one would simply need to extend the concrete
-// classes below
-//////////////////////////////////////////////////////////////////////////////////
-
-
-
-@Component({
-    template: '',
-})
-export class BaseComponent {
-    protected _subs: Subscription[] = [];
-
-    @Input() public config: any;
-    @Output() public onEvent: EventEmitter<any> = new EventEmitter();
-}
-
 export interface ConfigI {
     config?: any;
 }
 
-// BaseTableI is base interface config used for column api
-// This config should be extended by various parts of the table api
-// like caption, column header etc.
-export interface BaseTableI extends ConfigI {
-    processEvent?: (event: BaseTableEvent, component: any) => void;
+export interface PopupFormI extends ConfigI {
+    onSuccess?: EventEmitter<any>;
+    onClose?: EventEmitter<any>;
 }
 
-@Component({
-    template: '',
-})
-export class BaseTable implements BaseTableI, OnInit, OnDestroy {
-    protected _subs: Subscription[] = [];
-
-    @Input() public config: any;
-    @Input() public baseTable: any;
-    @Input() public outerData: any;
-    @Output() public onEvent: EventEmitter<any> = new EventEmitter();
-
-    public state: State;
-
-    public processEvent: (event: BaseTableEvent, table: any) => void;
-    public processInputTemplateEvent: (event: any, baseTable: any) => void;
-    public processBodyCellEvent: (event: any, baseTable: any) => void;
-    public processCaptionEvent: (event: any, baseTable: any) => void;
-    public processTableFilterEvent: (event: any, baseTable: any) => void;
-    public processColumnFilterEvent: (event: any, baseTable: any) => void;
-    public processClearFiltersEvent: (event: any, baseTable: any) => void;
-    public processSortEvent: (event: any, baseTable: any) => void;
-
-    constructor() { }
-
-    public ngOnInit() { }
-
-    public ngOnDestroy() {
-        this._subs.forEach(item => {
-            item.unsubscribe()
-        })
-        this._subs = null;
-    }
-}
-
-@Component({
-    template: '',
-})
-export class BaseTableCaptionComponent extends BaseTable implements BaseTableI, OnInit, OnDestroy {
-    public config: BaseTableCaptionConfig;
-
-    // _rowMap is used for keeping track of what rows are currently selected
-    // to be able to export those selected rows
-    protected _rowMap: Map<number, string> = new Map();
-
-    // _selectedColsMap is a map that keeps track of selected columns
-    // by field namae to properly show and hide columns
-    protected _selectedColsMap: Map<string, boolean> = new Map();
-
-    // selectedColumns is array of values for column dropdown
-    public selectedColumns: any[] = [];
-
-    // columnOptions will be the available options to select from dropdown
-    // to hide and show columns
-    public columnOptions: SelectItem[] = [];
-
-    constructor(
-        public router: Router,
-    ) {
-        super();
-    }
-
-    private initConfig() {
-        if (this.config == undefined) {
-            let cfg: BaseTableCaptionConfig = {
-                showRefreshBtn: true,
-                showClearFiltersBtn: true,
-                showCollapseBtn: true,
-                showColumnSelect: true,
-                exportCfg: {
-                    csvURL: '',
-                    xlsURL: '',
-                    xlsxURL: '',
-                    fileName: '',
-                    columnHeadersParam: '',
-                    idFilterParam: '',
-                }
-            }
-
-            this.config = cfg;
-        }
-    }
-
-    private initColumnFilterSelect() {
-        const columns: Column[] = this.baseTable.dt.columns;
-
-        columns.forEach(x => {
-            if (x.showColumnOption) {
-                this.columnOptions.push({
-                    value: x.field,
-                    label: x.header,
-                });
-
-                if (x.hideColumn) {
-                    this._selectedColsMap.set(x.field, false);
-                } else {
-                    this.selectedColumns.push(x.field);
-                    this._selectedColsMap.set(x.field, true);
-                }
-
-            }
-        })
-    }
-
-    public ngOnInit(): void {
-        this.initConfig();
-        this.initColumnFilterSelect();
-    }
-
-    public closeRows() {
-        this.baseTable.closeExpandedRows();
-        let event: BaseTableEvent = {
-            eventType: DefaultTableEvents.CloseRows,
-        }
-        this.onEvent.emit(event);
-    }
-
-    public clearFilters() {
-        this.baseTable.clearFilters();
-        let event: BaseTableEvent = {
-            eventType: DefaultTableEvents.ClearFilters,
-        }
-        this.onEvent.emit(event);
-    }
-
-    public refresh() {
-        this.baseTable.refresh();
-        let event: BaseTableEvent = {
-            eventType: DefaultTableEvents.Refresh,
-        }
-        this.onEvent.emit(event);
-    }
-
-    public columnFilterChange(val: string) {
-        if (this._selectedColsMap.get(val)) {
-            this.baseTable.addHiddenColumn(val);
-            this._selectedColsMap.set(val, false);
-        } else {
-            this.baseTable.removeHiddenColumn(val);
-            this._selectedColsMap.set(val, true);
-        }
-
-        const event: BaseTableEvent = {
-            eventType: DefaultTableEvents.ColumnFilter,
-            event: val
-        }
-        this.onEvent.emit(event);
-    }
-
-    public create() {
-        if (this.config.createCfg.pageURL != undefined) {
-            this.router.navigateByUrl(this.config.createCfg.pageURL(this.baseTable.outerData));
-        } else if (this.config.createCfg.modal != undefined) {
-            this.config.createCfg.modal(this.baseTable);
-        } else if (this.config.createCfg.actionFn != undefined) {
-            this.config.createCfg.actionFn(this.baseTable);
-        }
-    }
-
-    public export(et: ExportType) {
-        let url: string;
-
-        switch (et) {
-            case ExportType.csv:
-                et = ExportType.csv
-                url = this.config.exportCfg.csvURL;
-                break;
-            case ExportType.xls:
-                et = ExportType.xls
-                url = this.config.exportCfg.xlsURL;
-                break;
-            case ExportType.xlsx:
-                et = ExportType.xlsx
-                url = this.config.exportCfg.xlsxURL;
-                break;
-        }
-
-        const headers: string[] = [];
-
-        this._selectedColsMap.forEach((v, k) => {
-            if (v) {
-                headers.push(k);
-            }
-        })
-
-        if (this._rowMap.size == 0) {
-            url += this.baseTable.getFilterParams() + '&' + this.config.exportCfg.columnHeadersParam + '=' +
-                encodeURI(JSON.stringify(headers));
-        } else {
-            const ids = [];
-            this._rowMap.forEach((v, k) => {
-                ids.push(v)
-            })
-
-            const filter: FilterDescriptor = {
-                field: this.config.exportCfg.idFilterParam,
-                operator: 'eq',
-                value: ids
-            }
-
-            url += '?' + this.config.exportCfg.columnHeadersParam + '=' + encodeURI(JSON.stringify(headers)) + '&' +
-                this.baseTable.config.paramConfig.filters + '=' +
-                encodeURI(JSON.stringify([filter])) + '&' + this.baseTable.config.paramConfig.sorts + '=' +
-                encodeURI(JSON.stringify(this.baseTable.state.sort));
-        }
-
-        this.baseTable.exportData(et, url, this.config.exportCfg.fileName);
-
-        const event: BaseTableEvent = {
-            eventType: DefaultTableEvents.Export,
-        }
-        this.onEvent.emit(event);
-    }
-
-    public ngOnDestroy() {
-        super.ngOnDestroy();
-    }
-}
-
-export interface BaseDisplayItemI extends BaseTableI {
+export interface BaseDisplayItemI extends ConfigI {
     value?: any;
     processRowData?: (rowData: any) => any;
 }
 
-@Component({
-    template: '',
-})
-export class BaseDisplayItem extends BaseTable implements BaseDisplayItemI, OnInit, OnDestroy {
-    @Input() public rowData: any;
-    @Input() public rowIdx: number;
-    @Input() public value: any;
-    @Input() public processRowData: (rowData: any) => any;
-
-    constructor() { super() }
-
-    public ngOnInit(): void {
-    }
-}
-
-export interface BaseMobileFilterI extends BaseTableI {
+export interface BaseMobileFilterI extends ConfigI {
     field?: string;
     value?: any;
     selectedValue?: any;
     operator?: string;
 }
-
-@Component({
-    template: '',
-})
-export class BaseMobileFilter extends BaseTable implements BaseMobileFilterI, OnInit, OnDestroy {
-    @Input() public field: string;
-    @Input() public value: any;
-    @Input() public selectedValue: any;
-    @Input() public operator: any;
-
-    protected emitFilterChange(val: any) {
-        let filter: FilterDescriptor = {
-            value: val,
-            field: this.field,
-            operator: this.operator,
-        }
-        let cfg: BaseTableEvent = {
-            eventType: DefaultTableEvents.ColumnFilter,
-            eventFieldName: this.field,
-            event: filter,
-        }
-
-        this.onEvent.emit(cfg);
-    }
-
-    public clearFilter() {
-        this.selectedValue = null;
-    }
-
-    public onFilterChange(event: string) {
-        this.operator = event;
-        this.emitFilterChange(this.selectedValue);
-    }
-
-    constructor() {
-        super();
-    }
-
-    public ngOnInit() {
-        super.ngOnInit();
-
-        if (this.operator == undefined) {
-            this.operator = 'eq';
-        }
-    }
-}
-
 
 export interface BaseColumnI extends BaseMobileFilterI {
     getSelectedValue?: (rowData: any) => any;
@@ -1013,28 +689,7 @@ export interface BaseColumnI extends BaseMobileFilterI {
     excludeFilter?: boolean;
 }
 
-@Component({
-    template: '',
-})
-export class BaseColumn extends BaseMobileFilter implements BaseColumnI, OnInit, OnDestroy {
-    @Input() public colIdx: number;
-    @Input() public rowIdx: number;
-    @Input() public rowData: any;
-    @Input() public isColumnFilter: boolean;
-    @Input() public isInputTemplate: boolean;
-    @Input() public excludeFilter: boolean;
-    @Input() public processRowData: (rowData: any) => any;
-
-    constructor() {
-        super();
-    }
-
-    public ngOnInit() {
-        super.ngOnInit();
-    }
-}
-
-export interface BaseMobileRowExpansionI extends BaseTableI {
+export interface BaseMobileRowExpansionI extends ConfigI {
     expansionMap: Map<string, MobileRowExpansionEntity>;
     borderStyle?: Object;
     borderClass?: string;
@@ -1044,15 +699,6 @@ export interface BaseRowExpansionI {
     config?: any;
     renderCallback?: EventEmitter<any>
     outerData?: any;
-}
-
-@Component({
-    template: '',
-})
-export class BaseRowExpansion implements BaseRowExpansionI {
-    @Input() public config: any;
-    @Input() public renderCallback: EventEmitter<any>;
-    @Input() public outerData: any;
 }
 
 // ---------------- TABLE CONFIGURATION ------------------
@@ -1080,8 +726,8 @@ export interface BaseIndexTableEntity {
     config: TableStateChangeI;
 }
 
-export interface PopupFormEntity extends BaseTableI {
-    component: Type<BaseTableI>;
+export interface PopupFormEntity extends PopupFormI {
+    component: Type<PopupFormI>;
     successDismiss?: any;
 }
 
@@ -1090,75 +736,46 @@ export interface PopupDisplayEntity extends ConfigI {
 }
 
 // CaptionEntity is used to display caption component in caption part of table
-export interface CaptionEntity extends BaseTableI {
-    component: Type<any>;
+export interface CaptionEntity extends ConfigI {
+    component: Type<BaseTableCaptionComponent>;
+}
+
+export interface MobileCaptionEntity extends ConfigI {
+    component: Type<BaseMobileTableEventComponent>;
 }
 
 
 // ---------------- COLUMN IMPLEMENTATION ------------------
 
-export interface ColumnEntity extends BaseColumnI {
-    component: Type<any>;
-}
-
-export interface DisplayItemEntity extends BaseDisplayItemI {
-    component: Type<any>;
-}
-
-export interface MobileFilterEntity extends BaseMobileFilterI {
-    component: Type<any>;
-}
-
-export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI {
-    component: Type<any>;
-}
+/////// Table /////////
 
 // RowExpansionEntity is used to display expansion component of table
 export interface RowExpansionEntity extends BaseRowExpansionI {
     // component is component to use for expansion of table
-    component: Type<any>;
+    component: Type<BaseRowExpansionComponent>;
 }
 
-export interface SummaryEntity extends BaseTableI {
-    component: Type<any>;
+export interface ColumnEntity extends BaseColumnI, TableEventOptions {
+    component: Type<BaseColumnComponent>;
 }
 
+export interface DisplayItemEntity extends BaseDisplayItemI, TableEventOptions {
+    component: Type<BaseDisplayItemComponent>;
+}
 
-// // CaptionEntity is used to display caption component in caption part of table
-// export interface CaptionEntity extends BaseTableI {
-//     component: Type<BaseTable>;
-// }
+/////// Mobile /////////
 
-// export interface ColumnEntity extends BaseColumnI {
-//     component: Type<BaseColumn>;
-// }
+export interface MobileFilterEntity extends BaseMobileFilterI, MobileTableEventOptions {
+    component: Type<BaseMobileFilterComponent>;
+}
 
-// export interface DisplayItemEntity extends BaseDisplayItemI {
-//     component: Type<BaseDisplayItem>;
-// }
+export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI, MobileTableEventOptions {
+    component: Type<BaseMobileTableComponent>;
+}
 
-// export interface MobileFilterEntity extends BaseMobileFilterI {
-//     component: Type<BaseMobileFilter>;
-// }
-
-// export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI {
-//     component: Type<BaseTable>;
-// }
-
-// // RowExpansionEntity is used to display expansion component of table
-// export interface RowExpansionEntity extends BaseRowExpansionI {
-//     // component is component to use for expansion of table
-//     component: Type<BaseRowExpansion>;
-// }
-
-// export interface SummaryEntity extends BaseTableI {
-//     component: Type<BaseTable>;
-// }
-
-// export interface BaseIndexTableEntity {
-//     component: Type<TableSwitchI>;
-//     config: TableStateChangeI;
-// }
+export interface MobileDisplayItemEntity extends BaseDisplayItemI, TableEventOptions {
+    component: Type<BaseMobileDisplayItemComponent>;
+}
 
 // ------------------ COLUMN CONFIGS -----------------------
 
@@ -1169,7 +786,7 @@ export interface APIConfig {
     apiURL: (rowData: any) => string
 
     // processResult processes successful response
-    processResult?: (result: any, baseTable?: any) => any;
+    processResult?: (result: any, componentRef?: any) => any;
 
     // apiOptions is the options to set for HTTPClient#get function
     apiOptions?: HTTPOptions;
@@ -1178,26 +795,27 @@ export interface APIConfig {
     processError?: (err: any) => void
 }
 
-// BaseEventOptions is config that can be optionally be added to a config passed
+// BaseEventOptions represents the base event options that every table should contain
+export interface BaseEventOptions {
+    // processCaptionEvent activates whenever an event is broadcast from the caption
+    processCaptionEvent?: (event: any, componentRef: any) => void;
+
+    // processOuterEvent is activated whenever an event outside of the table
+    // occurs but we may want to process it and modify something within the table
+    processOuterEvent?: (event: any, componentRef: any) => void;
+}
+
+// TableEventOptions is config that can be optionally be added to a config passed
 // to different parts of table api such as caption, column filter, etc.
 //
-// The purpose of BaseEventOptions is to be able to listen to events on a per 
+// The purpose of TableEventOptions is to be able to listen to events on a per 
 // column basis and should be used within the Column config
-export interface BaseEventOptions {
-    processEvent?: (event: BaseTableEvent, table: any) => void;
-
+export interface TableEventOptions extends BaseEventOptions {
     // processBodyCellEvent processes an event from body cell for current column
     // This function will only activate if bodyCell#field property is set 
     // to field that is exposed when a body cell creates an event which
     // should be based off the BaseTableEvent interface
-    processBodyCellEvent?: (event: any, baseTable: any) => void;
-
-    // processCaptionEvent activates whenever an event is broadcast from the caption
-    processCaptionEvent?: (event: any, baseTable: any) => void;
-
-    // processTableFilterEvent activates whenever the table changes data through
-    // a column filter change, pagination etc.
-    processTableFilterEvent?: (event: any, baseTable: any) => void;
+    processBodyCellEvent?: (event: any, componentRef: any) => void;
 
     // processColumnFilterEvent processes an event from column filter for current column
     // There is no need to make explicit api request within this function as the table
@@ -1206,21 +824,28 @@ export interface BaseEventOptions {
     // The main purpose of this function is to be able to do various checks and
     // potentially modify BaseTableComponent#state variable before it is sent to 
     // server by table api
-    processColumnFilterEvent?: (event: any, baseTable: any) => void;
+    processColumnFilterEvent?: (event: any, componentRef: any) => void;
+
+    // processSortEvent is activated whenever a column is sorted
+    processSortEvent?: (event: any, componentRef: any) => void;
+
+    // processTableFilterEvent activates whenever the table changes data through
+    // a column filter change, pagination etc.
+    processTableFilterEvent?: (event: any, componentRef: any) => void;
 
     // processClearFiltersEvent activates whenever the "Clear Filters" button
     // is used by user
-    processClearFiltersEvent?: (event: any, baseTable: any) => void;
+    processClearFiltersEvent?: (event: any, componentRef: any) => void;
+}
 
-    // processSortEvent is activated whenever a column is sorted
-    processSortEvent?: (event: any, baseTable: any) => void;
+export interface MobileTableEventOptions extends BaseEventOptions {
+    // processPanelTitleEvent will process events that happen within the title 
+    // section of a mobile table
+    processPanelTitleEvent?: (event: any, componentRef: any) => void;
 
-    // processOuterEvent is activated whenever an event outside of the table
-    // occurs but we may want to process it and modify something within the table
-    processOuterEvent?: (event: any, baseTable: any) => void;
-
-    // processEditEvent is activated whenever an cell or row edit event occurs
-    processInputTemplateEvent?: (event: any, baseTable: any) => void;
+    // processPanelDescriptionEvent will process events that happen within the
+    // description section of a mobile table
+    processPanelDescriptionEvent?: (event: any, componentRef: any) => void;
 }
 
 // TemplateConfig is config used for cell/row editing and determines
@@ -1252,15 +877,89 @@ export interface EditEvent {
     foundDiff?: boolean;
 }
 
-// Column is the base settings interface that is used with base table component
-// All settings that deal with columns should be set with this
-export interface Column extends BaseEventOptions {
+export interface BaseColumn {
     // field represents json name of field
     // WE NEED FIELD FOR ABILITY TO EXPORT COLUMN, DO NOT DELETE
-    field: string,
+    field: string;
 
     // header represents display name of field
-    header?: string,
+    header?: string;
+
+    // hideColumn will hide column if set true
+    hideColumn?: boolean;
+
+    // showColumnOption will show current column
+    // in the dropdown list in caption
+    //
+    // Default: true
+    showColumnOption?: boolean;
+
+    // hideColumnFilter will hide the filter for current column
+    hideColumnFilter?: boolean;
+
+    // headerStyle styles header of column if set
+    headerStyle?: Object;
+
+    // headerClass will set CSS class for column header if set
+    headerClass?: string;
+
+    // headerStyle styles header of column if set
+    columnFilterStyle?: Object;
+
+    // headerClass will set CSS class for column header if set
+    columnFilterClass?: string;
+
+    // columnFilter will display column filter and pass along config settings
+    // to component if set
+    columnFilter?: ColumnEntity;
+
+    // bodyCellStyle will set style for cell of column if set
+    bodyCellStyle?: Object;
+
+    // bodyCellClass will set CSS class for column cell if set
+    bodyCellClass?: string;
+
+    // bodyCell will display component within cell of table of current column
+    // and pass config if set
+    bodyCell?: ColumnEntity;
+
+    // sort allows us to activate the ability to sort on current column
+    sort?: SortOperation;
+
+    // bodyCellHTML takes in row value for that column and should
+    // return html based on value if set
+    // If neither bodyCell or bodyCellHTML is set, then the
+    // row data will be displayed if "field" is set
+    bodyCellHTML?: (any) => string;
+}
+
+export interface PrimengColumn extends BaseColumn {
+    // renderColumnContent can be used to determine if the content in the table
+    // cell is even rendered, NOT just hidden
+    // This is used in conjunction with BaseTableAPI#showNoRecordsLabel and set by table api
+    // but can be set manually if one wishes to not render cell content based on some condition
+    //
+    // Default: true
+    renderColumnContent?: boolean;
+
+    // colStyle will style col group if set.  This style should
+    // really only be used to set width of column
+    colStyle?: Object;
+
+    // templateConfig is config used to set up inline edting for table
+    // by configuring an input and output template
+    templateConfig?: TemplateConfig;
+}
+
+// Column is the base settings interface that is used with base table component
+// All settings that deal with columns should be set with this
+export interface Column {
+    // field represents json name of field
+    // WE NEED FIELD FOR ABILITY TO EXPORT COLUMN, DO NOT DELETE
+    field: string;
+
+    // header represents display name of field
+    header?: string;
 
     // renderColumnContent can be used to determine if the content in the table
     // cell is even rendered, NOT just hidden
@@ -1271,7 +970,7 @@ export interface Column extends BaseEventOptions {
     renderColumnContent?: boolean;
 
     // hideColumn will hide column if set true
-    hideColumn?: boolean,
+    hideColumn?: boolean;
 
     // showColumnOption will show current column
     // in the dropdown list in caption
@@ -1293,20 +992,20 @@ export interface Column extends BaseEventOptions {
     headerClass?: string;
 
     // headerStyle styles header of column if set
-    headerFilterStyle?: Object;
+    columnFilterStyle?: Object;
 
     // headerClass will set CSS class for column header if set
-    headerFilterClass?: string;
+    columnFilterClass?: string;
+
+    // columnFilter will display column filter and pass along config settings
+    // to component if set
+    columnFilter?: ColumnEntity;
 
     // bodyCellStyle will set style for cell of column if set
     bodyCellStyle?: Object;
 
     // bodyCellClass will set CSS class for column cell if set
     bodyCellClass?: string;
-
-    // columnFilter will display column filter and pass along config settings
-    // to component if set
-    columnFilter?: ColumnEntity;
 
     // bodyCell will display component within cell of table of current column
     // and pass config if set
@@ -1324,6 +1023,49 @@ export interface Column extends BaseEventOptions {
     // If neither bodyCell or bodyCellHTML is set, then the
     // row data will be displayed if "field" is set
     bodyCellHTML?: (any) => string;
+}
+
+
+export interface FilterConfig {
+    // type determines the icon that will be displayed
+    type: 'textInput' | 'date',
+
+    // options determines what list of values will be displayed for filter
+    // along with ability to select default value
+    options: FilterOptions;
+}
+
+// FilterOptions display filter options and ability to choose default option
+export interface FilterOptions {
+    // values is list of values to display
+    values: SelectItem[];
+
+    // selectValue is default value selected 
+    selectedValue: any
+}
+
+export interface CheckboxEvent {
+    field?: string;
+    colIdx?: number;
+    rowIdx?: number;
+    rowData?: any;
+    checked?: boolean;
+    isHeaderCheckbox?: boolean;
+}
+
+export interface MaskConfig extends IConfig {
+    maskTemplate: string;
+}
+
+export interface MaterialPagination {
+    pageSize?: number;
+    pageSizeOptions?: number[];
+}
+
+export interface DisplayFormat {
+    item: string;
+    borderClass?: string;
+    borderStyle?: Object;
 }
 
 // --------------------- TAB VIEW ----------------------

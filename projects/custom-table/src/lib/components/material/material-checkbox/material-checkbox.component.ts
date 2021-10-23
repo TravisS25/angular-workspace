@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { DefaultTableEvents } from '../../../config';
-import { BaseTableEvent } from '../../../table-api';
-import { BaseColumn } from '../../../table-api';
+import { BaseTableEvent, CheckboxEvent } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
-import { CheckboxEvent } from '../../component-config';
+import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { TableEvents } from 'projects/custom-table/src/public-api';
 
 export interface MaterialCheckboxConfig {
     color?: any;
@@ -22,7 +22,7 @@ export interface MaterialCheckboxConfig {
     templateUrl: './material-checkbox.component.html',
     styleUrls: ['./material-checkbox.component.scss']
 })
-export class MaterialCheckboxComponent extends BaseColumn implements OnInit {
+export class MaterialCheckboxComponent extends BaseColumnComponent implements OnInit {
     public checked: boolean = false;
     public cfg: MaterialCheckboxConfig
 
@@ -77,7 +77,7 @@ export class MaterialCheckboxComponent extends BaseColumn implements OnInit {
     }
 
     public onChangeEvent(event: any) {
-        let cbe: CheckboxEvent = {
+        const cbe: CheckboxEvent = {
             field: this.field,
             colIdx: this.colIdx,
             rowIdx: this.rowIdx,
@@ -86,7 +86,7 @@ export class MaterialCheckboxComponent extends BaseColumn implements OnInit {
             isHeaderCheckbox: false,
         }
 
-        let cfg: BaseTableEvent = {
+        const cfg: BaseTableEvent = {
             eventType: DefaultTableEvents.ColumnFilter,
             eventFieldName: 'checkbox',
             event: cbe,

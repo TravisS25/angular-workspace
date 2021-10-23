@@ -1,5 +1,4 @@
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { FilterOptions } from '../../component-config';
 import { MatRadioButton, MatRadioChange, MatRadioGroup } from '@angular/material/radio';
 import { MatMenu } from '@angular/material/menu';
 import { FormControl } from '@angular/forms';

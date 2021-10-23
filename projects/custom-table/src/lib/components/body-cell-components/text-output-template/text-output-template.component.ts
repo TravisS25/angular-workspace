@@ -1,6 +1,7 @@
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit } from '@angular/core';
 import { BaseColumn, } from '../../../table-api';
+import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 
 export interface TextOutputTemplateConfig {
     changeBackgroundColor?: string;
@@ -12,7 +13,7 @@ export interface TextOutputTemplateConfig {
     templateUrl: './text-output-template.component.html',
     styleUrls: ['./text-output-template.component.scss'],
 })
-export class TextOutputTemplateComponent extends BaseColumn implements OnInit {
+export class TextOutputTemplateComponent extends BaseColumnComponent implements OnInit {
     public label: string;
 
     constructor() {

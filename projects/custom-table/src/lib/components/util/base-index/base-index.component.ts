@@ -1,6 +1,6 @@
 import { ThrowStmt } from '@angular/compiler';
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, Type, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
-import { BaseTableConfig, MobileTableConfig, State, BaseTable, BaseIndexTableEntity, TableSwitchI } from '../../../table-api';
+import { TableConfig, MobileTableConfig, State, BaseIndexTableEntity, TableSwitchI } from '../../../table-api';
 import { Observable, Subject, Subscription } from 'rxjs';
 import _ from "lodash" // Import the entire lodash library
 import { WindowResizeService } from '../../../services/window-resize.service';

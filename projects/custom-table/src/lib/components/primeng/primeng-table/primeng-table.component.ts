@@ -20,25 +20,20 @@ import { Message, LazyLoadEvent, MessageService, SortEvent, MenuItem, SelectItem
 import {
     FilterData,
     Column,
-    BaseTableConfig,
+    TableConfig,
     State,
     FilterDescriptor,
     GroupDescriptor,
     SortDescriptor,
     FieldName,
-    BoolList,
     ExportType,
     BaseRowExpansionI,
-    BaseTableI,
     BaseTableEvent,
     APIConfig,
     ParamConfig,
-    BaseColumn,
     ColumnEntity,
     BaseColumnI,
     EditEvent,
-    BaseRowExpansion,
-    BaseTable,
 } from '../../../table-api';
 import _ from "lodash" // Import the entire lodash library
 import { DialogService } from 'primeng/dynamicdialog';
@@ -62,8 +57,11 @@ import { encodeURIState, getJSONFieldValue } from '../../../util';
 import { ThrowStmt } from '@angular/compiler';
 import { DefaultTableEvents } from '../../../config';
 import { MaterialInputTextComponent } from '../../../../public-api';
-import { getDefaultState } from '../../../default-values';
+import { getDefaultParamConfig, getDefaultState } from '../../../default-values';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
+import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseRowExpansionComponent } from '../../table/base-row-expansion/base-row-expansion.component';
+import { BaseTableCaptionComponent } from '../../table/base-table-caption/base-table-caption.component';
 
 interface outputTemplateConfig {
     updateOutputTemplate: boolean;
@@ -126,10 +124,10 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     private _tableInit: boolean = false;
 
     // _inputTemplateSubs is used to keep track of subscriptions of input templates for cell editing
-    private _inputTemplateSubs: Subscription[] = [];
+    private _inputTemplateSub: Subscription = new Subscription();
 
     // _editedRowData is used to keep track of edited rows by user
-    // The key value used is the one set in BaseTableConfig#dataKey
+    // The key value used is the one set in TableConfig#dataKey
     private _editedRowData: { [s: string]: any; } = {};
 
     // _clonedData is used to keep track of original rows so
@@ -151,68 +149,56 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // It continues to flip between "asc" and "desc" and never back to neutral
     private _sortMap: Map<string, number> = new Map<string, number>();
 
-    // // _createSub is used to keep a reference to any modal create subscription
-    // // to be destroyed once the component is destroyed
-    // private _createSub: Subscription;
-
-    // _subs is used to keep a reference to all subscriptions within table
-    //private _subs: Subscription[] = [];
-
     // _bodyCellSubs is used to keep reference to explicitly body cell subscriptions
     // and will properly unsubscribe from them when new data is loaded into table
-    private _bodyCellSubs: Subscription[] = [];
+    private _bodyCellSub: Subscription = new Subscription();
 
     // _onTableFilterEvent is used by other components of the table like caption,
     // column filter and body cell rows and will be emitted by table whenever
     // new data is loaded into the table via column filter or pagination
-    private _onTableFilterEvent: EventEmitter<any> = new EventEmitter<any>();
+    private _onTableFilterEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
 
     // _onClearFiltersEvent is used by other components of the table like caption,
     // column filter and body cell rows and will be emitted by table whenever
     // the "Clear Filter Button" is triggered
-    private _onClearFiltersEvent: EventEmitter<any> = new EventEmitter<any>();
+    private _onClearFiltersEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
 
     // _onSortEvent is triggered whenever a sort event occurs on a column
-    private _onSortEvent: EventEmitter<any> = new EventEmitter<any>();
+    private _onSortEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
 
-    // _onEvent is generic event that will activate with any event
-    // that occurs in the table
-    private _onEvent: EventEmitter<BaseTableEvent> = new EventEmitter();
+    // // _onEvent is generic event that will activate with any event
+    // // that occurs in the table
+    // private _onEvent: EventEmitter<BaseTableEvent> = new EventEmitter();
 
     // columnFilterCrs keeps a list of references to dynamically created column filters
     // components which can be modified through different events and will be destroyed on 
     // component destruction
-    public columnFilterCrs: ComponentRef<BaseColumn>[] = [];
+    public columnFilterCrs: ComponentRef<BaseColumnComponent>[] = [];
 
     // rowExpansionCrs keeps a list of references to dynamically created expanded row
     // components which can be modified through different events and will be destroyed on 
     // component destruction
-    public rowExpansionCrs: ComponentRef<BaseRowExpansion>[] = [];
+    public rowExpansionCrs: ComponentRef<BaseRowExpansionComponent>[] = [];
 
     // bodyCellCrs keeps a list of references to dynamically created body cell 
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    public bodyCellCrs: ComponentRef<BaseColumn>[] = [];
+    public bodyCellCrs: ComponentRef<BaseColumnComponent>[] = [];
 
     // outputTemplateCrMap keeps a list of references to dynamically created output template
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    public outputTemplateCrMap: Map<number, Map<string, ComponentRef<BaseColumn>>> = new Map();
+    public outputTemplateCrMap: Map<number, Map<string, ComponentRef<BaseColumnComponent>>> = new Map();
 
     // captionCr keeps a reference to dynamically created caption component which can be 
     // modified through different events and will be destroyed on component destruction
-    public captionCr: ComponentRef<BaseTable>;
+    public captionCr: ComponentRef<BaseTableCaptionComponent>;
 
     // summaryCr keeps a reference to dynamically created summary component which can be 
     // modified through different events and will be destroyed on component destruction
-    public summaryCr: ComponentRef<BaseTable>;
+    //public summaryCr: ComponentRef<BaseTable>;
 
     public tableCellDirMap: Map<number, Map<string, DynamicTableCellDirective>> = new Map();
-
-    // This should NEVER be set manually as it is used as a "flag"
-    // to indicate that current table is an inner table if set
-    // and to use this info to fill current table
-    @Input() public outerData: any;
 
     // renderCallback is used for the expirimental expand all rows button
     // This is sent to inner table when current table expands row and will 
@@ -231,13 +217,13 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     @Input() public renderCallback: EventEmitter<any> = new EventEmitter<any>();
 
     // config is variable that stores all configuration for table
-    @Input() public config: BaseTableConfig;
+    @Input() public config: TableConfig;
 
     @ViewChild('dt', { static: false }) public dt: Table;
     @ViewChild(DynamicCaptionDirective, { static: false })
     public headerCaptionDir: DynamicCaptionDirective;
-    @ViewChild(DynamicSummaryDirective, { static: false })
-    public summaryDir: DynamicCaptionDirective;
+    // @ViewChild(DynamicSummaryDirective, { static: false })
+    // public summaryDir: DynamicSummaryDirective;
 
     @ViewChildren(DynamicExpansionDirective)
     public expansionDirs: QueryList<DynamicExpansionDirective>;
@@ -351,12 +337,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
             this.config.columnResizeMode = 'fit';
         }
 
-        let pCfg: ParamConfig = {
-            take: 'take',
-            skip: 'skip',
-            filters: 'filters',
-            sorts: 'sorts',
-        }
+        const pCfg = getDefaultParamConfig();
 
         if (this.config.paramConfig == undefined) {
             this.config.paramConfig = {};
@@ -436,7 +417,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // initExpansionComponents initializes row expansion component reference
     // and creates component if set by api
     private initExpansionComponents() {
-        this._subs.push(
+        this._sub.add(
             this.expansionDirs.changes.subscribe(val => {
                 //console.log("expansion dir");
                 //console.log(val);
@@ -464,7 +445,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // initColumnFilterComponents initializes column filter component references
     // and creates components if set by column api
     private initColumnFilterComponents() {
-        this._subs.push(
+        this._sub.add(
             this.columnFilterDirs.changes.subscribe(val => {
                 if (this._updateColumnFilter) {
                     let results = val._results as DynamicColumnFilterDirective[];
@@ -476,7 +457,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                         );
 
                         const cr = item.viewContainerRef.createComponent(cf);
-                        cr.instance.baseTable = this;
+                        cr.instance.componentRef = this;
                         cr.instance.colIdx = item.colIdx;
                         cr.instance.isColumnFilter = true;
                         cr.instance.isInputTemplate = false;
@@ -502,10 +483,10 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
     // createCellComponentRef creates and return a component reference based on the directive
     // and ComponentRef passed
-    private createCellComponentRef(dir: DynamicBaseCellDirective, ce: ColumnEntity): ComponentRef<BaseColumn> {
+    private createCellComponentRef(dir: DynamicBaseCellDirective, ce: ColumnEntity): ComponentRef<BaseColumnComponent> {
         const cf = this.cfr.resolveComponentFactory(ce.component);
         const cr = dir.viewContainerRef.createComponent(cf);
-        cr.instance.baseTable = this;
+        cr.instance.componentRef = this;
         cr.instance.colIdx = dir.colIdx;
         cr.instance.rowIdx = dir.rowIdx;
         cr.instance.rowData = dir.rowData;
@@ -529,9 +510,9 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
     // initCellComponents initializes cell component references and creates component
     private initCellComponents() {
-        let columns: Column[] = this.dt.columns;
+        const columns: Column[] = this.dt.columns;
 
-        this._subs.push(
+        this._sub.add(
             this.bodyCellDirs.changes.subscribe(val => {
                 // console.log('change within body cell')
                 // console.log(val)
@@ -558,17 +539,16 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                     // body cell subscriptions and assign "_bodyCellSubs" to empty array
                     // and then initialize new body cell component references 
                     if (this._tableInit) {
-                        this._bodyCellSubs.forEach(item => {
-                            item.unsubscribe();
-                        })
-                        this._bodyCellSubs = [];
+                        this._bodyCellSub.unsubscribe();
                         this.initBodyCellCrEvents()
                     }
 
                     this.cdr.detectChanges();
                     this._updateBodyCellComponents = false;
                 }
-            }),
+            })
+        )
+        this._sub.add(
             this.outputTemplateDirs.changes.subscribe(val => {
                 // console.log('output template dir change');
                 // console.log(val)
@@ -590,7 +570,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
                         if (this._updateOutputTemplateComponents) {
                             const cr = this.createCellComponentRef(item, ce);
-                            let rowCrMap: Map<string, ComponentRef<BaseColumn>>;
+                            let rowCrMap: Map<string, ComponentRef<BaseColumnComponent>>;
 
                             if (this.outputTemplateCrMap.has(item.rowIdx)) {
                                 rowCrMap = this.outputTemplateCrMap.get(item.rowIdx);
@@ -621,12 +601,14 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                 this._outputTemplateCfg.updateOutputTemplate = false;
                 this._outputTemplateCfg.rowIdx = -1;
                 this._outputTemplateCfg.field = '';
-            }),
+            })
+        )
+        this._sub.add(
             this.inputTemplateDirs.changes.subscribe(val => {
                 // console.log('input template dir change');
                 // console.log(val);
 
-                let results = val._results as DynamicInputTemplateDirective[];
+                const results = val._results as DynamicInputTemplateDirective[];
 
                 results.forEach(item => {
                     // Check edit mode as logic might have to be slightly different between cell and row edit
@@ -640,7 +622,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
                         // As each input template is being dynamically created, we want to subscribe to each of
                         // its events as this will give ability to reflect change to output template display
-                        this._inputTemplateSubs.push(
+                        this._inputTemplateSub.add(
                             cr.instance.onEvent.subscribe(r => {
                                 let result: BaseTableEvent = r;
                                 let cfg = result.event as EditEvent;
@@ -657,11 +639,11 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                                     )
                                 }
 
-                                columns.forEach(x => {
-                                    if (x.field == item.field && x.processInputTemplateEvent != undefined) {
-                                        x.processInputTemplateEvent(r, this);
-                                    }
-                                })
+                                // columns.forEach(x => {
+                                //     if (x.field == item.field && x.processInputTemplateEvent != undefined) {
+                                //         x.processInputTemplateEvent(r, this);
+                                //     }
+                                // })
 
                                 this.columnFilterCrs.forEach(x => {
                                     if (x.instance.field == item.field && x.instance.processInputTemplateEvent != undefined) {
@@ -678,7 +660,9 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                 });
 
                 this.cdr.detectChanges();
-            }),
+            })
+        )
+        this._sub.add(
             this.tableCellDirs.changes.subscribe(val => {
                 if (this._updateTableCellDirs) {
                     this.tableCellDirMap.clear();
@@ -713,24 +697,8 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
             const cr = this.headerCaptionDir.viewContainerRef.createComponent(cf);
             cr.instance.config = this.config.caption.config;
-            cr.instance.baseTable = this;
-            cr.instance.onEvent = new EventEmitter<any>();
+            cr.instance.componentRef = this;
             this.captionCr = cr;
-        }
-    }
-
-    // initSummaryComponent initializes and creates summary component if set by config
-    private initSummaryComponent() {
-        if (this.config.summary != undefined) {
-            const cf = this.cfr.resolveComponentFactory(
-                this.config.summary.component,
-            );
-
-            const cr = this.summaryDir.viewContainerRef.createComponent(cf);
-            cr.instance.config = this.config.summary.config;
-            cr.instance.baseTable = this;
-            //cr.instance.onEvent = new EventEmitter<any>();
-            this.summaryCr = cr;
         }
     }
 
@@ -738,45 +706,45 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // references and subscribing them all to each other's events and having
     // ability for all parts of the table to listen to each other 
     private initCRSEvents() {
-        let columns: Column[] = this.dt.columns;
+        //const columns: Column[] = this.dt.columns;
 
-        this._subs.push(
-            this._onEvent.subscribe(r => {
-                for (let i = 0; i < columns.length; i++) {
-                    if (columns[i].processEvent != undefined) {
-                        columns[i].processEvent(r, this);
-                    }
-                }
-                for (let i = 0; i < this.columnFilterCrs.length; i++) {
-                    if (this.columnFilterCrs[i].instance.processEvent != undefined) {
-                        this.columnFilterCrs[i].instance.processEvent(r, this);
-                    }
-                }
-                for (let i = 0; i < this.bodyCellCrs.length; i++) {
-                    if (this.bodyCellCrs[i].instance.processEvent != undefined) {
-                        this.bodyCellCrs[i].instance.processEvent(r, this);
-                    }
-                }
+        // this._sub.add(
+        //     this._onEvent.subscribe(r => {
+        //         for (let i = 0; i < columns.length; i++) {
+        //             if (columns[i].processEvent != undefined) {
+        //                 columns[i].processEvent(r, this);
+        //             }
+        //         }
+        //         for (let i = 0; i < this.columnFilterCrs.length; i++) {
+        //             if (this.columnFilterCrs[i].instance.processEvent != undefined) {
+        //                 this.columnFilterCrs[i].instance.processEvent(r, this);
+        //             }
+        //         }
+        //         for (let i = 0; i < this.bodyCellCrs.length; i++) {
+        //             if (this.bodyCellCrs[i].instance.processEvent != undefined) {
+        //                 this.bodyCellCrs[i].instance.processEvent(r, this);
+        //             }
+        //         }
 
-                if (this.captionCr != undefined && this.captionCr.instance.processEvent) {
-                    this.captionCr.instance.processEvent(r, this);
-                }
-                if (this.config.processEvent != undefined) {
-                    this.config.processEvent(r, this);
-                }
-            })
-        );
+        //         if (this.captionCr != undefined && this.captionCr.instance.processEvent) {
+        //             this.captionCr.instance.processEvent(r, this);
+        //         }
+        //         if (this.config.processEvent != undefined) {
+        //             this.config.processEvent(r, this);
+        //         }
+        //     })
+        // );
 
         // subscribing all components to table filter event, which occurs
         // whenever new data is written to table via column filter,
         // pagination, etc.
-        this._subs.push(
+        this._sub.add(
             this._onTableFilterEvent.subscribe(r => {
-                for (let i = 0; i < columns.length; i++) {
-                    if (columns[i].processTableFilterEvent != undefined) {
-                        columns[i].processTableFilterEvent(r, this);
-                    }
-                }
+                // for (let i = 0; i < columns.length; i++) {
+                //     if (columns[i].processTableFilterEvent != undefined) {
+                //         columns[i].processTableFilterEvent(r, this);
+                //     }
+                // }
                 for (let i = 0; i < this.columnFilterCrs.length; i++) {
                     if (this.columnFilterCrs[i].instance.processTableFilterEvent != undefined) {
                         this.columnFilterCrs[i].instance.processTableFilterEvent(r, this);
@@ -799,13 +767,13 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
         // subscribing all components to clear filters event, which
         // occurs whenever a user clicks the "Clear Filters" button
-        this._subs.push(
+        this._sub.add(
             this._onClearFiltersEvent.subscribe(r => {
-                for (let i = 0; i < columns.length; i++) {
-                    if (columns[i].processClearFiltersEvent != undefined) {
-                        columns[i].processClearFiltersEvent(r, this);
-                    }
-                }
+                // for (let i = 0; i < columns.length; i++) {
+                //     if (columns[i].processClearFiltersEvent != undefined) {
+                //         columns[i].processClearFiltersEvent(r, this);
+                //     }
+                // }
                 for (let i = 0; i < this.columnFilterCrs.length; i++) {
                     if (this.columnFilterCrs[i].instance.processClearFiltersEvent != undefined) {
                         this.columnFilterCrs[i].instance.processClearFiltersEvent(r, this);
@@ -828,13 +796,13 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
         )
 
         // subscribing all components to sort event which occurs when user sorts by field
-        this._subs.push(
+        this._sub.add(
             this._onSortEvent.subscribe(r => {
-                for (let i = 0; i < columns.length; i++) {
-                    if (columns[i].processSortEvent != undefined) {
-                        columns[i].processSortEvent(r, this);
-                    }
-                }
+                // for (let i = 0; i < columns.length; i++) {
+                //     if (columns[i].processSortEvent != undefined) {
+                //         columns[i].processSortEvent(r, this);
+                //     }
+                // }
 
                 for (let i = 0; i < this.columnFilterCrs.length; i++) {
                     if (this.columnFilterCrs[i].instance.processSortEvent != undefined) {
@@ -861,13 +829,13 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
         // user emits some activity within caption.  onCaptionEvent is mainly 
         // triggered by custom emits
         if (this.captionCr != undefined) {
-            this._subs.push(
+            this._sub.add(
                 this.captionCr.instance.onEvent.subscribe(r => {
-                    for (let i = 0; i < columns.length; i++) {
-                        if (columns[i].processCaptionEvent != undefined) {
-                            columns[i].processCaptionEvent(r, this);
-                        }
-                    }
+                    // for (let i = 0; i < columns.length; i++) {
+                    //     if (columns[i].processCaptionEvent != undefined) {
+                    //         columns[i].processCaptionEvent(r, this);
+                    //     }
+                    // }
                     for (let i = 0; i < this.columnFilterCrs.length; i++) {
                         if (this.columnFilterCrs[i].instance.processCaptionEvent != undefined) {
                             this.columnFilterCrs[i].instance.processCaptionEvent(r, this);
@@ -885,25 +853,25 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
 
 
-                    for (let i = 0; i < columns.length; i++) {
-                        if (columns[i].processEvent != undefined) {
-                            columns[i].processEvent(r, this);
-                        }
-                    }
-                    for (let i = 0; i < this.columnFilterCrs.length; i++) {
-                        if (this.columnFilterCrs[i].instance.processEvent != undefined) {
-                            this.columnFilterCrs[i].instance.processEvent(r, this);
-                        }
-                    }
-                    for (let i = 0; i < this.bodyCellCrs.length; i++) {
-                        if (this.bodyCellCrs[i].instance.processEvent != undefined) {
-                            this.bodyCellCrs[i].instance.processEvent(r, this);
-                        }
-                    }
+                    // for (let i = 0; i < columns.length; i++) {
+                    //     if (columns[i].processEvent != undefined) {
+                    //         columns[i].processEvent(r, this);
+                    //     }
+                    // }
+                    // for (let i = 0; i < this.columnFilterCrs.length; i++) {
+                    //     if (this.columnFilterCrs[i].instance.processEvent != undefined) {
+                    //         this.columnFilterCrs[i].instance.processEvent(r, this);
+                    //     }
+                    // }
+                    // for (let i = 0; i < this.bodyCellCrs.length; i++) {
+                    //     if (this.bodyCellCrs[i].instance.processEvent != undefined) {
+                    //         this.bodyCellCrs[i].instance.processEvent(r, this);
+                    //     }
+                    // }
 
-                    if (this.config.processEvent != undefined) {
-                        this.config.processEvent(r, this);
-                    }
+                    // if (this.config.processEvent != undefined) {
+                    //     this.config.processEvent(r, this);
+                    // }
                 })
             );
         }
@@ -911,17 +879,17 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
         // subscribing all components to column filter events which occurs whenever
         // user changes filtering for particular column
         for (let i = 0; i < this.columnFilterCrs.length; i++) {
-            this._subs.push(
+            this._sub.add(
                 this.columnFilterCrs[i].instance.onEvent.subscribe(r => {
-                    for (let t = 0; t < columns.length; t++) {
-                        if (
-                            columns[t].processColumnFilterEvent != undefined &&
-                            columns[t].columnFilter != undefined &&
-                            columns[t].columnFilter.field == this.columnFilterCrs[i].instance.field
-                        ) {
-                            columns[t].processColumnFilterEvent(r, this);
-                        }
-                    }
+                    // for (let t = 0; t < columns.length; t++) {
+                    //     if (
+                    //         columns[t].processColumnFilterEvent != undefined &&
+                    //         columns[t].columnFilter != undefined &&
+                    //         columns[t].columnFilter.field == this.columnFilterCrs[i].instance.field
+                    //     ) {
+                    //         columns[t].processColumnFilterEvent(r, this);
+                    //     }
+                    // }
 
                     for (let t = 0; t < this.bodyCellCrs.length; t++) {
                         if (this.bodyCellCrs[t].instance.colIdx == this.columnFilterCrs[i].instance.colIdx) {
@@ -941,42 +909,42 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
 
 
-                    for (let t = 0; t < columns.length; t++) {
-                        if (
-                            columns[t].processEvent != undefined &&
-                            columns[t].columnFilter != undefined &&
-                            columns[t].columnFilter.field == this.columnFilterCrs[i].instance.field
-                        ) {
-                            columns[t].processEvent(r, this);
-                        }
-                    }
+                    // for (let t = 0; t < columns.length; t++) {
+                    //     if (
+                    //         columns[t].processEvent != undefined &&
+                    //         columns[t].columnFilter != undefined &&
+                    //         columns[t].columnFilter.field == this.columnFilterCrs[i].instance.field
+                    //     ) {
+                    //         columns[t].processEvent(r, this);
+                    //     }
+                    // }
 
-                    for (let t = 0; t < this.bodyCellCrs.length; t++) {
-                        if (this.bodyCellCrs[t].instance.colIdx == this.columnFilterCrs[i].instance.colIdx) {
-                            if (this.bodyCellCrs[t].instance.processEvent != undefined) {
-                                this.bodyCellCrs[t].instance.processEvent(r, this);
-                            }
-                        }
-                    }
+                    // for (let t = 0; t < this.bodyCellCrs.length; t++) {
+                    //     if (this.bodyCellCrs[t].instance.colIdx == this.columnFilterCrs[i].instance.colIdx) {
+                    //         if (this.bodyCellCrs[t].instance.processEvent != undefined) {
+                    //             this.bodyCellCrs[t].instance.processEvent(r, this);
+                    //         }
+                    //     }
+                    // }
 
-                    if (this.captionCr != undefined && this.captionCr.instance.processEvent) {
-                        this.captionCr.instance.processEvent(r, this);
-                    }
+                    // if (this.captionCr != undefined && this.captionCr.instance.processEvent) {
+                    //     this.captionCr.instance.processEvent(r, this);
+                    // }
 
-                    if (this.config.processEvent != undefined) {
-                        this.config.processEvent(r, this);
-                    }
+                    // if (this.config.processEvent != undefined) {
+                    //     this.config.processEvent(r, this);
+                    // }
 
                     if (!this.columnFilterCrs[i].instance.excludeFilter) {
-                        let cfg = r as BaseTableEvent;
-                        let event = cfg.event as FilterDescriptor;
+                        const cfg = r as BaseTableEvent;
+                        const event = cfg.event as FilterDescriptor;
 
                         // console.log('event filter')
                         // console.log(event)
 
                         if (event.field !== '' && event.field !== undefined && event.field !== null) {
                             let filterIdx = -1;
-                            let filters = this.state.filter.filters as FilterDescriptor[];
+                            const filters = this.state.filter.filters as FilterDescriptor[];
 
                             // console.log('filter before stuff')
                             // console.log(filters)
@@ -995,7 +963,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                             // console.log(filters)
 
                             if (Array.isArray(event.value)) {
-                                let arrayVal = event.value as any[];
+                                const arrayVal = event.value as any[];
 
                                 if (arrayVal.length != 0) {
                                     this.state.filter.filters.push(event);
@@ -1035,7 +1003,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // is because this needs to be reused everytime our table gets new data
     private initBodyCellCrEvents() {
         for (let i = 0; i < this.bodyCellCrs.length; i++) {
-            this._bodyCellSubs.push(
+            this._bodyCellSub.add(
                 this.bodyCellCrs[i].instance.onEvent.subscribe(r => {
                     for (let t = 0; t < this.columnFilterCrs.length; t++) {
                         if (this.columnFilterCrs[t].instance.colIdx == this.bodyCellCrs[i].instance.colIdx) {
@@ -1045,17 +1013,17 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                         }
                     }
 
-                    let columns: Column[] = this.dt.columns;
+                    //let columns: Column[] = this.dt.columns;
 
-                    for (let t = 0; t < columns.length; t++) {
-                        if (
-                            columns[t].processBodyCellEvent != undefined &&
-                            columns[t].bodyCell != undefined &&
-                            columns[t].bodyCell.field == this.bodyCellCrs[i].instance.field
-                        ) {
-                            columns[t].processBodyCellEvent(r, this);
-                        }
-                    }
+                    // for (let t = 0; t < columns.length; t++) {
+                    //     if (
+                    //         columns[t].processBodyCellEvent != undefined &&
+                    //         columns[t].bodyCell != undefined &&
+                    //         columns[t].bodyCell.field == this.bodyCellCrs[i].instance.field
+                    //     ) {
+                    //         columns[t].processBodyCellEvent(r, this);
+                    //     }
+                    // }
 
                     if (this.captionCr != undefined && this.captionCr.instance.processBodyCellEvent != undefined) {
                         this.captionCr.instance.processBodyCellEvent(r, this);
@@ -1064,40 +1032,40 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                         this.config.processBodyCellEvent(r, this);
                     }
                 }),
-                this.bodyCellCrs[i].instance.onEvent.subscribe(r => {
-                    for (let t = 0; t < this.columnFilterCrs.length; t++) {
-                        if (this.columnFilterCrs[t].instance.colIdx == this.bodyCellCrs[i].instance.colIdx) {
-                            if (this.columnFilterCrs[t].instance.processEvent != undefined) {
-                                this.columnFilterCrs[t].instance.processEvent(r, this);
-                            }
-                        }
-                    }
+                // this.bodyCellCrs[i].instance.onEvent.subscribe(r => {
+                //     for (let t = 0; t < this.columnFilterCrs.length; t++) {
+                //         if (this.columnFilterCrs[t].instance.colIdx == this.bodyCellCrs[i].instance.colIdx) {
+                //             if (this.columnFilterCrs[t].instance.processEvent != undefined) {
+                //                 this.columnFilterCrs[t].instance.processEvent(r, this);
+                //             }
+                //         }
+                //     }
 
-                    let columns: Column[] = this.dt.columns;
+                //     let columns: Column[] = this.dt.columns;
 
-                    for (let t = 0; t < columns.length; t++) {
-                        if (
-                            columns[t].processEvent != undefined &&
-                            columns[t].bodyCell != undefined &&
-                            columns[t].bodyCell.field == this.bodyCellCrs[i].instance.field
-                        ) {
-                            columns[t].processEvent(r, this);
-                        }
-                    }
+                //     for (let t = 0; t < columns.length; t++) {
+                //         if (
+                //             columns[t].processEvent != undefined &&
+                //             columns[t].bodyCell != undefined &&
+                //             columns[t].bodyCell.field == this.bodyCellCrs[i].instance.field
+                //         ) {
+                //             columns[t].processEvent(r, this);
+                //         }
+                //     }
 
-                    if (this.captionCr != undefined && this.captionCr.instance.processEvent != undefined) {
-                        this.captionCr.instance.processEvent(r, this);
-                    }
-                    if (this.config.processEvent != undefined) {
-                        this.config.processEvent(r, this);
-                    }
-                })
+                //     if (this.captionCr != undefined && this.captionCr.instance.processEvent != undefined) {
+                //         this.captionCr.instance.processEvent(r, this);
+                //     }
+                //     if (this.config.processEvent != undefined) {
+                //         this.config.processEvent(r, this);
+                //     }
+                // })
             );
         }
     }
 
     private initDynamicComponents() {
-        this.initSummaryComponent();
+        //this.initSummaryComponent();
         this.initCaptionComponent();
         this.initExpansionComponents();
         this.initColumnFilterComponents();
@@ -1146,7 +1114,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
             url,
             this.config.tableAPIConfig.apiOptions as any,
         ).subscribe(r => {
-            let res = r as HttpResponse<FilterData>;
+            const res = r as HttpResponse<FilterData>;
 
             // If table is not yet initialized, initiate all of our cr event to 
             // listen to each other
@@ -1160,11 +1128,16 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
             }
 
             this._tableInit = true;
-            this._onEvent.emit({
-                eventType: DefaultTableEvents.TableFilter,
+            // this._onEvent.emit({
+            //     eventType: DefaultTableEvents.TableFilter,
+            //     event: res
+            // });
+
+            const bte: BaseTableEvent = {
                 event: res
-            });
-            this._onTableFilterEvent.emit(res);
+            }
+
+            this._onTableFilterEvent.emit(bte);
             this._updateBodyCellComponents = true;
             this._updateOutputTemplateComponents = true;
             this._updateTableCellDirs = true;
@@ -1293,9 +1266,9 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
         }
 
         this._onClearFiltersEvent.emit(null);
-        this._onEvent.emit({
-            eventType: DefaultTableEvents.ClearFilters
-        })
+        // this._onEvent.emit({
+        //     eventType: DefaultTableEvents.ClearFilters
+        // })
         this.columnFilterCrs.forEach(item => {
             item.instance.clearFilter();
         })
@@ -1379,12 +1352,12 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // EDIT FUNCTIONALITY
     ///////////////////////////////////////////
 
-    private unsubscribeTemplateCells() {
-        this._inputTemplateSubs.forEach(x => {
-            x.unsubscribe();
-        })
-        this._inputTemplateSubs = [];
-    }
+    // private unsubscribeTemplateCells() {
+    //     this._inputTemplateSubs.forEach(x => {
+    //         x.unsubscribe();
+    //     })
+    //     this._inputTemplateSubs = [];
+    // }
 
     public onEditInit(event: EditEvent) {
         console.log('edit init row data');
@@ -1397,7 +1370,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     }
 
     public onEditCancel(event: EditEvent) {
-        this.unsubscribeTemplateCells();
+        this._inputTemplateSub.unsubscribe();
 
         if (this.config.onEditCancel != undefined) {
             this.config.onEditCancel(event, this);
@@ -1408,7 +1381,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
         console.log('edit complete row data');
         console.log(event.data);
 
-        this.unsubscribeTemplateCells();
+        this._inputTemplateSub.unsubscribe();
         this._outputTemplateCfg.updateOutputTemplate = true;
         this._outputTemplateCfg.rowIdx = event.index;
         this._outputTemplateCfg.field = event.field;
@@ -1592,10 +1565,10 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
         })
 
         this._onSortEvent.emit(event.field);
-        this._onEvent.emit({
-            eventType: DefaultTableEvents.Sort,
-            event: event.field
-        })
+        // this._onEvent.emit({
+        //     eventType: DefaultTableEvents.Sort,
+        //     event: event.field
+        // })
 
         if (this.config.autoSearch) {
             this.update();
@@ -1744,21 +1717,8 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
             console.log('project name');
         }
 
-        // if (this._createSub != undefined) {
-        //     this._createSub.unsubscribe();
-        // }
-
-        this._subs.forEach(item => {
-            item.unsubscribe();
-        })
-        this._bodyCellSubs.forEach(item => {
-            item.unsubscribe();
-        })
-
-        //this._createSub = null;
-        this._subs = null;
-        this._subs = null;
-        this._bodyCellSubs = null;
+        this._sub.unsubscribe();
+        this._bodyCellSub.unsubscribe();
 
         if (this.captionCr != undefined) {
             this.captionCr.destroy();

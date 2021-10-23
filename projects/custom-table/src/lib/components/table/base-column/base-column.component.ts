@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { BaseMobileFilterComponent } from '../base-mobile-filter/base-mobile-filter.component';
+import { BaseMobileFilterComponent } from '../mobile/base-mobile-filter/base-mobile-filter.component';
 
 @Component({
     selector: 'lib-base-column',

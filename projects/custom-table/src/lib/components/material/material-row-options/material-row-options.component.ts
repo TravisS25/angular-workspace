@@ -2,8 +2,9 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MaterialMenuItem } from '../material-menu-item/material-menu-item.component';
 import { Menu } from 'primeng';
 import { MaterialMenuItemModule } from '../../../modules/material/material-menu-item.module';
-import { BaseColumn, BaseTableEvent, } from '../../../table-api';
+import { BaseTableEvent, } from '../../../table-api';
 import { MaterialMenuItemComponent } from '../material-menu-item/material-menu-item.component';
+import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 
 export interface MaterialRowOptionConfig {
     items: MaterialMenuItem[];
@@ -14,7 +15,7 @@ export interface MaterialRowOptionConfig {
     templateUrl: './material-row-options.component.html',
     styleUrls: ['./material-row-options.component.scss']
 })
-export class MaterialRowOptionsComponent extends BaseColumn implements OnInit {
+export class MaterialRowOptionsComponent extends BaseColumnComponent implements OnInit {
     constructor() {
         super();
     }

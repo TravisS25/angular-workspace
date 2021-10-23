@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MaterialInputTextComponent } from '../material-input-text/material-input-text.component';
-import { BaseColumn } from '../../../table-api';
 import { MaterialInputTextConfig } from '../material-input-text/material-input-text.component';
 
 export interface MaterialTextAreaConfig extends MaterialInputTextConfig {

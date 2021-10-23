@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { BaseDisplayItem, BaseTableEvent } from '../../../../table-api';
+import { BaseTableEvent } from '../../../../table-api';
+import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
 
 @Component({
     selector: 'lib-display-item-list',
     templateUrl: './display-item-list.component.html',
     styleUrls: ['./display-item-list.component.scss']
 })
-export class DisplayItemListComponent extends BaseDisplayItem implements OnInit {
+export class DisplayItemListComponent extends BaseDisplayItemComponent implements OnInit {
     constructor() { super() }
 
     private initValues() {
@@ -26,6 +27,10 @@ export class DisplayItemListComponent extends BaseDisplayItem implements OnInit 
         console.log('dispaly event');
         console.log(event)
         this.onEvent.emit(event);
+
+        if (this.processBodyCellEvent != undefined) {
+            this.processBodyCellEvent(event, this);
+        }
     }
 
 }

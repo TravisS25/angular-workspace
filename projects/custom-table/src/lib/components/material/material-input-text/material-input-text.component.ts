@@ -1,13 +1,12 @@
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { BaseColumn, BaseTableEvent, EditEvent } from '../../../table-api';
-import { FilterConfig, FilterOptions, MaskConfig } from '../../component-config';
 import { IConfig } from 'ngx-mask';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ChangeDetectorRef } from '@angular/core';
 import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { SelectItem } from 'primeng';
 import { getDefaultTextMask } from '../../../default-values';
+import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { SelectItem, MaskConfig } from '../../../table-api';
 
 export interface MaterialInputTextConfig {
     // Inline style of the component.
@@ -39,7 +38,7 @@ export interface MaterialInputTextConfig {
     templateUrl: './material-input-text.component.html',
     styleUrls: ['./material-input-text.component.scss'],
 })
-export class MaterialInputTextComponent extends BaseColumn implements OnInit, AfterViewInit, OnDestroy {
+export class MaterialInputTextComponent extends BaseColumnComponent implements OnInit, AfterViewInit, OnDestroy {
     protected modelChangeSubscription: Subscription;
     protected txtChanged: Subject<string> = new Subject<string>();
 

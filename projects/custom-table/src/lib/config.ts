@@ -26,7 +26,7 @@ export const DefaultConsts = {
 //     create,
 //     refresh,
 //     clearFilters,
-//     tableFilters,
+//     tableFilter,
 //     caption,
 //     columnFilter,
 //     bodyCell,

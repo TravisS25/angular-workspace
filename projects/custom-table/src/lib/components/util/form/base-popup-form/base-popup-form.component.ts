@@ -1,7 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Directive, EventEmitter, OnDestroy, OnInit, Output, Type, ViewChild, ViewContainerRef } from '@angular/core';
 import { BaseFormComponent } from '../base-form/base-form.component'
-import { PopupFormEntity, BaseTableI, FormEvents } from '../../../../table-api';
+import { PopupFormEntity, PopupFormI, ConfigI } from '../../../../table-api';
 import { PopupDirective } from '../../../../directives/popup.directive';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -9,11 +10,13 @@ import { PopupDirective } from '../../../../directives/popup.directive';
     templateUrl: './base-popup-form.component.html',
     styleUrls: ['./base-popup-form.component.scss']
 })
-export abstract class BasePopupFormComponent implements OnInit {
+export abstract class BasePopupFormComponent implements OnInit, OnDestroy {
+    private _sub: Subscription = new Subscription();
+
     @Output() public onEvent: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(PopupDirective) public formDir: PopupDirective;
-    public formCr: ComponentRef<BaseTableI>;
+    public formCr: ComponentRef<PopupFormI>;
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -30,18 +33,28 @@ export abstract class BasePopupFormComponent implements OnInit {
 
         this.formCr.instance.config = entity.config;
 
+        if (this.formCr.instance.onSuccess != undefined) {
+            this._sub.add(
+                this.formCr.instance.onSuccess.subscribe(r => {
+                    this.success();
+                })
+            )
+        }
 
-        // this.formCr.instance.onEvent.subscribe(r => {
-        //     if (entity.processEvent != undefined) {
-        //         entity.processEvent(r, this);
-        //     }
-
-        //     this.onEvent.emit(r)
-        // })
-
+        if (this.formCr.instance.onClose != undefined) {
+            this._sub.add(
+                this.formCr.instance.onClose.subscribe(r => {
+                    this.close();
+                })
+            )
+        }
     }
 
     public ngOnInit(): void {
 
+    }
+
+    public ngOnDestroy() {
+        this._sub.unsubscribe();
     }
 }

@@ -1,26 +1,24 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Checkbox } from 'primeng/checkbox';
-import { CheckboxEvent } from '../../component-config';
-import { BaseTableEvent } from '../../../table-api';
+import { BaseTableEvent, CheckboxEvent } from '../../../table-api';
 //import { MaterialCheckboxConfig } from '../../component-config';
-import { BaseColumn } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { MaterialCheckboxConfig } from '../material-checkbox/material-checkbox.component';
 import { DefaultTableEvents } from '../../../config';
+import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 
 @Component({
     selector: 'lib-material-header-checkbox',
     templateUrl: './material-header-checkbox.component.html',
     styleUrls: ['./material-header-checkbox.component.scss']
 })
-export class MaterialHeaderCheckboxComponent extends BaseColumn implements OnInit, OnDestroy {
+export class MaterialHeaderCheckboxComponent extends BaseColumnComponent implements OnInit, OnDestroy {
     public checked: boolean = false;
     public cfg: MaterialCheckboxConfig;
     // public cfg: MaterialCheckboxConfig
 
     constructor(
-        public http: HttpClient,
         public cfr: ComponentFactoryResolver,
         public cdr: ChangeDetectorRef,
     ) {
@@ -44,17 +42,17 @@ export class MaterialHeaderCheckboxComponent extends BaseColumn implements OnIni
     }
 
     private initEventListeners() {
-        this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
-            this.checked = false;
-        }
-        this.processBodyCellEvent = (event: BaseTableEvent, baseTable: BaseTableComponent) => {
-            let cfg = event.event as CheckboxEvent
+        // this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
+        //     this.checked = false;
+        // }
+        // this.processBodyCellEvent = (event: BaseTableEvent, baseTable: BaseTableComponent) => {
+        //     let cfg = event.event as CheckboxEvent
 
-            if (!cfg.checked) {
-                console.log('change value')
-                this.checked = false;
-            }
-        }
+        //     if (!cfg.checked) {
+        //         console.log('change value')
+        //         this.checked = false;
+        //     }
+        // }
     }
 
     public ngOnInit(): void {

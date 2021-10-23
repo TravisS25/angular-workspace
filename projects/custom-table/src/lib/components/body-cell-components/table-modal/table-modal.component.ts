@@ -3,7 +3,7 @@ import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { APIConfig, BaseModalConfig, BaseActionConfig } from '../../../table-api';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { DefaultConsts } from '../../../config';
-import { SelectItem } from 'primeng';
+import { SelectItem } from '../../../table-api';
 
 export interface BaseTableModal {
     // details should return map based on rowData passed that you wish to display

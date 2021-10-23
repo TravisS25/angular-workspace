@@ -1,14 +1,14 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { BaseColumn, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { BaseTableEvent, BaseTableEventConfig, CheckboxEvent } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
-import { CheckboxEvent } from '../../component-config';
+import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 
 @Component({
     selector: 'app-checkbox',
     templateUrl: './checkbox.component.html',
     styleUrls: ['./checkbox.component.scss']
 })
-export class CheckboxComponent extends BaseColumn implements OnInit {
+export class CheckboxComponent extends BaseColumnComponent implements OnInit {
     public checked: boolean = false;
     public _cbCfg: BaseTableEventConfig;
 
@@ -17,29 +17,29 @@ export class CheckboxComponent extends BaseColumn implements OnInit {
     }
 
     private initProcessEvents() {
-        this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
-            this.checked = false;
-        }
-        this.processColumnFilterEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
-            if (!this.isColumnFilter) {
-                let cfg = e.event as CheckboxEvent
+        // this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
+        //     this.checked = false;
+        // }
+        // this.processColumnFilterEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
+        //     if (!this.isColumnFilter) {
+        //         let cfg = e.event as CheckboxEvent
 
-                if (cfg.checked) {
-                    this.checked = true
-                } else {
-                    this.checked = false
-                }
-            }
-        }
-        this.processBodyCellEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
-            if (this.isColumnFilter) {
-                let cfg = e.event as CheckboxEvent
+        //         if (cfg.checked) {
+        //             this.checked = true
+        //         } else {
+        //             this.checked = false
+        //         }
+        //     }
+        // }
+        // this.processBodyCellEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
+        //     if (this.isColumnFilter) {
+        //         let cfg = e.event as CheckboxEvent
 
-                if (!cfg.checked) {
-                    this.checked = false;
-                }
-            }
-        }
+        //         if (!cfg.checked) {
+        //             this.checked = false;
+        //         }
+        //     }
+        // }
     }
 
     private initConfig() {

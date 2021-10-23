@@ -1,5 +1,5 @@
 import { Directive, ElementRef, Input } from '@angular/core';
-import { BaseTableCellDirective } from './base-table-cell.directive';
+import { BaseTableCellDirective } from './table/base-table-cell.directive';
 
 @Directive({
     selector: '[libDynamicTableCell]'
