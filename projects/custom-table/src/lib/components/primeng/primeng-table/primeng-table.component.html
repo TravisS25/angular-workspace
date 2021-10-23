@@ -8,7 +8,7 @@
         <ng-template *ngIf="config.showCaption" pTemplate="caption" let-rowData>
             <div *ngIf="config.outerDataHeader" [innerHTML]="config.outerDataHeader(outerData)">
             </div>
-            <ng-template *ngIf="config.caption" [appDynamicCaption]>
+            <ng-template *ngIf="config.caption" [libTableCaption]>
             </ng-template>
         </ng-template>
         <ng-template *ngIf="config.hasColGroup" pTemplate="colgroup" let-columns>
@@ -32,7 +32,7 @@
                     [ngClass]="col.columnFilterClass" pResizableColumn [hidden]="col.hideColumn">
                     <ng-container *ngIf="col.columnFilter">
                         <span [hidden]="col.hideColumnFilter">
-                            <ng-template [appDynamicColumnFilter] [colIdx]="idx">
+                            <ng-template [libTableColumnFilter] [colIdx]="idx">
                             </ng-template>
                         </span>
                     </ng-container>
@@ -46,8 +46,8 @@
                         <ng-container *ngIf="col.templateConfig; else nonTemplate">
                             <td [pEditableColumn]="rowData" [pEditableColumnRowIndex]="i"
                                 [pEditableColumnField]="col.field" [ngStyle]="col.bodyCellStyle"
-                                [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn" [libDynamicTableCell]
-                                [colIdx]="idx" [rowIdx]="i" [rowData]="rowData" [field]="col.field">
+                                [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn" [libTableCell] [colIdx]="idx"
+                                [rowIdx]="i" [rowData]="rowData" [field]="col.field">
                                 <p-cellEditor>
                                     <ng-template *ngIf="col.templateConfig.inputTemplate" pTemplate="input">
                                         <ng-template [libDynamicInputTemplate] [colIdx]="idx" [rowIdx]="i"
@@ -64,12 +64,11 @@
                         </ng-container>
                         <ng-template #nonTemplate>
                             <td [ngStyle]="col.bodyCellStyle" [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn"
-                                [libDynamicTableCell] [colIdx]="idx" [rowIdx]="i" [rowData]="rowData"
-                                [field]="col.field">
+                                [libTableCell] [colIdx]="idx" [rowIdx]="i" [rowData]="rowData" [field]="col.field">
                                 <ng-container *ngIf="col.renderColumnContent; else noContent">
                                     <ng-container *ngIf="col.bodyCell; else block1">
-                                        <ng-template [appDynamicBodyCell] [colIdx]="idx" [rowIdx]="i"
-                                            [rowData]="rowData" [field]="col.field">
+                                        <ng-template [libTableBodyCell] [colIdx]="idx" [rowIdx]="i" [rowData]="rowData"
+                                            [field]="col.field">
                                         </ng-template>
                                     </ng-container>
                                     <ng-template #block1>
@@ -97,7 +96,7 @@
         <ng-template let-i="rowIndex" pTemplate="rowexpansion" let-columns let-rowData>
             <tr>
                 <td [attr.colspan]="visibleColumns">
-                    <ng-template [appDynamicExpansion] [renderCallback]="renderCallback" [outerData]="rowData">
+                    <ng-template [libTableExpansion] [renderCallback]="renderCallback" [outerData]="rowData">
                     </ng-template>
                 </td>
             </tr>

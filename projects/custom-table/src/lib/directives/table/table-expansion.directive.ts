@@ -1,10 +1,8 @@
-import { Directive } from '@angular/core';
+import { Directive, ViewContainerRef } from '@angular/core';
 
 @Directive({
-  selector: '[libTableExpansion]'
+    selector: '[libTableExpansion]'
 })
 export class TableExpansionDirective {
-
-  constructor() { }
-
+    constructor(public viewContainerRef: ViewContainerRef) { }
 }

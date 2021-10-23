@@ -51,7 +51,6 @@ export * from './lib/components/primeng/primeng-table/primeng-table.component';
 export * from './lib/components/primeng/primeng-table-expansion/primeng-table-expansion.component';
 
 // Directives
-export * from './lib/directives/column-checkbox.directive';
 export * from './lib/directives/dynamic-body-cell.directive';
 export * from './lib/directives/dynamic-caption.directive';
 export * from './lib/directives/dynamic-column-filter.directive';
@@ -77,8 +76,9 @@ export * from './lib/modules/util/base-index.module';
 export * from './lib/modules/table/mobile/mobile-table-directive.module';
 
 // Primeng Modules
-export * from './lib/modules/base-table.module';
-export * from './lib/modules/primeng/base-tab-view.module'
+export * from './lib/modules/primeng/primeng-table.module';
+export * from './lib/modules/primeng/primeng-table-expansion.module';
+export * from './lib/modules/primeng/base-tab-view.module';
 export * from './lib/modules/bool-body-cell.module';
 export * from './lib/modules/primeng/checkbox-all.module';
 export * from './lib/modules/primeng/date-picker.module';

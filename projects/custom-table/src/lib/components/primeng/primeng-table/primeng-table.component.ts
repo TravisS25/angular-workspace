@@ -45,7 +45,6 @@ import { Subscription, Subscribable, Subject } from 'rxjs';
 import { DynamicColumnFilterDirective } from '../../../directives/dynamic-column-filter.directive';
 import { DynamicTableCellDirective } from '../../../directives/dynamic-table-cell.directive';
 import { deepCopyColumn } from '../../../copy-util';
-import { ColumnCheckboxDirective } from '../../../directives/column-checkbox.directive';
 import { SortIconComponent } from '../../filter-components/sort-icon/sort-icon.component';
 import { ComponentFactory } from '@angular/core';
 import { DynamicOutputTemplateDirective } from '../../../directives/dynamic-output-template.directive';
@@ -62,6 +61,12 @@ import { BaseTableComponent } from '../../table/base-table/base-table.component'
 import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 import { BaseRowExpansionComponent } from '../../table/base-row-expansion/base-row-expansion.component';
 import { BaseTableCaptionComponent } from '../../table/base-table-caption/base-table-caption.component';
+import { TableExpansionDirective } from '../../../directives/table/table-expansion.directive';
+import { TableBodyCellDirective } from '../../../directives/table/table-body-cell.directive';
+import { TableInputTemplateDirective } from '../../../directives/table/table-input-template.directive';
+import { TableOutputTemplateDirective } from '../../../directives/table/table-output-template.directive';
+import { TableColumnFilterDirective } from '../../../directives/table/table-column-filter.directive';
+import { TableCellDirective } from '../../../directives/table/table-cell.directive';
 
 interface outputTemplateConfig {
     updateOutputTemplate: boolean;
@@ -225,20 +230,32 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // @ViewChild(DynamicSummaryDirective, { static: false })
     // public summaryDir: DynamicSummaryDirective;
 
-    @ViewChildren(DynamicExpansionDirective)
-    public expansionDirs: QueryList<DynamicExpansionDirective>;
-    @ViewChildren(DynamicBodyCellDirective)
-    public bodyCellDirs: QueryList<DynamicBodyCellDirective>;
-    @ViewChildren(DynamicInputTemplateDirective)
-    public inputTemplateDirs: QueryList<DynamicInputTemplateDirective>;
-    @ViewChildren(DynamicOutputTemplateDirective)
-    public outputTemplateDirs: QueryList<DynamicOutputTemplateDirective>;
-    @ViewChildren(DynamicColumnFilterDirective)
-    public columnFilterDirs: QueryList<DynamicColumnFilterDirective>;
-    @ViewChildren(DynamicTableCellDirective)
-    public tableCellDirs: QueryList<DynamicTableCellDirective>;
+    // @ViewChildren(DynamicExpansionDirective)
+    // public expansionDirs: QueryList<DynamicExpansionDirective>;
+    // @ViewChildren(DynamicBodyCellDirective)
+    // public bodyCellDirs: QueryList<DynamicBodyCellDirective>;
+    // @ViewChildren(DynamicInputTemplateDirective)
+    // public inputTemplateDirs: QueryList<DynamicInputTemplateDirective>;
+    // @ViewChildren(DynamicOutputTemplateDirective)
+    // public outputTemplateDirs: QueryList<DynamicOutputTemplateDirective>;
+    // @ViewChildren(DynamicColumnFilterDirective)
+    // public columnFilterDirs: QueryList<DynamicColumnFilterDirective>;
+    // @ViewChildren(DynamicTableCellDirective)
+    // public tableCellDirs: QueryList<DynamicTableCellDirective>;
 
-    @ViewChildren(ColumnCheckboxDirective) public columnCheckboxes: QueryList<ColumnCheckboxDirective>;
+    @ViewChildren(TableExpansionDirective)
+    public expansionDirs: QueryList<TableExpansionDirective>;
+    @ViewChildren(TableBodyCellDirective)
+    public bodyCellDirs: QueryList<TableBodyCellDirective>;
+    @ViewChildren(TableInputTemplateDirective)
+    public inputTemplateDirs: QueryList<TableInputTemplateDirective>;
+    @ViewChildren(TableOutputTemplateDirective)
+    public outputTemplateDirs: QueryList<TableOutputTemplateDirective>;
+    @ViewChildren(TableColumnFilterDirective)
+    public columnFilterDirs: QueryList<TableColumnFilterDirective>;
+    @ViewChildren(TableCellDirective)
+    public tableCellDirs: QueryList<TableCellDirective>;
+
     @ViewChildren(SortIconComponent) public sortIcons: QueryList<SortIconComponent>;
     @ViewChildren(SortableColumn) public sortColumns: QueryList<SortableColumn>;
 

@@ -1,10 +1,8 @@
-import { Directive } from '@angular/core';
+import { Directive, ViewContainerRef } from '@angular/core';
 
 @Directive({
-  selector: '[libTableCaption]'
+    selector: '[libTableCaption]'
 })
 export class TableCaptionDirective {
-
-  constructor() { }
-
+    constructor(public viewContainerRef: ViewContainerRef) { }
 }

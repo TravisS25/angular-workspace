@@ -1,8 +1,8 @@
 import { Directive, ViewContainerRef } from '@angular/core';
 
 @Directive({
-    selector: '[libTableColumnFilter]'
+    selector: '[libTableOutputTemplate]'
 })
-export class TableColumnFilterDirective {
+export class TableOutputTemplateDirective {
     constructor(public viewContainerRef: ViewContainerRef) { }
 }

@@ -1,10 +1,8 @@
-import { Directive } from '@angular/core';
+import { Directive, ViewContainerRef } from '@angular/core';
 
 @Directive({
-  selector: '[libTableTabPanel]'
+    selector: '[libTableTabPanel]'
 })
 export class TableTabPanelDirective {
-
-  constructor() { }
-
+    constructor(public viewContainerRef: ViewContainerRef) { }
 }

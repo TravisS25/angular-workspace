@@ -7,7 +7,6 @@ import { DynamicDialogModule, DialogService } from 'primeng/dynamicdialog';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TableDynamicComponentModule } from '../table-dynamic-component.module';
 import { ToastModule } from 'primeng/toast';
-import { ColumnCheckboxDirective } from '../../directives/column-checkbox.directive';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { SortIconModule } from '../sort-icon.module';
 import { MenuModule } from 'primeng/menu';
@@ -17,45 +16,13 @@ import { MessageService } from 'primeng/api';
 import { MultiSelectModule } from 'primeng';
 import { FormsModule } from '@angular/forms';
 import { PrimengTableComponent } from '../../components/primeng/primeng-table/primeng-table.component';
+import { TableDirectiveModule } from '../table/table-directive.module';
 
 
 
 @NgModule({
     declarations: [
         PrimengTableComponent,
-        ColumnCheckboxDirective,
-    ],
-    imports: [
-        CommonModule,
-        FormsModule,
-        RouterModule,
-        TableModule,
-        ButtonModule,
-        MessagesModule,
-        CheckboxModule,
-        MultiSelectModule,
-        DynamicDialogModule,
-        TableDynamicComponentModule,
-        ToggleButtonModule,
-        SortIconModule,
-        MenuModule,
-        ToastModule,
-    ],
-    exports: [
-        PrimengTableComponent,
-    ],
-    providers: [
-        DialogService,
-        MessageService,
-    ]
-})
-export class BaseTableModule { }
-
-
-@NgModule({
-    declarations: [
-        PrimengTableComponent,
-        ColumnCheckboxDirective,
     ],
     imports: [
         CommonModule,
@@ -63,7 +30,7 @@ export class BaseTableModule { }
         RouterModule,
         TableModule,
         DynamicDialogModule,
-        TableDynamicComponentModule,
+        TableDirectiveModule,
         SortIconModule,
         ToastModule,
     ],
