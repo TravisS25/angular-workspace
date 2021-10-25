@@ -10,7 +10,6 @@ import {
     SortDescriptor,
 } from './table-api';
 import _ from "lodash" // Import the entire lodash library
-import { DeleteTableModal, DynamicDetailsTableModalConfig, DynamicDeleteTableModalConfig } from './components/body-cell-components/table-modal/table-modal.component';
 import { MenuItem } from 'primeng/api';
 import { skip } from 'rxjs/operators';
 
@@ -57,26 +56,6 @@ export function deepCopyBaseModalConfig(mc: BaseModalConfig): BaseModalConfig {
     }
 
     return m;
-}
-
-export function deepCopyDynamicDeleteTableModalConfig(dtmc: DynamicDeleteTableModalConfig): DynamicDeleteTableModalConfig {
-    let modalConfigCopy = deepCopyBaseModalConfig(dtmc.modalConfig);
-    let d: DynamicDeleteTableModalConfig = {
-        modalConfig: modalConfigCopy,
-        tableModalConfig: _.cloneDeep(dtmc.tableModalConfig),
-    }
-
-    return d;
-}
-
-export function deepCopyDynamicDetailsModalConfig(dtmc: DynamicDetailsTableModalConfig): DynamicDetailsTableModalConfig {
-    let modalConfigCopy = deepCopyBaseModalConfig(dtmc.modalConfig);
-    let d: DynamicDetailsTableModalConfig = {
-        modalConfig: modalConfigCopy,
-        tableModalConfig: _.cloneDeep(dtmc.tableModalConfig),
-    }
-
-    return d;
 }
 
 export function deepCopyAPIConfig(c: APIConfig): APIConfig {

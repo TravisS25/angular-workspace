@@ -8,7 +8,6 @@ import { TableColumnFilterDirective } from '../../directives/table/table-column-
 import { TableExpansionDirective } from '../../directives/table/table-expansion.directive';
 import { TableInputTemplateDirective } from '../../directives/table/table-input-template.directive';
 import { TableOutputTemplateDirective } from '../../directives/table/table-output-template.directive';
-import { TableTabPanelDirective } from '../../directives/table/table-tab-panel.directive';
 
 
 
@@ -22,7 +21,6 @@ import { TableTabPanelDirective } from '../../directives/table/table-tab-panel.d
         TableExpansionDirective,
         TableInputTemplateDirective,
         TableOutputTemplateDirective,
-        TableTabPanelDirective,
     ],
     imports: [
         CommonModule
@@ -36,7 +34,6 @@ import { TableTabPanelDirective } from '../../directives/table/table-tab-panel.d
         TableExpansionDirective,
         TableInputTemplateDirective,
         TableOutputTemplateDirective,
-        TableTabPanelDirective,
     ]
 })
 export class TableDirectiveModule { }

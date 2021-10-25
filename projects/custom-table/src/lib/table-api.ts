@@ -447,9 +447,6 @@ export interface MobileTableConfig extends MobileTableEventOptions, TableStateCh
     // outerDataHeader takes in outerData and returns header for page
     outerDataHeader?: (outerData: any) => string;
 
-    // processEvent will process any event made from mobile table
-    //processEvent?: (event: BaseTableEvent, table: any) => void;
-
     // getState is the filter state of the table that will be sent to server
     // Setting this will set the table with initial state when making
     // first call to server
@@ -662,6 +659,10 @@ export interface TableConfig extends TableEventOptions, TableStateChangeI {
 
 // ------------------ COLUMN CONFIGURATION -----------------------
 
+export interface MobilePanelI {
+    isTitlePanel?: boolean
+}
+
 export interface ConfigI {
     config?: any;
 }
@@ -731,10 +732,6 @@ export interface PopupFormEntity extends PopupFormI {
     successDismiss?: any;
 }
 
-export interface PopupDisplayEntity extends ConfigI {
-    component: Type<ConfigI>;
-}
-
 // CaptionEntity is used to display caption component in caption part of table
 export interface CaptionEntity extends ConfigI {
     component: Type<BaseTableCaptionComponent>;
@@ -773,7 +770,7 @@ export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI, Mobil
     component: Type<BaseMobileTableComponent>;
 }
 
-export interface MobileDisplayItemEntity extends BaseDisplayItemI, TableEventOptions {
+export interface MobileDisplayItemEntity extends BaseDisplayItemI, MobileTableEventOptions, MobilePanelI {
     component: Type<BaseMobileDisplayItemComponent>;
 }
 
@@ -797,12 +794,11 @@ export interface APIConfig {
 
 // BaseEventOptions represents the base event options that every table should contain
 export interface BaseEventOptions {
-    // processCaptionEvent activates whenever an event is broadcast from the caption
+    // processCaptionEvent activates whenever an event occurs from the caption
     processCaptionEvent?: (event: any, componentRef: any) => void;
 
-    // processOuterEvent is activated whenever an event outside of the table
-    // occurs but we may want to process it and modify something within the table
-    processOuterEvent?: (event: any, componentRef: any) => void;
+    // processPopupEvent will process any event that occurs within a popup form/display
+    processPopupEvent?: (event: any, componentRef: any) => void;
 }
 
 // TableEventOptions is config that can be optionally be added to a config passed
@@ -816,6 +812,8 @@ export interface TableEventOptions extends BaseEventOptions {
     // to field that is exposed when a body cell creates an event which
     // should be based off the BaseTableEvent interface
     processBodyCellEvent?: (event: any, componentRef: any) => void;
+
+    processDisplayItemEvent?: (event: any, componentRef: any) => void;
 
     // processColumnFilterEvent processes an event from column filter for current column
     // There is no need to make explicit api request within this function as the table
@@ -836,16 +834,18 @@ export interface TableEventOptions extends BaseEventOptions {
     // processClearFiltersEvent activates whenever the "Clear Filters" button
     // is used by user
     processClearFiltersEvent?: (event: any, componentRef: any) => void;
+
+    processInputTemplateEvent?: (event: any, componentRef: any) => void;
 }
 
 export interface MobileTableEventOptions extends BaseEventOptions {
-    // processPanelTitleEvent will process events that happen within the title 
+    // processTitlePanelEvent will process events that happen within the title 
     // section of a mobile table
-    processPanelTitleEvent?: (event: any, componentRef: any) => void;
+    processTitlePanelEvent?: (event: any, componentRef: any) => void;
 
-    // processPanelDescriptionEvent will process events that happen within the
+    // processDescriptionPanelEvent will process events that happen within the
     // description section of a mobile table
-    processPanelDescriptionEvent?: (event: any, componentRef: any) => void;
+    processDescriptionPanelEvent?: (event: any, componentRef: any) => void;
 }
 
 // TemplateConfig is config used for cell/row editing and determines
@@ -1007,6 +1007,10 @@ export interface Column {
     // bodyCellClass will set CSS class for column cell if set
     bodyCellClass?: string;
 
+    // displayItem will dynamically generate component that will display
+    // text or html element 
+    displayItem?: DisplayItemEntity;
+
     // bodyCell will display component within cell of table of current column
     // and pass config if set
     bodyCell?: ColumnEntity;
@@ -1020,7 +1024,7 @@ export interface Column {
 
     // bodyCellHTML takes in row value for that column and should
     // return html based on value if set
-    // If neither bodyCell or bodyCellHTML is set, then the
+    // If neither bodyCell, displayItem or bodyCellHTML is set, then the
     // row data will be displayed if "field" is set
     bodyCellHTML?: (any) => string;
 }

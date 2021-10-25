@@ -5,5 +5,5 @@ import { BaseTableCellDirective } from './base-table-cell.directive';
     selector: '[libTableCell]'
 })
 export class TableCellDirective extends BaseTableCellDirective {
-    constructor(public viewContainerRef: ViewContainerRef) { super() }
+    constructor(public viewContainerRef: ViewContainerRef) { super(viewContainerRef) }
 }

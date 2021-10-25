@@ -9,5 +9,5 @@ export class BaseTableCellDirective {
     @Input() public rowIdx: number;
     @Input() public field: string;
 
-    constructor() { }
+    constructor(public viewContainerRef: ViewContainerRef) { }
 }

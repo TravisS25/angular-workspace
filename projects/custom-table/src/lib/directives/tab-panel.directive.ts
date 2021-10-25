@@ -1,10 +1,12 @@
 import { Directive, Input, ViewContainerRef } from '@angular/core';
 
 @Directive({
-    selector: '[libTableColumnFilter]'
+    selector: '[libTabPanel]'
 })
-export class TableColumnFilterDirective {
-    @Input() colIdx: number;
+export class TabPanelDirective {
+    @Input() public tabIdx: number;
+    @Input() public rowData: any;
 
     constructor(public viewContainerRef: ViewContainerRef) { }
+
 }

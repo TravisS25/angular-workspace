@@ -269,14 +269,14 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
                 for (let i = 0; i < this.panelTitleCrs.length; i++) {
                     this._panelTitleEventSub.add(
                         this.panelTitleCrs[i].instance.onEvent.subscribe(r => {
-                            if (this.config.processPanelTitleEvent != undefined) {
-                                this.config.processPanelTitleEvent(r, this);
+                            if (this.config.processTitlePanelEvent != undefined) {
+                                this.config.processTitlePanelEvent(r, this);
                             }
-                            if (this.captionCr.instance.processPanelTitleEvent != undefined) {
-                                this.captionCr.instance.processPanelTitleEvent(r, this);
+                            if (this.captionCr.instance.processTitlePanelEvent != undefined) {
+                                this.captionCr.instance.processTitlePanelEvent(r, this);
                             }
-                            if (this.panelTitleCrs[i].instance.processPanelTitleEvent != undefined) {
-                                this.panelTitleCrs[i].instance.processPanelTitleEvent(r, this);
+                            if (this.panelTitleCrs[i].instance.processTitlePanelEvent != undefined) {
+                                this.panelTitleCrs[i].instance.processTitlePanelEvent(r, this);
                             }
                         })
                     );
@@ -285,14 +285,14 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
                 for (let i = 0; i < this.panelDescriptionCrs.length; i++) {
                     this._panelDescriptionEventSub.add(
                         this.panelDescriptionCrs[i].instance.onEvent.subscribe(r => {
-                            if (this.config.processPanelDescriptionEvent != undefined) {
-                                this.config.processPanelDescriptionEvent(r, this);
+                            if (this.config.processDescriptionPanelEvent != undefined) {
+                                this.config.processDescriptionPanelEvent(r, this);
                             }
-                            if (this.captionCr.instance.processPanelDescriptionEvent != undefined) {
-                                this.captionCr.instance.processPanelDescriptionEvent(r, this);
+                            if (this.captionCr.instance.processDescriptionPanelEvent != undefined) {
+                                this.captionCr.instance.processDescriptionPanelEvent(r, this);
                             }
-                            if (this.panelDescriptionCrs[i].instance.processPanelDescriptionEvent != undefined) {
-                                this.panelDescriptionCrs[i].instance.processPanelDescriptionEvent(r, this);
+                            if (this.panelDescriptionCrs[i].instance.processDescriptionPanelEvent != undefined) {
+                                this.panelDescriptionCrs[i].instance.processDescriptionPanelEvent(r, this);
                             }
                         })
                     );

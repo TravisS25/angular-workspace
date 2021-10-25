@@ -4,12 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessagesModule } from 'primeng/messages';
 import { DynamicDialogModule, DialogService } from 'primeng/dynamicdialog';
 // import { BaseTableComponent } from '../components/base-table/base-table.component';
-import { CheckboxModule } from 'primeng/checkbox';
-import { TableDynamicComponentModule } from '../table-dynamic-component.module';
 import { ToastModule } from 'primeng/toast';
-import { ToggleButtonModule } from 'primeng/togglebutton';
-import { SortIconModule } from '../sort-icon.module';
-import { MenuModule } from 'primeng/menu';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -17,12 +12,14 @@ import { MultiSelectModule } from 'primeng';
 import { FormsModule } from '@angular/forms';
 import { PrimengTableComponent } from '../../components/primeng/primeng-table/primeng-table.component';
 import { TableDirectiveModule } from '../table/table-directive.module';
+import { PrimengSortIconComponent } from '../../components/primeng/primeng-sort-icon/primeng-sort-icon.component';
 
 
 
 @NgModule({
     declarations: [
         PrimengTableComponent,
+        PrimengSortIconComponent,
     ],
     imports: [
         CommonModule,
@@ -31,7 +28,6 @@ import { TableDirectiveModule } from '../table/table-directive.module';
         TableModule,
         DynamicDialogModule,
         TableDirectiveModule,
-        SortIconModule,
         ToastModule,
     ],
     exports: [

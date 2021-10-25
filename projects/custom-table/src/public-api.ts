@@ -6,20 +6,29 @@
 // COMPONENTS
 /////////////////////////////////////
 
+// Base Components
+export * from './lib/components/table/base-column/base-column.component';
+export * from './lib/components/table/base-display-item/base-display-item.component';
+export * from './lib/components/table/base-event/base-event.component';
+export * from './lib/components/table/base-row-expansion/base-row-expansion.component';
+export * from './lib/components/table/base-table/base-table.component';
+export * from './lib/components/table/base-table-event/base-table-event.component';
+
+export * from './lib/components/table/mobile/base-mobile-display-item/base-mobile-display-item.component';
+export * from './lib/components/table/mobile/base-mobile-filter/base-mobile-filter.component';
+export * from './lib/components/table/mobile/base-mobile-row-expansion/base-mobile-row-expansion.component';
+export * from './lib/components/table/mobile/base-mobile-table/base-mobile-table.component';
+export * from './lib/components/table/mobile/base-mobile-table-event/base-mobile-table-event.component';
+
 // Util Components
-export * from './lib/components/util/display/display-item/display-item.component';
-export * from './lib/components/util/display/display-item-list/display-item-list.component';
+export * from './lib/components/util/display/display-info/display-info.component';
+export * from './lib/components/util/display/mobile/mobile-display-item-list/mobile-display-item-list.component';
 export * from './lib/components/util/base-index/base-index.component';
 export * from './lib/components/util/form/base-form/base-form.component';
 export * from './lib/components/util/form/base-popup-form/base-popup-form.component';
 
 // Services
 export * from './lib/services/window-resize.service';
-
-export * from './lib/components/body-cell-components/bool-body-cell/bool-body-cell.component';
-export * from './lib/components/body-cell-components/table-modal/table-modal.component';
-export * from './lib/components/filter-components/sort-icon/sort-icon.component';
-export * from './lib/components/body-cell-components/text-output-template/text-output-template.component';
 
 // Material components
 export * from './lib/components/material/material-autocomplete/material-autocomplete.component';
@@ -45,21 +54,13 @@ export * from './lib/components/primeng/header-checkbox/header-checkbox.componen
 export * from './lib/components/primeng/checkbox/checkbox.component';
 export * from './lib/components/primeng/input-text/input-text.component';
 export * from './lib/components/primeng/multi-select/multi-select.component';
-export * from './lib/components/primeng/base-tab-view/base-tab-view.component';
 export * from './lib/components/primeng/row-options/row-options.component';
 export * from './lib/components/primeng/primeng-table/primeng-table.component';
+export * from './lib/components/primeng/primeng-tab-view/primeng-tab-view.component';
 export * from './lib/components/primeng/primeng-table-expansion/primeng-table-expansion.component';
 
 // Directives
-export * from './lib/directives/dynamic-body-cell.directive';
-export * from './lib/directives/dynamic-caption.directive';
-export * from './lib/directives/dynamic-column-filter.directive';
-export * from './lib/directives/dynamic-expansion.directive';
-export * from './lib/directives/dynamic-tab-panel.directive';
-export * from './lib/directives/dynamic-output-template.directive';
-export * from './lib/directives/dynamic-input-template.directive';
-export * from './lib/directives/dynamic-input-template.directive';
-export * from './lib/directives/dynamic-table-cell.directive';
+
 
 export * from './lib/directives/table/mobile/base-mobile-table.directive';
 export * from './lib/directives/table/mobile/mobile-table-caption.directive';
@@ -71,28 +72,20 @@ export * from './lib/directives/table/mobile/mobile-table-panel-title.directive'
 // -------------------Modules------------------------------
 
 // Util Modules
-export * from './lib/modules/util/display/display-item.module';
 export * from './lib/modules/util/base-index.module';
 export * from './lib/modules/table/mobile/mobile-table-directive.module';
 
 // Primeng Modules
+export * from './lib/modules/primeng/primeng-tab-view.module';
 export * from './lib/modules/primeng/primeng-table.module';
-export * from './lib/modules/primeng/primeng-table-expansion.module';
-export * from './lib/modules/primeng/base-tab-view.module';
-export * from './lib/modules/bool-body-cell.module';
 export * from './lib/modules/primeng/checkbox-all.module';
 export * from './lib/modules/primeng/date-picker.module';
 export * from './lib/modules/primeng/dropdown-select.module';
-export * from './lib/modules/dynamic-tab-view.module';
 export * from './lib/modules/primeng/filter-option.module';
 export * from './lib/modules/primeng/input-text.module';
 export * from './lib/modules/primeng/multiple-select.module';
 export * from './lib/modules/primeng/row-options.module';
 export * from './lib/modules/primeng/primeng-table-expansion.module';
-export * from './lib/modules/sort-icon.module';
-export * from './lib/modules/table-dynamic-component.module';
-export * from './lib/modules/table-modal.module';
-export * from './lib/modules/text-output-template.module';
 
 // Material Modules
 export * from './lib/modules/material/material-dropdown-select.module';

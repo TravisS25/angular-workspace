@@ -36,22 +36,8 @@ import {
     EditEvent,
 } from '../../../table-api';
 import _ from "lodash" // Import the entire lodash library
-import { DialogService } from 'primeng/dynamicdialog';
-import { DynamicBodyCellDirective } from '../../../directives/dynamic-body-cell.directive';
-import { DynamicExpansionDirective } from '../../../directives/dynamic-expansion.directive';
-import { Checkbox } from 'primeng/checkbox';
-import { DynamicCaptionDirective } from '../../../directives/dynamic-caption.directive';
 import { Subscription, Subscribable, Subject } from 'rxjs';
-import { DynamicColumnFilterDirective } from '../../../directives/dynamic-column-filter.directive';
-import { DynamicTableCellDirective } from '../../../directives/dynamic-table-cell.directive';
 import { deepCopyColumn } from '../../../copy-util';
-import { SortIconComponent } from '../../filter-components/sort-icon/sort-icon.component';
-import { ComponentFactory } from '@angular/core';
-import { DynamicOutputTemplateDirective } from '../../../directives/dynamic-output-template.directive';
-import { DynamicInputTemplateDirective } from '../../../directives/dynamic-input-template.directive';
-import { DynamicSummaryDirective } from '../../../directives/dynamic-summary.directive';
-import { DynamicBaseCellDirective } from '../../../directives/dynamic-base-cell.directive';
-import { isNgTemplate } from '@angular/compiler/src/ml_parser/tags';
 import { encodeURIState, getJSONFieldValue } from '../../../util';
 import { ThrowStmt } from '@angular/compiler';
 import { DefaultTableEvents } from '../../../config';
@@ -67,6 +53,9 @@ import { TableInputTemplateDirective } from '../../../directives/table/table-inp
 import { TableOutputTemplateDirective } from '../../../directives/table/table-output-template.directive';
 import { TableColumnFilterDirective } from '../../../directives/table/table-column-filter.directive';
 import { TableCellDirective } from '../../../directives/table/table-cell.directive';
+import { TableCaptionDirective } from '../../../directives/table/table-caption.directive';
+import { BaseTableCellDirective } from '../../../directives/table/base-table-cell.directive';
+import { PrimengSortIconComponent } from '../primeng-sort-icon/primeng-sort-icon.component';
 
 interface outputTemplateConfig {
     updateOutputTemplate: boolean;
@@ -203,7 +192,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // modified through different events and will be destroyed on component destruction
     //public summaryCr: ComponentRef<BaseTable>;
 
-    public tableCellDirMap: Map<number, Map<string, DynamicTableCellDirective>> = new Map();
+    public tableCellDirMap: Map<number, Map<string, TableCellDirective>> = new Map();
 
     // renderCallback is used for the expirimental expand all rows button
     // This is sent to inner table when current table expands row and will 
@@ -224,12 +213,6 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // config is variable that stores all configuration for table
     @Input() public config: TableConfig;
 
-    @ViewChild('dt', { static: false }) public dt: Table;
-    @ViewChild(DynamicCaptionDirective, { static: false })
-    public headerCaptionDir: DynamicCaptionDirective;
-    // @ViewChild(DynamicSummaryDirective, { static: false })
-    // public summaryDir: DynamicSummaryDirective;
-
     // @ViewChildren(DynamicExpansionDirective)
     // public expansionDirs: QueryList<DynamicExpansionDirective>;
     // @ViewChildren(DynamicBodyCellDirective)
@@ -243,6 +226,9 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // @ViewChildren(DynamicTableCellDirective)
     // public tableCellDirs: QueryList<DynamicTableCellDirective>;
 
+    @ViewChild('dt', { static: false }) public dt: Table;
+    @ViewChild(TableCaptionDirective, { static: false })
+    public headerCaptionDir: TableCaptionDirective;
     @ViewChildren(TableExpansionDirective)
     public expansionDirs: QueryList<TableExpansionDirective>;
     @ViewChildren(TableBodyCellDirective)
@@ -256,7 +242,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     @ViewChildren(TableCellDirective)
     public tableCellDirs: QueryList<TableCellDirective>;
 
-    @ViewChildren(SortIconComponent) public sortIcons: QueryList<SortIconComponent>;
+    @ViewChildren(PrimengSortIconComponent) public sortIcons: QueryList<PrimengSortIconComponent>;
     @ViewChildren(SortableColumn) public sortColumns: QueryList<SortableColumn>;
 
     // defaultProperty is the default property used to be set for primeng's table "dataKey" property
@@ -441,7 +427,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
                 if (val.last && this.config.rowExpansion && this._expansionLen < val.length) {
                     //console.log('expansion being created')
-                    const e = val.last as DynamicExpansionDirective
+                    const e = val.last as TableExpansionDirective
                     const cf = this.cfr.resolveComponentFactory(
                         this.config.rowExpansion.component,
                     );
@@ -465,7 +451,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
         this._sub.add(
             this.columnFilterDirs.changes.subscribe(val => {
                 if (this._updateColumnFilter) {
-                    let results = val._results as DynamicColumnFilterDirective[];
+                    let results = val._results as TableColumnFilterDirective[];
                     results.forEach((item) => {
                         let columns: Column[] = this.dt.columns
 
@@ -500,7 +486,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
     // createCellComponentRef creates and return a component reference based on the directive
     // and ComponentRef passed
-    private createCellComponentRef(dir: DynamicBaseCellDirective, ce: ColumnEntity): ComponentRef<BaseColumnComponent> {
+    private createCellComponentRef(dir: BaseTableCellDirective, ce: ColumnEntity): ComponentRef<BaseColumnComponent> {
         const cf = this.cfr.resolveComponentFactory(ce.component);
         const cr = dir.viewContainerRef.createComponent(cf);
         cr.instance.componentRef = this;
@@ -546,7 +532,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                         this.bodyCellCrs = [];
                     }
 
-                    let results = val._results as DynamicBodyCellDirective[];
+                    let results = val._results as TableBodyCellDirective[];
                     results.forEach(item => {
                         let ce = columns[item.colIdx].bodyCell
                         this.bodyCellCrs.push(this.createCellComponentRef(item, ce));
@@ -570,7 +556,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                 // console.log('output template dir change');
                 // console.log(val)
 
-                let results = val._results as DynamicOutputTemplateDirective[];
+                let results = val._results as TableOutputTemplateDirective[];
 
                 if (this._updateOutputTemplateComponents || this._outputTemplateCfg.updateOutputTemplate) {
                     if (this._tableInit && this._updateOutputTemplateComponents) {
@@ -625,7 +611,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                 // console.log('input template dir change');
                 // console.log(val);
 
-                const results = val._results as DynamicInputTemplateDirective[];
+                const results = val._results as TableInputTemplateDirective[];
 
                 results.forEach(item => {
                     // Check edit mode as logic might have to be slightly different between cell and row edit
@@ -683,12 +669,10 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
             this.tableCellDirs.changes.subscribe(val => {
                 if (this._updateTableCellDirs) {
                     this.tableCellDirMap.clear();
-                    let results = val._results as DynamicTableCellDirective[];
+                    let results = val._results as TableCellDirective[];
 
                     results.forEach(item => {
-                        item.style = {};
-
-                        let rowTableCellDir: Map<string, DynamicTableCellDirective>
+                        let rowTableCellDir: Map<string, TableCellDirective>
 
                         if (this.tableCellDirMap.has(item.rowIdx)) {
                             rowTableCellDir = this.tableCellDirMap.get(item.rowIdx);

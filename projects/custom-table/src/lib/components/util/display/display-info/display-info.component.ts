@@ -1,9 +1,14 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Directive, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, QueryList, Type, ViewChild, ViewChildren, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { DisplayItemEntity, DisplayFormat, PopupFormI, BaseTableEvent } from '../../../../table-api';
+import { DisplayItemEntity, DisplayFormat, PopupFormI, MobileDisplayItemEntity } from '../../../../table-api';
 import { Subscription } from 'rxjs';
-import { DisplayItemComponent } from '../display-item/display-item.component';
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
+import { BaseColumnComponent } from '../../../table/base-column/base-column.component';
+import { BaseMobileDisplayItemComponent } from '../../../../components/table/mobile/base-mobile-display-item/base-mobile-display-item.component';
+
+export interface DisplayInfoEntity {
+    //component: Type<Base>
+}
 
 export interface DisplayInfoItem {
     // colClass is class to determine how much column space each item gets
@@ -19,7 +24,7 @@ export interface DisplayInfoItem {
     displayHeader?: DisplayFormat;
 
     // displayItem is dynamic component generated
-    displayEntity: DisplayItemEntity;
+    displayEntity: DisplayInfoEntity;
 }
 
 export interface DisplayInfoConfig {
@@ -40,7 +45,7 @@ export interface DisplayInfoConfig {
     header?: DisplayFormat;
 
     // action is dynamic component
-    actionEntity?: DisplayItemEntity;
+    actionEntity?: DisplayInfoEntity;
 
     // displayItems are items to be dynamically created for component
     displayItems: DisplayInfoItem[];
@@ -72,7 +77,7 @@ export class DisplayInfoComponent implements OnInit, PopupFormI {
 
     @ViewChildren(DisplayInfoItemDirective) public displayItemDirs: QueryList<DisplayInfoItemDirective>;
     @ViewChild(DisplayInfoActionDirective) public actionDir: DisplayInfoActionDirective;
-    public crs: ComponentRef<BaseDisplayItemComponent>[] = [];
+    public displayCrs: ComponentRef<BaseDisplayItemComponent>[] = [];
 
     constructor(
         public cfr: ComponentFactoryResolver,
@@ -89,8 +94,8 @@ export class DisplayInfoComponent implements OnInit, PopupFormI {
 
         this._sub.add(
             cr.instance.onEvent.subscribe(r => {
-                if (cr.instance.processBodyCellEvent != undefined) {
-                    cr.instance.processBodyCellEvent(r, this.config.componentRef || this);
+                if (cr.instance.processPopupEvent != undefined) {
+                    cr.instance.processPopupEvent(r, this.config.componentRef || this);
                 }
             })
         )
@@ -106,7 +111,7 @@ export class DisplayInfoComponent implements OnInit, PopupFormI {
             )
 
             this.updateCr(cr, item.displayEntity)
-            this.crs.push(cr);
+            this.displayCrs.push(cr);
         }
 
         if (this.config.actionEntity != undefined) {
@@ -114,7 +119,7 @@ export class DisplayInfoComponent implements OnInit, PopupFormI {
                 this.cfr.resolveComponentFactory(this.config.actionEntity.component),
             )
             this.updateCr(cr, this.config.actionEntity);
-            this.crs.push(cr);
+            this.displayCrs.push(cr);
         }
     }
 
@@ -129,11 +134,11 @@ export class DisplayInfoComponent implements OnInit, PopupFormI {
 
     public ngOnDestroy() {
         this._sub.unsubscribe();
-        this.crs.forEach(x => {
+        this.displayCrs.forEach(x => {
             x.destroy()
         })
 
-        this.crs = null;
+        this.displayCrs = null;
         this._sub = null;
     }
 

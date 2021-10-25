@@ -22,9 +22,9 @@
                     [hidden]="col.hideColumn" pResizableColumn [pSortableColumn]="sortField(col)"
                     [pSortableColumnDisabled]="isSortDisabled(col)">
                     {{ col.header }}
-                    <app-sort-icon *ngIf="col.sort && !col.sort.disableSort" [sortField]="col.sort.sortField"
+                    <lib-primeng-sort-icon *ngIf="col.sort && !col.sort.disableSort" [sortField]="col.sort.sortField"
                         [sortOrder]="col.sort.sortOrder">
-                    </app-sort-icon>
+                    </lib-primeng-sort-icon>
                 </th>
             </tr>
             <tr>
@@ -103,111 +103,3 @@
         </ng-template>
     </p-table>
 </div>
-
-
-<!-- <p-toast></p-toast>
-<div class="table-settings">
-    <p-table #dt (onPage)="onPageChange($event)" (onSort)="onSortChange($event)" (onRowExpand)="onRowExpand($event)"
-        (onRowCollapse)="onRowCollapse($event)" (onEditInit)="onEditInit($event)"
-        (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)"
-        [columnResizeMode]="config.columnResizeMode" [resizableColumns]="config.resizableColumns"
-        [dataKey]="config.dataKey" [columns]="config.columns" [editMode]="config.editMode" dataKey="config.dataKey">
-        <ng-template *ngIf="config.showCaption" pTemplate="caption" let-rowData>
-            <div *ngIf="config.outerDataHeader" [innerHTML]="config.outerDataHeader(outerData)">
-            </div>
-            <ng-template *ngIf="config.caption" [appDynamicCaption]>
-            </ng-template>
-        </ng-template>
-        <ng-template *ngIf="config.hasColGroup" pTemplate="colgroup" let-columns>
-            <colgroup>
-                <col *ngFor="let col of columns;" [hidden]="col.hideColumn" [ngStyle]="col.colStyle">
-            </colgroup>
-        </ng-template>
-        <ng-template pTemplate="header" let-columns let-rowData>
-            <tr>
-                <th *ngFor="let col of columns;" [ngStyle]="col.headerStyle" [ngClass]="col.headerClass"
-                    [hidden]="col.hideColumn" pResizableColumn [pSortableColumn]="sortField(col)"
-                    [pSortableColumnDisabled]="isSortDisabled(col)">
-                    {{ col.header }}
-                    <app-sort-icon *ngIf="col.sort && !col.sort.disableSort" [sortField]="col.sort.sortField"
-                        [sortOrder]="col.sort.sortOrder">
-                    </app-sort-icon>
-                </th>
-            </tr>
-            <tr>
-                <th *ngFor="let col of columns; let idx = index" [ngStyle]="col.columnFilterStyle"
-                    [ngClass]="col.columnFilterClass" pResizableColumn [hidden]="col.hideColumn">
-                    <ng-container *ngIf="col.columnFilter">
-                        <span [hidden]="col.hideColumnFilter">
-                            <ng-template [appDynamicColumnFilter] [colIdx]="idx">
-                            </ng-template>
-                        </span>
-                    </ng-container>
-                </th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-expanded="expanded" let-columns="columns" let-rowData let-i="rowIndex">
-            <tr [pEditableRow]="rowData">
-                <ng-container *ngFor="let col of columns; let idx = index">
-                    <ng-container *ngIf="col.renderColumnContent; else noContent">
-                        <ng-container *ngIf="col.templateConfig; else nonTemplate">
-                            <td [pEditableColumn]="rowData" [pEditableColumnRowIndex]="i"
-                                [pEditableColumnField]="col.field" [ngStyle]="col.bodyCellStyle"
-                                [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn" [libDynamicTableCell]
-                                [colIdx]="idx" [rowIdx]="i" [rowData]="rowData" [field]="col.field">
-                                <p-cellEditor>
-                                    <ng-template *ngIf="col.templateConfig.inputTemplate" pTemplate="input">
-                                        <ng-template [libDynamicInputTemplate] [colIdx]="idx" [rowIdx]="i"
-                                            [rowData]="rowData" [field]="col.field">
-                                        </ng-template>
-                                    </ng-template>
-                                    <ng-template pTemplate="output">
-                                        <ng-template [libDynamicOutputTemplate] [colIdx]="idx" [rowIdx]="i"
-                                            [rowData]="rowData" [field]="col.field">
-                                        </ng-template>
-                                    </ng-template>
-                                </p-cellEditor>
-                            </td>
-                        </ng-container>
-                        <ng-template #nonTemplate>
-                            <td [ngStyle]="col.bodyCellStyle" [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn"
-                                [libDynamicTableCell] [colIdx]="idx" [rowIdx]="i" [rowData]="rowData"
-                                [field]="col.field">
-                                <ng-container *ngIf="col.renderColumnContent; else noContent">
-                                    <ng-container *ngIf="col.bodyCell; else block1">
-                                        <ng-template [appDynamicBodyCell] [colIdx]="idx" [rowIdx]="i"
-                                            [rowData]="rowData" [field]="col.field">
-                                        </ng-template>
-                                    </ng-container>
-                                    <ng-template #block1>
-                                        <ng-container *ngIf="col.bodyCellHTML && rowData != null">
-                                            <span [innerHTML]="col.bodyCellHTML(rowData)"></span>
-                                        </ng-container>
-                                    </ng-template>
-                                </ng-container>
-                            </td>
-                        </ng-template>
-                    </ng-container>
-                    <ng-template #noContent>
-                        <td>
-                            <ng-container *ngIf="showNoRecordsLabel">
-                                <h3>No Records...</h3>
-                            </ng-container>
-                        </td>
-                    </ng-template>
-                </ng-container>
-            </tr>
-        </ng-template>
-        <ng-template *ngIf="config.summary" pTemplate="summary">
-            <ng-template [libDynamicSummary]></ng-template>
-        </ng-template>
-        <ng-template let-i="rowIndex" pTemplate="rowexpansion" let-columns let-rowData>
-            <tr>
-                <td [attr.colspan]="visibleColumns">
-                    <ng-template [appDynamicExpansion] [renderCallback]="renderCallback" [outerData]="rowData">
-                    </ng-template>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
-</div> -->
