@@ -12,7 +12,6 @@ import { BaseTableComponent } from '../../base-table/base-table.component';
 })
 export abstract class BaseMobileFilterComponent extends BaseTableEventComponent implements OnInit {
     @Input() public field: string;
-    @Input() public value: any;
     @Input() public selectedValue: any;
     @Input() public operator: any;
 

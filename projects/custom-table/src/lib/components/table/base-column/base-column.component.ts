@@ -8,8 +8,6 @@ import { BaseMobileFilterComponent } from '../mobile/base-mobile-filter/base-mob
 })
 export abstract class BaseColumnComponent extends BaseMobileFilterComponent implements OnInit {
     @Input() public colIdx: number;
-    @Input() public rowIdx: number;
-    @Input() public rowData: any;
     @Input() public isColumnFilter: boolean;
     @Input() public isInputTemplate: boolean;
     @Input() public excludeFilter: boolean;

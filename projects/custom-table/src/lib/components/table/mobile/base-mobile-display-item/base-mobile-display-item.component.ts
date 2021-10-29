@@ -8,11 +8,7 @@ import { BaseMobileTableComponent } from '../base-mobile-table/base-mobile-table
     styleUrls: ['./base-mobile-display-item.component.scss']
 })
 export class BaseMobileDisplayItemComponent extends BaseMobileTableEventComponent implements OnInit {
-    @Input() public rowData: any;
-    @Input() public rowIdx: number;
-    @Input() public value: any;
     @Input() public isTitlePanel: boolean;
-    @Input() public processRowData: (rowData: any, componentRef: BaseMobileDisplayItemComponent) => void;
 
     constructor() { super() }
 

@@ -13,6 +13,10 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
     @Input() public config: any;
     @Input() public outerData: any;
     @Input() public componentRef: any;
+    @Input() public rowIdx: number;
+    @Input() public rowData: any;
+    @Input() public value: any;
+    @Input() public processRowData: (rowData: any, componentRef: any) => void;
 
     constructor() { }
 

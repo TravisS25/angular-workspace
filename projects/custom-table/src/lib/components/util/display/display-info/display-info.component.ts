@@ -5,9 +5,10 @@ import { Subscription } from 'rxjs';
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
 import { BaseColumnComponent } from '../../../table/base-column/base-column.component';
 import { BaseMobileDisplayItemComponent } from '../../../../components/table/mobile/base-mobile-display-item/base-mobile-display-item.component';
+import { BaseDisplayItemI } from 'projects/custom-table/src/public-api';
 
-export interface DisplayInfoEntity {
-    //component: Type<Base>
+export interface DisplayInfoEntity extends BaseT {
+    component: Type<BaseDisplayItemI>
 }
 
 export interface DisplayInfoItem {
