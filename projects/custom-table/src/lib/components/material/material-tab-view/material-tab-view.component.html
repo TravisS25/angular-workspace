@@ -1,0 +1,12 @@
+<mat-tab-group (selectedTabChange)="tabChange($event)">
+    <ng-container *ngFor="let item of config.panels; let i = index">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <ng-template *ngIf="item.headerEntity" [libTabPanelHeader] [tabIdx]="i"></ng-template>
+            </ng-template>
+            <ng-template matTabContent>
+                <ng-template *ngIf="item.panelEntity" [libTabPanelContent] [tabIdx]="i"></ng-template>
+            </ng-template>
+        </mat-tab>
+    </ng-container>
+</mat-tab-group>

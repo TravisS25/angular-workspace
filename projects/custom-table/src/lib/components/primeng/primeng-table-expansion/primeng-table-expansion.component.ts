@@ -2,8 +2,6 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, A
 import { RowToggler } from 'primeng/table';
 import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 import { TableEvents } from '../../../table-api';
-import { BaseTableEvent } from 'projects/custom-table/src/public-api';
-
 
 @Component({
     selector: 'lib-primeng-table-expansion',

@@ -13,7 +13,7 @@ import { RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { MultiSelectModule } from 'primeng';
 import { FormsModule } from '@angular/forms';
-import { PrimengTableExpansionComponent } from 'projects/custom-table/src/public-api';
+import { PrimengTableExpansionComponent } from '../../components/primeng/primeng-table-expansion/primeng-table-expansion.component';
 
 
 

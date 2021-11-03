@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { BaseMobileTableEventComponent } from '../../mobile/base-mobile-table-event/base-mobile-table-event.component';
 import { FilterDescriptor, BaseTableEvent, TableEvents } from '../../../../table-api';
 import { BaseComponent } from '../../../base/base.component';
 import { BaseTableCaptionComponent } from '../../base-table-caption/base-table-caption.component';
@@ -10,7 +11,7 @@ import { BaseTableComponent } from '../../base-table/base-table.component';
     templateUrl: './base-mobile-filter.component.html',
     styleUrls: ['./base-mobile-filter.component.scss']
 })
-export abstract class BaseMobileFilterComponent extends BaseTableEventComponent implements OnInit {
+export abstract class BaseMobileFilterComponent extends BaseMobileTableEventComponent implements OnInit {
     @Input() public field: string;
     @Input() public selectedValue: any;
     @Input() public operator: any;
@@ -22,7 +23,7 @@ export abstract class BaseMobileFilterComponent extends BaseTableEventComponent 
             operator: this.operator,
         }
         const cfg: BaseTableEvent = {
-            eventType: TableEvents,
+            eventType: TableEvents.columnFilter,
             eventFieldName: this.field,
             event: filter,
         }

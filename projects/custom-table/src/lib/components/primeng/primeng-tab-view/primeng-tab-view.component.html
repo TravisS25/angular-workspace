@@ -1,17 +1,12 @@
-<p-tabView (onChange)="change($event)" #tab>
+<p-tabView (onChange)="tabChange($event)" #tab>
     <ng-container *ngFor="let item of config.panels; let i = index">
-        <p-tabPanel [header]="item.header" [leftIcon]="item.leftIcon" [rightIcon]="item.rightIcon"
-            [selected]="i == item.selectIdx" [closable]="item.closable" [disabled]="item.disabled">
-            <ng-template *ngIf="item.customHeader" pTemplate="header">
-                <span [innerHTML]="item.customHeader"></span>
+        <p-tabPanel [selected]="i == config.selectIdx" [closable]="item.tabPanelConfig.closable"
+            [disabled]="item.tabPanelConfig.disabled">
+            <ng-template pTemplate="header">
+                <ng-template *ngIf="item.headerEntity" [libTabPanelHeader] [tabIdx]="i"></ng-template>
             </ng-template>
             <ng-template pTemplate="content">
-                <ng-container *ngIf="item.contentComponent; else block1">
-                    <ng-template [libTabPanel] [rowData]="outerData" [tabIdx]="i"></ng-template>
-                </ng-container>
-                <ng-template #block1>
-                    <span [innerHTML]="item.contentHTML"></span>
-                </ng-template>
+                <ng-template *ngIf="item.panelEntity" [libTabPanelContent] [tabIdx]="i"></ng-template>
             </ng-template>
         </p-tabPanel>
     </ng-container>

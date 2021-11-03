@@ -22,7 +22,7 @@ export class MaterialRowOptionsComponent extends BaseColumnComponent implements 
 
     public ngOnInit(): void {
         if (this.processRowData != undefined) {
-            this.config = this.processRowData(this.rowData);
+            this.config = this.processRowData(this.rowData, this);
         } else if (this.config == undefined) {
             throw ('MUST SET MATERIAL ROW OPTION CONFIG FOR COL IDX ' + this.colIdx);
         }

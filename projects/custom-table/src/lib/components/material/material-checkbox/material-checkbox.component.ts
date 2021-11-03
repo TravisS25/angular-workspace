@@ -3,7 +3,6 @@ import { DefaultTableEvents } from '../../../config';
 import { BaseTableEvent, CheckboxEvent } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { BaseColumnComponent } from '../../table/base-column/base-column.component';
-import { TableEvents } from 'projects/custom-table/src/public-api';
 
 export interface MaterialCheckboxConfig {
     color?: any;
@@ -36,7 +35,7 @@ export class MaterialCheckboxComponent extends BaseColumnComponent implements On
         }
         this.processColumnFilterEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
             if (!this.isColumnFilter) {
-                let cfg = e.event as CheckboxEvent
+                const cfg = e.event as CheckboxEvent
 
                 if (cfg.checked) {
                     this.checked = true
@@ -47,7 +46,7 @@ export class MaterialCheckboxComponent extends BaseColumnComponent implements On
         }
         this.processBodyCellEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
             if (this.isColumnFilter) {
-                let cfg = e.event as CheckboxEvent
+                const cfg = e.event as CheckboxEvent
 
                 if (!cfg.checked) {
                     this.checked = false;

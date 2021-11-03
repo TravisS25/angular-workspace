@@ -3,7 +3,7 @@ import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { getDefaultPostHeader } from '../../../../default-values';
+import { getDefaultCSRFHeader } from '../../../../default-values';
 import { FormEvents } from '../../../../table-api';
 
 @Component({
@@ -103,7 +103,7 @@ export abstract class BaseFormComponent implements OnInit {
     //                 body: this.formGroup.value,
     //                 withCredentials: true,
     //                 observe: 'response',
-    //                 headers: getDefaultPostHeader(this._token),
+    //                 headers: getDefaultCSRFHeader(this._token),
     //                 responseType: this._responseType,
     //             }
     //         ).subscribe(r => {
@@ -240,7 +240,7 @@ export abstract class BaseFormComponent implements OnInit {
 //                     body: this.formGroup.value,
 //                     withCredentials: true,
 //                     observe: 'response',
-//                     headers: getDefaultPostHeader(this._token),
+//                     headers: getDefaultCSRFHeader(this._token),
 //                     responseType: this._responseType,
 //                 }
 //             ).subscribe(r => {

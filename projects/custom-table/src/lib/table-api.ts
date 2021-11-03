@@ -12,6 +12,7 @@ import { BaseRowExpansionComponent } from './components/table/base-row-expansion
 import { BaseMobileTableComponent } from './components/table/mobile/base-mobile-table/base-mobile-table.component';
 import { BaseMobileDisplayItemComponent } from './components/table/mobile/base-mobile-display-item/base-mobile-display-item.component';
 import { BaseMobileTableEventComponent } from './components/table/mobile/base-mobile-table-event/base-mobile-table-event.component';
+import { BaseComponent } from './components/base/base.component';
 
 //---------------- EVENT ENUMS ----------------------- 
 
@@ -180,6 +181,40 @@ export interface FieldName {
     newName: string;
 }
 
+// APIConfig is base config used when making an http request
+export interface APIConfig {
+    // apiURL should return url to make api based on rowData passed if possible
+    apiURL: (rowData: any) => string
+
+    // processResult processes successful response
+    processResult?: (result: any, componentRef?: any) => any;
+
+    // apiOptions is the options to set for HTTPClient#get function
+    apiOptions?: HTTPOptions;
+
+    // processError processes error response
+    processError?: (err: any) => void
+}
+
+// ParamConfig is config used to determine different param names that will
+// be sent to server for filtering, sorting, and grouping
+export interface ParamConfig {
+    // take is parameter used to get a certain number of records
+    take?: string;
+
+    // skip is parameter used to skip certain number of records
+    skip?: string;
+
+    // filters is parameter used to apply filters for specific results
+    filters?: string;
+
+    // sorts is parameter used to apply sorts to certain columns
+    sorts?: string;
+
+    // groups is parameter used to apply groups to certain columns
+    groups?: string
+}
+
 
 // HTTPOptions is just a type safe way of applying api options
 // to HTTPClient#get parameter
@@ -195,10 +230,10 @@ export interface HTTPOptions {
 // ExportMenuItem extends MenuItem to add our exportAPI function
 // and fileName property
 // This is mainly used in the "ExportFormats" interface which is used
-// for the TableConfig#exportConfig property setting
+// for the BaseTableConfig#exportConfig property setting
 //
 // The "command" function of MenuItem is overwritten when used in 
-// TableConfig#exportConfig property setting to handle the appropriate
+// BaseTableConfig#exportConfig property setting to handle the appropriate
 // export type in "ExportFormats"
 export interface ExportMenuItem extends MenuItem {
     // exportAPI takes in outerData and should return url that will be used 
@@ -226,26 +261,6 @@ export enum ExportType {
     xlsx
 }
 
-// TableCaptionExportConfig is optional config that can be used in a custom table
-// caption to have ability to export table info
-//
-// This config is intended to be used in conjunction with BaseTableComponent#exportData function
-export interface TableCaptionExportItem {
-    // url of intended request
-    url: string;
-
-    // fileName is name of file that user will see downloaded
-    fileName: string;
-
-    // columnHeadersParam is parameter sent to server to determine
-    // what columns to export from table
-    columnHeadersParam: string;
-
-    // idFilterParam is parameter sent to server to determine
-    // what specific rows should be exported based on ids sent
-    idFilterParam: string;
-}
-
 // TableCaptionExportConfig is config 
 export interface TableCaptionExportConfig {
     // url for csv file
@@ -269,7 +284,7 @@ export interface TableCaptionExportConfig {
     idFilterParam: string;
 }
 
-// ExportConfig is config used in TableConfig to construct
+// ExportConfig is config used in BaseTableConfig to construct
 // settings to use for the export button like styling, file name,
 // file format etc.
 export interface ExportConfig {
@@ -313,22 +328,17 @@ export interface SortOperation {
     sortOrder?: string;
 }
 
-// BaseActionConfig is base config used for navigating when
-// an action button like "create" or "edit" is clicked
-export interface BaseActionConfig {
-    // modal is config used to set up a modal component whenever 
-    // an action button is clicked
-    modalCfg?: BaseModalConfig;
+// BaseTableActionConfig is base config used for any table actions
+export interface BaseTableActionConfig {
+    // // modal is function used to create a modal for creating
+    // // entry for table
+    // //
+    // // The passed parameter will be current table initiating modal
+    // modal?: (componentRef: any) => void;
 
-    // modal is function used to create a modal for creating
-    // entry for table
-    //
-    // The passed parameter will be current table initiating modal
-    modal?: (component: any) => void;
-
-    // pageURL is function used to take in rowData/outerData and 
-    // should return url to navigate to
-    pageURL?: (any) => string;
+    // // pageURL is function used to take in rowData/outerData and 
+    // // should return url to navigate to
+    // pageURL?: (outerData: any) => string;
 
     // actionFn takes in BaseTableComponent and manipulates the
     // table based on passed function
@@ -336,7 +346,7 @@ export interface BaseActionConfig {
     // The main purpose of this function is to create/edit an
     // inline row in a table instead of using modal or redirecting
     // to different page
-    actionFn?: (component: any) => void;
+    actionFn: (componentRef: any) => void;
 }
 
 //---------------- MODAL CONFIGS ----------------------- 
@@ -383,25 +393,6 @@ export interface BaseTableEvent extends BaseTableEventConfig {
     event?: any;
 }
 
-// ParamConfig is config used to determine different param names that will
-// be sent to server for filtering, sorting, and grouping
-export interface ParamConfig {
-    // take is parameter used to get a certain number of records
-    take?: string;
-
-    // skip is parameter used to skip certain number of records
-    skip?: string;
-
-    // filters is parameter used to apply filters for specific results
-    filters?: string;
-
-    // sorts is parameter used to apply sorts to certain columns
-    sorts?: string;
-
-    // groups is parameter used to apply groups to certain columns
-    groups?: string
-}
-
 // BaseTableCaptionConfig is base config settings that will typically
 // be used in a standard table caption
 export interface BaseTableCaptionConfig {
@@ -423,11 +414,11 @@ export interface BaseTableCaptionConfig {
     exportCfg?: TableCaptionExportConfig;
 
     // createCfg is config used to create entry for table either
-    createCfg?: BaseActionConfig;
+    createCfg?: BaseTableActionConfig;
 }
 
-// MobileTableConfig is the main config used for mobile table
-export interface MobileTableConfig extends MobileTableEventOptions, TableStateChangeI {
+// BaseMobileTableConfig is the main config used for mobile table
+export interface BaseMobileTableConfig extends MobileTableEventOptions, TableStateI {
     // captionCfg is config used to generate dynamic caption component with settings
     captionCfg?: MobileCaptionEntity;
 
@@ -447,6 +438,9 @@ export interface MobileTableConfig extends MobileTableEventOptions, TableStateCh
     // outerDataHeader takes in outerData and returns header for page
     outerDataHeader?: (outerData: any) => string;
 
+    // state is filter state for current filter
+    state?: State
+
     // getState is the filter state of the table that will be sent to server
     // Setting this will set the table with initial state when making
     // first call to server
@@ -457,7 +451,7 @@ export interface MobileTableConfig extends MobileTableEventOptions, TableStateCh
     customSearch?: (table: any) => void;
 
     // pagination is config used to determine table's page settings such as rows per page
-    pagination?: MaterialPagination;
+    pagination?: BasePagination;
 
     // panelHeaderStyle is styling to be used for panel header of mobile stable
     panelHeaderStyle?: Object;
@@ -472,16 +466,12 @@ export interface MobileTableConfig extends MobileTableEventOptions, TableStateCh
     paramCfg?: ParamConfig;
 }
 
-
-// TableConfig is the main config that is used against our table api
-export interface TableConfig extends TableEventOptions, TableStateChangeI {
+// BaseTableConfig is the main config that is used against our table api
+export interface BaseTableConfig extends TableEventOptions, TableStateI {
     // getState is the filter state of the table that will be sent to server
     // Setting this will set the table with initial state when making
     // first call to server
     getState?: (outerData: any) => State;
-
-    // summary is config used to generate custom summary component
-    // summary?: SummaryEntity;
 
     // paramConfig set param names that will be sent to server
     paramConfig?: ParamConfig;
@@ -494,33 +484,11 @@ export interface TableConfig extends TableEventOptions, TableStateChangeI {
     tableSettingsAPIConfig?: APIConfig;
 
     // columns is where we dynamically create columns with configuration
-    columns?: Column[];
+    columns?: CoreColumn[];
 
     // exportConfig is config to allow to export table info to different 
     // formats such as csv, excel, etc
     exportConfig?: ExportConfig;
-
-    // showNoRecordsLabel determines if we show a "No Records" label whenever
-    // no results come back for a table
-    // This is mainly used as a work around for the fact that when no results
-    // come back, you can't scroll the table headers so if a table has a lot
-    // of columns and goes beyond current view, you can't scoll over to 
-    // change/update filters
-    // This setting essentially will insert a single empty row so you are able
-    // to scroll to all filters
-    // 
-    // Default: true
-    showNoRecordsLabel?: boolean;
-
-    // showCaption determines if we show caption header or not
-    //
-    // Default: true
-    showCaption?: boolean;
-
-    // hasColGroup determines if we have column group enabled
-    //
-    // Default: true
-    hasColGroup?: boolean;
 
     // rowExpansion is ability to inject component into table expansion to
     // display related items of particular row
@@ -528,6 +496,9 @@ export interface TableConfig extends TableEventOptions, TableStateChangeI {
 
     // caption is ability to inject component into table caption header
     caption?: CaptionEntity;
+
+    // pagination determines pagination settings for table
+    pagination?: BasePagination;
 
     // Height of the scroll viewport in fixed pixels or the "flex" keyword for a dynamic size.
     // 
@@ -539,40 +510,10 @@ export interface TableConfig extends TableEventOptions, TableStateChangeI {
     // Default: 'id'
     dataKey?: string;
 
-    // Number of rows to display per page.
-    //
-    // Default: 20
-    rows?: number;
-
-    // Whether to display current page report
-    //
-    // Default: true
-    showCurrentPageReport?: boolean;
-
-    // Array of integer/object values to display inside rows per page dropdown of paginator
-    //
-    // Default: [20, 50, 100]
-    rowsPerPageOptions?: number[];
-
     // Displays a loader to indicate data load is in progress
     //
     // Default: true
     loading?: boolean;
-
-    // When specified as true, enables the pagination
-    //
-    // Default: true
-    paginator?: boolean;
-
-    // Position of the paginator, options are "top","bottom" or "both"
-    //
-    // Default: bottom
-    paginatorPosition?: 'top' | 'bottom' | 'both'
-
-    // Defines if data is loaded and interacted with in lazy manner
-    //
-    // Default: true
-    lazy?: boolean;
 
     // When specifies, enables horizontal and/or vertical scrolling
     //
@@ -603,41 +544,6 @@ export interface TableConfig extends TableEventOptions, TableStateChangeI {
     // Default: 'Showing {first} to {last} of {totalRecords} entries'
     currentPageReportTemplate?: string;
 
-    // editMode determines whether we are editing by cell or entire row
-    //
-    // Default: undefined
-    editMode?: 'row' | 'cell';
-
-    // resetEditedRowsOnTableFilter determines whether to reset edited rows
-    // whenever a table filter action occurs
-    // 
-    // If this is set true, then the results stored in local storage, if any,
-    // will also be reset
-    //
-    // Default: true
-    resetEditedRowsOnTableFilter?: boolean;
-
-    // localStorageConfig is config used to stored results of edited rows
-    //localStorageConfig?: LocalStorageConfig;
-
-    // localStorageKeyForEditedRows is key used to store edited rows into local storage
-    localStorageKeyForEditedRows?: string;
-
-    // Callback to invoke when a cell switches to edit mode
-    //
-    // Default: Empty function
-    onEditInit?: (event: EditEvent, componentRef: any) => void;
-
-    // Callback to invoke when cell edit is completed
-    //
-    // Default: Empty function
-    onEditComplete?: (event: EditEvent, componentRef: any) => void;
-
-    // Callback to invoke when cell edit is cancelled with escape key
-    //
-    // Default: Empty function
-    onEditCancel?: (event: EditEvent, componentRef: any) => void;
-
     // customTableSearch is for overriding the default search functionality built into the table itself
     // when searching for entries of external datasource
     //
@@ -657,37 +563,43 @@ export interface TableConfig extends TableEventOptions, TableStateChangeI {
     outerDataHeader?: (outerData: any) => string;
 }
 
+
 // ------------------ COLUMN CONFIGURATION -----------------------
 
-export interface MobilePanelI {
-    isTitlePanel?: boolean
+export interface ProcessRowDataI {
+    processRowData?: (rowData: any, componentRef: any) => void;
 }
 
 export interface ConfigI {
     config?: any;
 }
 
+export interface BaseComponentI extends ConfigI {
+    componentRef?: any;
+    value?: any;
+}
+
 export interface PopupFormI extends ConfigI {
     onSuccess?: EventEmitter<any>;
     onClose?: EventEmitter<any>;
+    successDismiss?: any;
 }
 
-export interface BaseDisplayItemI extends ConfigI {
-    value?: any;
-    processRowData?: (rowData: any) => any;
-}
-
-export interface BaseMobileFilterI extends ConfigI {
+export interface BaseMobileFilterI extends BaseComponentI {
     field?: string;
-    value?: any;
     selectedValue?: any;
     operator?: string;
 }
 
-export interface BaseColumnI extends BaseMobileFilterI {
+export interface BaseColumnI extends BaseMobileFilterI, ProcessRowDataI {
     getSelectedValue?: (rowData: any) => any;
-    processRowData?: (rowData: any) => any;
     excludeFilter?: boolean;
+}
+
+export interface BaseDisplayItemI extends BaseComponentI, ProcessRowDataI { }
+
+export interface BaseMobileDisplayItemI extends BaseDisplayItemI {
+    isTitlePanel?: boolean;
 }
 
 export interface BaseMobileRowExpansionI extends ConfigI {
@@ -696,40 +608,26 @@ export interface BaseMobileRowExpansionI extends ConfigI {
     borderClass?: string;
 }
 
-export interface BaseRowExpansionI {
-    config?: any;
+export interface BaseRowExpansionI extends ConfigI {
     renderCallback?: EventEmitter<any>
-    outerData?: any;
 }
 
 // ---------------- TABLE CONFIGURATION ------------------
 
-// TableSwitchI is interface used in util component BaseIndexComponent
-// that allows user to switch between mobile and desktop tables
-export interface TableSwitchI {
-    state: State;
-    config: TableStateChangeI;
+export interface TableStateI {
+    state?: State;
+    getState?: (any) => State;
 }
 
-//
-// NOTE MAY CHANGE THIS AFTER REFACTOR!!!
-//
-// TableStateChangeI is interface used to make sure any table component
-// injected into BaseIndexComponent has ability to take 
-export interface TableStateChangeI {
-    getTableStateChange?: (any) => State;
-}
 
 // ---------------- TABLE IMPLEMENTATION ------------------
 
-export interface BaseIndexTableEntity {
-    component: Type<TableSwitchI>;
-    config: TableStateChangeI;
+export interface BaseIndexTableEntity extends TableStateI {
+    component: Type<TableStateI>;
 }
 
 export interface PopupFormEntity extends PopupFormI {
     component: Type<PopupFormI>;
-    successDismiss?: any;
 }
 
 // CaptionEntity is used to display caption component in caption part of table
@@ -744,7 +642,15 @@ export interface MobileCaptionEntity extends ConfigI {
 
 // ---------------- COLUMN IMPLEMENTATION ------------------
 
+export interface ConfigEntity extends ConfigI {
+    component: Type<ConfigI>;
+}
+
 /////// Table /////////
+
+export interface BaseComponentEntity extends BaseComponentI {
+    component: Type<BaseComponent>;
+}
 
 // RowExpansionEntity is used to display expansion component of table
 export interface RowExpansionEntity extends BaseRowExpansionI {
@@ -762,35 +668,20 @@ export interface DisplayItemEntity extends BaseDisplayItemI, TableEventOptions {
 
 /////// Mobile /////////
 
-export interface MobileFilterEntity extends BaseMobileFilterI, MobileTableEventOptions {
-    component: Type<BaseMobileFilterComponent>;
-}
-
 export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI, MobileTableEventOptions {
     component: Type<BaseMobileTableComponent>;
 }
 
-export interface MobileDisplayItemEntity extends BaseDisplayItemI, MobileTableEventOptions, MobilePanelI {
+export interface MobileFilterEntity extends BaseMobileFilterI, MobileTableEventOptions {
+    component: Type<BaseMobileFilterComponent>;
+}
+
+export interface MobileDisplayItemEntity extends BaseMobileDisplayItemI, MobileTableEventOptions {
     component: Type<BaseMobileDisplayItemComponent>;
 }
 
 // ------------------ COLUMN CONFIGS -----------------------
 
-
-// APIConfig is base config used when making an http request
-export interface APIConfig {
-    // apiURL should return url to make api based on rowData passed if possible
-    apiURL: (rowData: any) => string
-
-    // processResult processes successful response
-    processResult?: (result: any, componentRef?: any) => any;
-
-    // apiOptions is the options to set for HTTPClient#get function
-    apiOptions?: HTTPOptions;
-
-    // processError processes error response
-    processError?: (err: any) => void
-}
 
 // BaseEventOptions represents the base event options that every table should contain
 export interface BaseEventOptions {
@@ -877,7 +768,7 @@ export interface EditEvent {
     foundDiff?: boolean;
 }
 
-export interface BaseColumn {
+export interface CoreColumn {
     // field represents json name of field
     // WE NEED FIELD FOR ABILITY TO EXPORT COLUMN, DO NOT DELETE
     field: string;
@@ -923,6 +814,12 @@ export interface BaseColumn {
     // and pass config if set
     bodyCell?: ColumnEntity;
 
+    // displayItem will display dynamically generated component within table cell
+    //
+    // displayItem is a "subset" of bodyCell property, as in, the intention is to
+    // display something like text or a button instead of a form field
+    displayItem?: DisplayItemEntity;
+
     // sort allows us to activate the ability to sort on current column
     sort?: SortOperation;
 
@@ -933,7 +830,9 @@ export interface BaseColumn {
     bodyCellHTML?: (any) => string;
 }
 
-export interface PrimengColumn extends BaseColumn {
+export interface MaterialColumn extends CoreColumn { }
+
+export interface PrimengColumn extends CoreColumn {
     // renderColumnContent can be used to determine if the content in the table
     // cell is even rendered, NOT just hidden
     // This is used in conjunction with BaseTableAPI#showNoRecordsLabel and set by table api
@@ -1061,11 +960,20 @@ export interface MaskConfig extends IConfig {
     maskTemplate: string;
 }
 
-export interface MaterialPagination {
+// BasePagination is base pangination settings for any table to extend
+export interface BasePagination {
     pageSize?: number;
     pageSizeOptions?: number[];
 }
 
+export interface PrimengPagination extends BasePagination {
+    // Position of the paginator, options are "top","bottom" or "both"
+    //
+    // Default: bottom
+    paginatorPosition?: 'top' | 'bottom' | 'both'
+}
+
+// DisplayFormat is config used style a display item
 export interface DisplayFormat {
     item: string;
     borderClass?: string;
@@ -1079,37 +987,21 @@ export interface TabViewConfig {
     // selectedIdx is the tab panel that should be opened when tab view is first created
     selectedIdx: number;
 
+    // config is config for tab view
+    tabViewConfig?: any;
+
     // panels is config settings for each tab panel in tab view
     panels: TabPanelItem[];
 }
 
 // TabPanelItem is config used for each tab within a collection of tab views
 export interface TabPanelItem {
-    // header is header for tab panel
-    header?: string;
+    tabPanelConfig?: any;
 
-    // contentHTML is html content that will be loaded in tab panel
-    contentHTML?: string;
+    // headerComponent will be dynamically generated component for panel header
+    headerEntity?: ConfigEntity;
 
-    // contentComponent is the component that will be the generated within tab panel
+    // panelEntity is the component that will be the generated within tab panel
     // This will override contentHTML
-    contentComponent?: Type<BaseRowExpansionI>;
-
-    // leftIcon will load css icon class to left of header
-    leftIcon?: string;
-
-    // rightIcon will load icon css class to left of header
-    rightIcon?: string;
-
-    // customHeader will display custom html in tab panel header if set
-    customHeader?: string;
-
-    // disabled will disable panel from being opened
-    disabled?: boolean;
-
-    // closable allows user to close panel from tab view
-    closable?: boolean;
-
-    // config can be used to set config for content component within panel
-    config?: any;
+    panelEntity?: BaseComponentEntity;
 }

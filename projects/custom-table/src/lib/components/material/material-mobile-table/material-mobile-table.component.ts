@@ -12,7 +12,7 @@ import { encodeURIState } from '../../../util';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/combineLatest';
 import { take } from 'rxjs/operators';
-import { MobileTableConfig, DisplayItemEntity, State, FilterData } from '../../../table-api';
+import { BaseMobileTableConfig, DisplayItemEntity, State, FilterData, MobileDisplayItemEntity } from '../../../table-api';
 import { BaseMobileTableDirective } from '../../../directives/table/mobile/base-mobile-table.directive';
 import { MobileTableExpansionDirective } from '../../../directives/table/mobile/mobile-table-expansion.directive';
 import { MobileTableCaptionDirective } from '../../../directives/table/mobile/mobile-table-caption.directive';
@@ -25,7 +25,6 @@ import { BaseDisplayItemComponent } from '../../table/base-display-item/base-dis
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { BaseMobileTableComponent } from '../../table/mobile/base-mobile-table/base-mobile-table.component';
 import { BaseMobileDisplayItemComponent } from '../../table/mobile/base-mobile-display-item/base-mobile-display-item.component';
-import { MobileDisplayItemEntity } from 'projects/custom-table/src/public-api';
 import { BaseMobileTableEventComponent } from '../../table/mobile/base-mobile-table-event/base-mobile-table-event.component';
 
 
@@ -88,7 +87,7 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
     @ViewChildren(MobileTablePanelDescriptionDirective) public panelDescriptionDirs: QueryList<MobileTablePanelDescriptionDirective>;
     @ViewChildren(MobileTablePanelTitleDirective) public panelTitleDirs: QueryList<MobileTablePanelTitleDirective>;
 
-    @Input() public config: MobileTableConfig;
+    @Input() public config: BaseMobileTableConfig;
 
     constructor(
         public http: HttpClient,
@@ -151,8 +150,8 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
     }
 
     private initValues() {
-        if (this.config.getTableStateChange != undefined) {
-            this.state = this.config.getTableStateChange(this.outerData);
+        if (this.config.state != undefined) {
+            this.state = this.config.state;
         } else if (this.config.getState != undefined) {
             this.state = this.config.getState(this.outerData);
         }

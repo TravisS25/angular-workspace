@@ -1,0 +1,5 @@
+<i *ngIf="config.leftIcon" class="{{ config.leftIcon }}"></i>
+<span [ngClass]="config.displayItem.borderClass" [style]="config.displayItem.borderStyle">
+    {{ config.displayItem.item }}
+</span>
+<i *ngIf="config.rightIcon" class="{{ config.rightIcon }}"></i>

@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { BaseDisplayItemI } from 'projects/custom-table/src/public-api';
 import { BaseTableEventComponent } from '../base-table-event/base-table-event.component';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BaseMobileTableEventComponent } from '../mobile/base-mobile-table-event/base-mobile-table-event.component';
@@ -13,8 +12,7 @@ export abstract class BaseDisplayItemComponent extends BaseTableEventComponent i
     @Input() public colIdx: number;
     @Input() public rowData: any;
     @Input() public rowIdx: number;
-    @Input() public value: any;
-    @Input() public processRowData: (rowData: any) => any;
+    @Input() public processRowData: (rowData: any, componentRef: any) => void;
 
     constructor() { super() }
 

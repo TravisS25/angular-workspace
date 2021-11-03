@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, EventEmitter } from '@angular/core';
-import { BaseColumn, BaseModalConfig, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { BaseModalConfig, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 import { MenuItem } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';

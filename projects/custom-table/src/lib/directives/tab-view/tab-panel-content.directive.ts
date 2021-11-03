@@ -1,11 +1,10 @@
 import { Directive, Input, ViewContainerRef } from '@angular/core';
 
 @Directive({
-    selector: '[libTabPanel]'
+    selector: '[libTabPanelContent]'
 })
-export class TabPanelDirective {
+export class TabPanelContentDirective {
     @Input() public tabIdx: number;
-    @Input() public rowData: any;
 
     constructor(public viewContainerRef: ViewContainerRef) { }
 

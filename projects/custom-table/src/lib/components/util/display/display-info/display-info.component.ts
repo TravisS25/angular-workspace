@@ -3,13 +3,7 @@ import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angul
 import { DisplayItemEntity, DisplayFormat, PopupFormI, MobileDisplayItemEntity } from '../../../../table-api';
 import { Subscription } from 'rxjs';
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
-import { BaseColumnComponent } from '../../../table/base-column/base-column.component';
-import { BaseMobileDisplayItemComponent } from '../../../../components/table/mobile/base-mobile-display-item/base-mobile-display-item.component';
-import { BaseDisplayItemI } from 'projects/custom-table/src/public-api';
 
-export interface DisplayInfoEntity extends BaseT {
-    component: Type<BaseDisplayItemI>
-}
 
 export interface DisplayInfoItem {
     // colClass is class to determine how much column space each item gets
@@ -25,7 +19,7 @@ export interface DisplayInfoItem {
     displayHeader?: DisplayFormat;
 
     // displayItem is dynamic component generated
-    displayEntity: DisplayInfoEntity;
+    displayEntity: DisplayItemEntity;
 }
 
 export interface DisplayInfoConfig {
@@ -39,14 +33,14 @@ export interface DisplayInfoConfig {
     // rowIdx is row index of current selected row
     rowIdx?: number;
 
-    // colIdx is column index of current seelct column
+    // colIdx is column index of current select column
     colIdx?: number;
 
     // header is header for popup display component
     header?: DisplayFormat;
 
     // action is dynamic component
-    actionEntity?: DisplayInfoEntity;
+    actionEntity?: DisplayItemEntity;
 
     // displayItems are items to be dynamically created for component
     displayItems: DisplayInfoItem[];
@@ -71,11 +65,10 @@ export class DisplayInfoActionDirective {
     templateUrl: './display-info.component.html',
     styleUrls: ['./display-info.component.scss']
 })
-export class DisplayInfoComponent implements OnInit, PopupFormI {
+export class DisplayInfoComponent implements OnInit {
     private _sub: Subscription = new Subscription();
 
     @Input() public config: DisplayInfoConfig;
-
     @ViewChildren(DisplayInfoItemDirective) public displayItemDirs: QueryList<DisplayInfoItemDirective>;
     @ViewChild(DisplayInfoActionDirective) public actionDir: DisplayInfoActionDirective;
     public displayCrs: ComponentRef<BaseDisplayItemComponent>[] = [];

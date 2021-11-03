@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BaseDisplayInfoComponent } from './base-display-info.component';
+import { DisplayItemListComponent } from './display-item-list.component';
 
-describe('BaseDisplayInfoComponent', () => {
-  let component: BaseDisplayInfoComponent;
-  let fixture: ComponentFixture<BaseDisplayInfoComponent>;
+describe('DisplayItemListComponent', () => {
+  let component: DisplayItemListComponent;
+  let fixture: ComponentFixture<DisplayItemListComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BaseDisplayInfoComponent ]
+      declarations: [ DisplayItemListComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BaseDisplayInfoComponent);
+    fixture = TestBed.createComponent(DisplayItemListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

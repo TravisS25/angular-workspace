@@ -1,6 +1,6 @@
 // default values.ts
 
-import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, BaseActionConfig, State, ParamConfig, SelectItem } from './table-api'
+import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, State, ParamConfig, SelectItem } from './table-api'
 import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { BaseTableComponent } from './components/table/base-table/base-table.component';
 import { defaultProcessError } from './util';
@@ -10,9 +10,9 @@ import { InputTextConfig } from './components/primeng/input-text/input-text.comp
 import { MaterialDropdownSelectConfig } from './components/material/material-dropdown-select/material-dropdown-select.component';
 import { MaterialDatePickerConfig } from './components/material/material-date-picker/material-date-picker.component';
 import { MaterialInputTextConfig } from './components/material/material-input-text/material-input-text.component';
-import { TabPanelItem, TabViewConfig, MaskConfig, MaterialPagination } from './table-api';
+import { TabPanelItem, TabViewConfig, MaskConfig, BasePagination } from './table-api';
 
-export function getDefaultPostHeader(csrfToken: string): HttpHeaders {
+export function getDefaultCSRFHeader(csrfToken: string): HttpHeaders {
     return new HttpHeaders({
         'Content-Type': 'application/json',
         'X-Csrf-Token': csrfToken
@@ -35,7 +35,7 @@ export function getDefaultTabViewConfig(panels: TabPanelItem[]): TabViewConfig {
     }
 }
 
-export function getDefaultMaterialPagination(): MaterialPagination {
+export function getDefaultMaterialPagination(): BasePagination {
     return {
         pageSize: 20,
         pageSizeOptions: [20, 50, 100],

@@ -2,10 +2,12 @@
 <div class="table-settings">
     <p-table #dt (onPage)="onPageChange($event)" (onSort)="onSortChange($event)" (onRowExpand)="onRowExpand($event)"
         (onRowCollapse)="onRowCollapse($event)" (onEditInit)="onEditInit($event)"
-        (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)"
+        (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)" [paginator]="hasPagination"
+        [rows]="config.pagination.pageSize" [rowsPerPageOptions]="config.pagination.pageSizeOptions"
         [columnResizeMode]="config.columnResizeMode" [resizableColumns]="config.resizableColumns"
-        [dataKey]="config.dataKey" [columns]="config.columns" [editMode]="config.editMode" dataKey="config.dataKey">
-        <ng-template *ngIf="config.showCaption" pTemplate="caption" let-rowData>
+        [dataKey]="config.dataKey" [columns]="config.columns" [editMode]="config.editMode"
+        [paginatorPosition]="config.pagination.paginatorPosition">
+        <ng-template pTemplate="caption" let-rowData>
             <div *ngIf="config.outerDataHeader" [innerHTML]="config.outerDataHeader(outerData)">
             </div>
             <ng-template *ngIf="config.caption" [libTableCaption]>

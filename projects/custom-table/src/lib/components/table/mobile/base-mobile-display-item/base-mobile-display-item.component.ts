@@ -9,6 +9,9 @@ import { BaseMobileTableComponent } from '../base-mobile-table/base-mobile-table
 })
 export class BaseMobileDisplayItemComponent extends BaseMobileTableEventComponent implements OnInit {
     @Input() public isTitlePanel: boolean;
+    @Input() public rowData: any;
+    @Input() public rowIdx: number;
+    @Input() public processRowData: (rowData: any, componentRef: any) => void;
 
     constructor() { super() }
 

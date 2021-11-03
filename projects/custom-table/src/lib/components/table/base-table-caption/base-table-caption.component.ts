@@ -11,8 +11,6 @@ import { BaseTableComponent } from '../base-table/base-table.component';
     styleUrls: ['./base-table-caption.component.scss']
 })
 export abstract class BaseTableCaptionComponent extends BaseTableEventComponent implements OnInit {
-    public outerData: any;
-
     public config: BaseTableCaptionConfig;
 
     // _rowMap is used for keeping track of what rows are currently selected
@@ -58,7 +56,7 @@ export abstract class BaseTableCaptionComponent extends BaseTableEventComponent 
     }
 
     private initColumnFilterSelect() {
-        const columns: Column[] = this.componentRef.dt.columns;
+        const columns: Column[] = this.componentRef.columns;
 
         columns.forEach(x => {
             if (x.showColumnOption) {
@@ -124,13 +122,14 @@ export abstract class BaseTableCaptionComponent extends BaseTableEventComponent 
     }
 
     public create() {
-        if (this.config.createCfg.pageURL != undefined) {
-            this.router.navigateByUrl(this.config.createCfg.pageURL(this.componentRef.outerData));
-        } else if (this.config.createCfg.modal != undefined) {
-            this.config.createCfg.modal(this.componentRef);
-        } else if (this.config.createCfg.actionFn != undefined) {
-            this.config.createCfg.actionFn(this.componentRef);
-        }
+        this.config.createCfg.actionFn(this);
+        // if (this.config.createCfg.pageURL != undefined) {
+        //     this.router.navigateByUrl(this.config.createCfg.pageURL(this.componentRef.outerData));
+        // } else if (this.config.createCfg.modal != undefined) {
+        //     this.config.createCfg.modal(this.componentRef);
+        // } else if (this.config.createCfg.actionFn != undefined) {
+        //     this.config.createCfg.actionFn(this.componentRef);
+        // }
     }
 
     public export(et: ExportType) {

@@ -8,6 +8,8 @@ import {
     FilterDescriptor,
     GroupDescriptor,
     SortDescriptor,
+    CoreColumn,
+    PrimengColumn,
 } from './table-api';
 import _ from "lodash" // Import the entire lodash library
 import { MenuItem } from 'primeng/api';
@@ -46,6 +48,46 @@ export function deepCopyColumn(column: Column): Column {
     c.bodyCellHTML = column.bodyCellHTML;
 
     return c
+}
+
+export function deepCopyCoreColumn(column: CoreColumn): CoreColumn {
+    const c: Column = _.cloneDeep(column);
+    c.sort = _.cloneDeep(column.sort);
+    c.headerStyle = _.cloneDeep(column.headerStyle);
+    c.columnFilterStyle = _.cloneDeep(column.columnFilterStyle);
+    c.bodyCellStyle = _.cloneDeep(column.bodyCellStyle);
+    c.bodyCellHTML = column.bodyCellHTML;
+    c.columnFilter = _.cloneDeepWith(column.columnFilter, function (val1) {
+        if (val1 != undefined && val1 != null) {
+            const cf = val1 as ColumnEntity;
+            const newCF: ColumnEntity = _.cloneDeep(cf);
+            newCF.config = _.cloneDeep(cf.config);
+            return newCF;
+        }
+
+        return null;
+    });
+    c.bodyCell = _.cloneDeepWith(column.bodyCell, function (val1) {
+        if (val1 != undefined && val1 != null) {
+            const cf = val1 as ColumnEntity;
+            const newCF: ColumnEntity = _.cloneDeep(cf);
+            newCF.config = _.cloneDeep(cf.config);
+            return newCF;
+        }
+
+        return null;
+    });
+
+    return c
+}
+
+export function deepCopyPrimengColumn(column: PrimengColumn): PrimengColumn {
+    const coreCol = deepCopyCoreColumn(column)
+    const col: PrimengColumn = coreCol;
+    col.renderColumnContent = column.renderColumnContent
+    col.templateConfig = _.cloneDeep(column.templateConfig);
+    col.colStyle = _.cloneDeep(column.colStyle);
+    return col;
 }
 
 export function deepCopyBaseModalConfig(mc: BaseModalConfig): BaseModalConfig {
