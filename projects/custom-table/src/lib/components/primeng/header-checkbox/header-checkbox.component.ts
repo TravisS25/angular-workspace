@@ -35,7 +35,7 @@ export class HeaderCheckboxComponent extends BaseColumnComponent implements OnIn
         // this.processTableFilterEvent = (event: any, baseTable: BaseTableComponent) => {
         //     this.checked = false
         // }
-        // this.processBodyCellEvent = (event: BaseTableEvent, baseTable: BaseTableComponent) => {
+        // this.processTableCellEvent = (event: BaseTableEvent, baseTable: BaseTableComponent) => {
         //     let cfg = event.event as CheckboxEvent;
 
         //     if (!cfg.checked) {

@@ -4,7 +4,7 @@ import { BaseTableConfig, BaseMobileTableConfig, State, BaseIndexTableEntity } f
 import { Observable, Subject, Subscription } from 'rxjs';
 import _ from "lodash" // Import the entire lodash library
 import { WindowResizeService } from '../../../services/window-resize.service';
-import { TableStateI } from '../../../table-api';
+import { IndexTableI } from '../../../table-api';
 
 
 @Directive({
@@ -30,8 +30,8 @@ export class BaseIndexComponent implements OnInit {
     private _sub: Subscription = new Subscription();
     private _currentState: State;
 
-    private _tableCR: ComponentRef<TableStateI>;
-    private _mobileTableCR: ComponentRef<TableStateI>;
+    private _tableCR: ComponentRef<IndexTableI>;
+    private _mobileTableCR: ComponentRef<IndexTableI>;
 
     public isMobileTable: boolean = false;
 
@@ -91,6 +91,7 @@ export class BaseIndexComponent implements OnInit {
             );
 
             this._mobileTableCR.instance.state = this._currentState
+            this._mobileTableCR.instance.config = this.mobileTableEntity.config;
             this._mobileTableCR.onDestroy(() => { console.log('mobile destroyed') })
         } else {
             console.log('creating table!')
@@ -101,6 +102,7 @@ export class BaseIndexComponent implements OnInit {
             );
 
             this._tableCR.instance.state = this._currentState;
+            this._tableCR.instance.config = this.tableEntity.config;
             this._tableCR.onDestroy(() => { console.log('table destroyed') });
         }
     }

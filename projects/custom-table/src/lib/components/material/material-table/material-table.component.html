@@ -1,1 +1,56 @@
-<p>material-table works!</p>
+<table #table mat-table [dataSource]="filterData.data" multiTemplateDataRows matSort
+    (matSortChange)="onSortChange($event)">
+    <ng-container *ngFor="let col of columns; let colIdx = index">
+        <ng-container [hidden]="col.hideColumn" matColumnDef="{{ col.field }}">
+            <th [hidden]="col.hideColumnFilter" mat-header-cell>
+                <ng-template [libTableColumnFilter] [colIdx]="colIdx"></ng-template>
+            </th>
+            <ng-container *ngIf="col.sort && !col.sort.disableSort; else headerBlock">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                    {{ col.header }}
+                </th>
+            </ng-container>
+            <ng-template #headerBlock>
+                <th mat-header-cell *matHeaderCellDef>
+                    {{ col.header }}
+                </th>
+            </ng-template>
+            <ng-container *ngIf="col.displayItem; else tableCell">
+                <td mat-cell [style]="col.displayItemStyle" [ngClass]="col.displayItemClass"
+                    *matCellDef="let element; let rowIdx = index">
+                    <ng-template [libDisplayItem] [rowIdx]="rowIdx" [colIdx]="colIdx" [field]="col.field"
+                        [rowData]="element"></ng-template>
+                </td>
+            </ng-container>
+            <ng-template #tableCell>
+                <td mat-cell [style]="col.tableCellStyle" [ngClass]="col.tableCellClass" *matCellDef="let element">
+                    <ng-template [libTableBodyCell] [rowIdx]="rowIdx" [colIdx]="colIdx" [field]="col.field"
+                        [rowData]="element"></ng-template>
+                </td>
+            </ng-template>
+        </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="config.outerDataHeader" matColumnDef="header">
+        <th *matHeaderCellDef [attr.colspan]="visibleColumns">
+            <div [innerHTML]="config.outerDataHeader(outerData)"></div>
+        </th>
+    </ng-container>
+
+    <ng-container *ngIf="config.caption" matColumnDef="caption">
+        <th *matHeaderCellDef [attr.colspan]="visibleColumns">
+            <ng-template [libTableCaption]></ng-template>
+        </th>
+    </ng-container>
+
+    <ng-container *ngIf="config.outerDataHeader">
+        <tr mat-header-row *matHeaderRowDef="['header']"></tr>
+    </ng-container>
+
+    <ng-container *ngIf="config.caption">
+        <tr mat-header-row *matHeaderRowDef="['caption']"></tr>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnHeaders"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnHeaders;"></tr>
+</table>

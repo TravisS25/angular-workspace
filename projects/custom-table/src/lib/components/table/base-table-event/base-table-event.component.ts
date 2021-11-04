@@ -25,7 +25,7 @@ export class BaseTableEventComponent extends BaseEventComponent implements OnIni
     // processSortEvent is activated whenever a column is sorted
     @Input() public processSortEvent: (event: any, componentRef: any) => void;
 
-    @Input() public processBodyCellEvent: (event: any, componentRef: any) => void;
+    @Input() public processTableCellEvent: (event: any, componentRef: any) => void;
 
     @Input() public processDisplayItemEvent: (event: any, componentRef: any) => void;
 

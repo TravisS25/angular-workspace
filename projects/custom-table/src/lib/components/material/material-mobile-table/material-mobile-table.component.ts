@@ -14,11 +14,9 @@ import 'rxjs/add/observable/combineLatest';
 import { take } from 'rxjs/operators';
 import { BaseMobileTableConfig, DisplayItemEntity, State, FilterData, MobileDisplayItemEntity } from '../../../table-api';
 import { BaseMobileTableDirective } from '../../../directives/table/mobile/base-mobile-table.directive';
-import { MobileTableExpansionDirective } from '../../../directives/table/mobile/mobile-table-expansion.directive';
 import { MobileTableCaptionDirective } from '../../../directives/table/mobile/mobile-table-caption.directive';
 import { MobileTablePanelTitleDirective } from '../../../directives/table/mobile/mobile-table-panel-title.directive';
 import { MobileTablePanelDescriptionDirective } from '../../../directives/table/mobile/mobile-table-panel-description.directive';
-import { MobileTableExpansionPanelDirective } from '../../../directives/table/mobile/mobile-table-expansion-panel.directive';
 import { BaseComponent } from '../../base/base.component';
 import { BaseTableCaptionComponent } from '../../table/base-table-caption/base-table-caption.component';
 import { BaseDisplayItemComponent } from '../../table/base-display-item/base-display-item.component';
@@ -26,6 +24,8 @@ import { BaseTableComponent } from '../../table/base-table/base-table.component'
 import { BaseMobileTableComponent } from '../../table/mobile/base-mobile-table/base-mobile-table.component';
 import { BaseMobileDisplayItemComponent } from '../../table/mobile/base-mobile-display-item/base-mobile-display-item.component';
 import { BaseMobileTableEventComponent } from '../../table/mobile/base-mobile-table-event/base-mobile-table-event.component';
+import { MobileTableExpansionDirective } from '../../../directives/table/mobile/mobile-table-expansion.directive';
+import { MobileTablePanelRowExpansionDirective } from '../../../directives/table/mobile/mobile-table-panel-row-expansion.directive';
 
 
 @Component({
@@ -73,7 +73,7 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
     public total: number;
 
     // state is current filter state of table
-    public state: State = getDefaultState();
+    public state: State;
 
     public captionCr: ComponentRef<BaseMobileTableEventComponent>;
     public panelTitleCrs: ComponentRef<BaseMobileDisplayItemComponent>[] = [];
@@ -83,7 +83,7 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
     @ViewChild(MatAccordion) public table: MatAccordion;
     @ViewChild(MobileTableCaptionDirective) public captionDir: MobileTableCaptionDirective;
     @ViewChildren(MobileTableExpansionDirective) public tableExpansionDirs: QueryList<MobileTableExpansionDirective>;
-    @ViewChildren(MobileTableExpansionPanelDirective) public expansionPanelDirs: QueryList<MobileTableExpansionPanelDirective>;
+    @ViewChildren(MobileTablePanelRowExpansionDirective) public panelRowExpansionDirs: QueryList<MobileTablePanelRowExpansionDirective>;
     @ViewChildren(MobileTablePanelDescriptionDirective) public panelDescriptionDirs: QueryList<MobileTablePanelDescriptionDirective>;
     @ViewChildren(MobileTablePanelTitleDirective) public panelTitleDirs: QueryList<MobileTablePanelTitleDirective>;
 
@@ -99,8 +99,8 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
     }
 
     private search() {
-        if (this.config.customSearch != undefined) {
-            this.config.customSearch(null);
+        if (this.config.customTableSearch != undefined) {
+            this.config.customTableSearch(null);
         } else {
             this.getTableInfo();
         }
@@ -108,9 +108,9 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
 
     private getTableInfo() {
         this.http.get<any>(
-            this.config.tableAPICfg.apiURL(this.outerData) +
-            encodeURIState(this.state, this.config.paramCfg),
-            this.config.tableAPICfg.apiOptions as any
+            this.config.tableAPIConfig.apiURL(this.outerData) +
+            encodeURIState(this.state, this.config.paramConfig),
+            this.config.tableAPIConfig.apiOptions as any
         ).subscribe(r => {
             const res = r as HttpResponse<FilterData>;
             this._updatePanelDescription = true;
@@ -118,12 +118,12 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
             this.total = res.body.total;
             this.data = res.body.data;
 
-            if (this.config.tableAPICfg.processResult != undefined) {
-                this.config.tableAPICfg.processResult(res, this);
+            if (this.config.tableAPIConfig.processResult != undefined) {
+                this.config.tableAPIConfig.processResult(res, this);
             }
         }, (err: HttpErrorResponse) => {
-            if (this.config.tableAPICfg.processError != undefined) {
-                this.config.tableAPICfg.processError(err)
+            if (this.config.tableAPIConfig.processError != undefined) {
+                this.config.tableAPIConfig.processError(err)
             }
         })
     }
@@ -150,14 +150,16 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
     }
 
     private initValues() {
-        if (this.config.state != undefined) {
-            this.state = this.config.state;
-        } else if (this.config.getState != undefined) {
-            this.state = this.config.getState(this.outerData);
+        if (this.state == undefined) {
+            if (this.config.getState != undefined) {
+                this.state = this.config.getState(this.outerData);
+            } else {
+                this.state = getDefaultState();
+            }
         }
 
-        if (this.config.paramCfg == undefined) {
-            this.config.paramCfg = {};
+        if (this.config.paramConfig == undefined) {
+            this.config.paramConfig = {};
         }
     }
 
@@ -185,26 +187,26 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
             cr.instance.processRowData = panelCfg.processRowData;
         }
 
-        if (this.config.captionCfg != undefined) {
+        if (this.config.captionConfig != undefined) {
             this.captionCr = this.captionDir.viewContainerRef.createComponent(
-                this.cfr.resolveComponentFactory(this.config.captionCfg.component),
+                this.cfr.resolveComponentFactory(this.config.captionConfig.component),
             )
 
-            this.captionCr.instance.config = this.config.captionCfg.config;
+            this.captionCr.instance.config = this.config.captionConfig.config;
             this.captionCr.instance.componentRef = this;
             this.captionCr.instance.outerData = this.outerData;
         }
 
-        if (this.config.panelTitleCfg != undefined) {
+        if (this.config.panelTitleConfig != undefined) {
             this._sub.add(
                 this.panelTitleDirs.changes.subscribe(val => {
                     if (this._updatePanelTitle) {
                         let results = val._results as MobileTablePanelTitleDirective[];
                         results.forEach(x => {
                             const cr = x.viewContainerRef.createComponent(
-                                this.cfr.resolveComponentFactory(this.config.panelTitleCfg.component),
+                                this.cfr.resolveComponentFactory(this.config.panelTitleConfig.component),
                             )
-                            setCr(cr, x, this.config.panelTitleCfg);
+                            setCr(cr, x, this.config.panelTitleConfig);
                             this.panelTitleCrs.push(cr);
                         });
 
@@ -216,16 +218,16 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
             );
         }
 
-        if (this.config.panelDescriptionCfg != undefined) {
+        if (this.config.panelDescriptionConfig != undefined) {
             this._sub.add(
                 this.panelDescriptionDirs.changes.subscribe(val => {
                     if (this._updatePanelDescription) {
                         let results = val._results as MobileTablePanelDescriptionDirective[];
                         results.forEach(x => {
                             const cr = x.viewContainerRef.createComponent(
-                                this.cfr.resolveComponentFactory(this.config.panelDescriptionCfg.component),
+                                this.cfr.resolveComponentFactory(this.config.panelDescriptionConfig.component),
                             )
-                            setCr(cr, x, this.config.panelDescriptionCfg);
+                            setCr(cr, x, this.config.panelDescriptionConfig);
                             this.panelDescriptionCrs.push(cr);
                         });
 
@@ -340,21 +342,21 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
         if (cr) {
             this.tableExpansionCrs.get(idx).destroy();
             this.tableExpansionCrs.delete(idx);
-            this.expansionPanelDirs.toArray()[idx].viewContainerRef.close();
+            this.panelRowExpansionDirs.toArray()[idx].viewContainerRef.close();
         }
     }
 
     public expand(expandKey: string, idx: number, rowData: any) {
-        if (this.config.expansion.expansionMap == undefined) {
+        if (this.config.rowExpansion.expansionMap == undefined) {
             throw ('EXPANSION MAP FOR CONFIG IS NOT SET FOR MOBILE TABLE!');
         }
-        if (!this.config.expansion.expansionMap.has(expandKey)) {
+        if (!this.config.rowExpansion.expansionMap.has(expandKey)) {
             throw ('EXPAND KEY DOES NOT EXIST!');
         }
 
         let panel: MatExpansionPanel;
 
-        this.expansionPanelDirs.forEach(x => {
+        this.panelRowExpansionDirs.forEach(x => {
             if (x.rowIdx == idx) {
                 panel = x.viewContainerRef;
             }
@@ -363,7 +365,7 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
         panel.afterExpand.pipe(take(1)).subscribe(r => {
             this.tableExpansionDirs.forEach(x => {
                 if (x.rowIdx == idx) {
-                    const expandCfg = this.config.expansion.expansionMap.get(expandKey);
+                    const expandCfg = this.config.rowExpansion.expansionMap.get(expandKey);
 
                     const cr = x.viewContainerRef.createComponent(
                         this.cfr.resolveComponentFactory(expandCfg.component)

@@ -2,13 +2,19 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialTableComponent } from '../../components/material/material-table/material-table.component';
 import { HttpService } from '../../services/http.service';
+import { MatTableModule } from '@angular/material/table';
+import { TableDirectiveModule } from '../table/table-directive.module';
+import { MatSortModule } from '@angular/material/sort';
 
 @NgModule({
     declarations: [
         MaterialTableComponent
     ],
     imports: [
-        CommonModule
+        CommonModule,
+        MatTableModule,
+        MatSortModule,
+        TableDirectiveModule,
     ],
     exports: [
         MaterialTableComponent

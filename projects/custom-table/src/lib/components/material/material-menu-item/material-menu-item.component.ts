@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatMenu, MenuPositionX, MenuPositionY } from '@angular/material/menu';
-import { DefaultEvents } from '../../../config';
-import { BaseTableEvent } from '../../../table-api';
+import { BaseTableEvent, ActionEvents } from '../../../table-api';
 
 export interface MaterialMenuItem {
     label: string;
@@ -49,12 +48,12 @@ export class MaterialMenuItemComponent implements OnInit {
         }
     }
 
-    private getBaseEvent(event: MaterialMenuItem, fieldName: string): BaseTableEvent {
+    private getBaseEvent(event: MaterialMenuItem, fieldName: any): BaseTableEvent {
         event.rowData = this.rowData;
         event.rowIdx = this.rowIdx;
 
         return {
-            eventType: DefaultEvents.Click,
+            eventType: ActionEvents.click,
             eventFieldName: fieldName,
             event: event,
         }
@@ -72,12 +71,12 @@ export class MaterialMenuItemComponent implements OnInit {
 
     public onMouseLeaveEvent(event: MaterialMenuItem) {
         console.log('mouse leave event activated');
-        this.onEvent.emit(this.getBaseEvent(event, DefaultEvents.MouseLeave))
+        this.onEvent.emit(this.getBaseEvent(event, ActionEvents.mouseLeave))
     }
 
     public onMouseEnterEvent(event: MaterialMenuItem) {
         console.log('mouse enter event activated');
-        this.onEvent.emit(this.getBaseEvent(event, DefaultEvents.MouseEnter))
+        this.onEvent.emit(this.getBaseEvent(event, ActionEvents.mouseLeave))
     }
 
     public submenuEvent(event: BaseTableEvent) {

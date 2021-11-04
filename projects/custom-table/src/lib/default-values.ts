@@ -1,6 +1,6 @@
 // default values.ts
 
-import { BaseModalConfig, HTTPOptions, APIConfig, Column, FilterData, State, ParamConfig, SelectItem } from './table-api'
+import { HTTPOptions, APIConfig, Column, FilterData, State, ParamConfig, SelectItem } from './table-api'
 import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { BaseTableComponent } from './components/table/base-table/base-table.component';
 import { defaultProcessError } from './util';

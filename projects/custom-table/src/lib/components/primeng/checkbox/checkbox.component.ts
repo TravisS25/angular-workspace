@@ -31,7 +31,7 @@ export class CheckboxComponent extends BaseColumnComponent implements OnInit {
         //         }
         //     }
         // }
-        // this.processBodyCellEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
+        // this.processTableCellEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
         //     if (this.isColumnFilter) {
         //         let cfg = e.event as CheckboxEvent
 

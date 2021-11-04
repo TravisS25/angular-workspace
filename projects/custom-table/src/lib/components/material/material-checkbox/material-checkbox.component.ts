@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DefaultTableEvents } from '../../../config';
+import { TableEvents } from '../../../table-api';
 import { BaseTableEvent, CheckboxEvent } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { BaseColumnComponent } from '../../table/base-column/base-column.component';
@@ -44,7 +44,7 @@ export class MaterialCheckboxComponent extends BaseColumnComponent implements On
                 }
             }
         }
-        this.processBodyCellEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
+        this.processTableCellEvent = (e: BaseTableEvent, baseTable: BaseTableComponent) => {
             if (this.isColumnFilter) {
                 const cfg = e.event as CheckboxEvent
 
@@ -86,7 +86,7 @@ export class MaterialCheckboxComponent extends BaseColumnComponent implements On
         }
 
         const cfg: BaseTableEvent = {
-            eventType: DefaultTableEvents.ColumnFilter,
+            eventType: TableEvents.columnFilter,
             eventFieldName: 'checkbox',
             event: cbe,
         }

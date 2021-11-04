@@ -1,5 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, EventEmitter, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { BaseTableEvent, State, CoreColumn } from '../../../table-api';
+import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { BaseTableEvent, State, CoreColumn, ExportType, FilterData, FilterDescriptor, TableEventOptions, BaseTableConfig, ColumnFilterEntity, DisplayItemEntity } from '../../../table-api';
 import { Subscription } from 'rxjs';
 import { BaseComponent } from '../../base/base.component';
 import { BaseTableEventComponent } from '../base-table-event/base-table-event.component';
@@ -8,12 +8,16 @@ import { BaseRowExpansionComponent } from '../../table/base-row-expansion/base-r
 import { PrimengTableConfig } from '../../primeng/primeng-table/primeng-table.component';
 import { getDefaultState } from '../../../default-values'
 import { TableCaptionDirective } from '../../../directives/table/table-caption.directive';
-import { TableExpansionDirective } from '../../../directives/table/table-expansion.directive';
 import { TableBodyCellDirective } from '../../../directives/table/table-body-cell.directive';
 import { TableColumnFilterDirective } from '../../../directives/table/table-column-filter.directive';
 import { HttpService } from '../../../services/http.service';
-import { BaseTableCaptionComponent, BaseTableCellDirective, BaseTableConfig, ColumnEntity, encodeURIState, FilterData, FilterDescriptor } from 'projects/custom-table/src/public-api';
-import { HttpResponse } from '@angular/common/http';
+import { encodeURIState } from '../../../util'
+import { BaseTableCaptionComponent } from '../../table/base-table-caption/base-table-caption.component'
+import { BaseTableCellDirective } from '../../../directives/table/base-table-cell.directive'
+import { DisplayItemDirective } from '../../../directives/table/display-item.directive';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { TableRowExpansionDirective } from '../../../directives/table/table-row-expansion.directive';
+import { BaseDisplayItemComponent } from '../../../components/table/base-display-item/base-display-item.component';
 
 
 @Component({
@@ -25,50 +29,54 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // _hiddenColumnFilters is used to keep track of all initial hidden column filters
     // set in the column api when table is first loaded so whenever a user clicks the 
     // "Clear Filter" button, we can reset to the same initial state 
-    private _hiddenColumnFilters: string[] = [];
+    protected _hiddenColumnFilters: string[] = [];
 
     // _hiddenColumns keeps track of all current hidden columns
     // This is mainly used to help set the value of the "visibleColumns" variable as in:
     // "this.visibleColumns = this.columnCheckboxes.length - this._hiddenColumns.length;"
-    private _hiddenColumns: string[] = [];
+    protected _hiddenColumns: string[] = [];
 
-    // _updateBodyCellComponents is used as a "hack flag" for body cell directives as
+    // _updateTableCellComponents is used as a "hack flag" for table cell directives as
     // change events occur with any little change so this is set on initial load
     // and any events after that will not be effected
-    private _updateBodyCellComponents: boolean = false;
+    protected _updateTableCellComponents: boolean = false;
+
+    protected _updateDisplayItemComponents: boolean = false;
 
     // _updateColumnFilter is used as a "hack flag" as subscribing to the column filter
     // events triggers when retrieving new data
     // This variable will be set to false once we get initial data and will never need
     // to be updated again
-    private _updateColumnFilter: boolean = true;
+    protected _updateColumnFilter: boolean = true;
 
     // _expansionLen is a "hack variable" for the expansion of a table
     // It keeps track of total number of expanded rows and helps with dynamically
     // creating row expansions
-    private _expansionLen: number = 0;
+    protected _expansionLen: number = 0;
 
     // _tableInit is flag used to keep track if the current table has be fully initialized or not
     // This will be set true once the table is fully rendered and won't change again
     // There are various variables that depend on this to function
-    private _tableInit: boolean = false;
+    protected _tableInit: boolean = false;
 
     // _bodyCellSubs is used to keep reference to explicitly body cell subscriptions
     // and will properly unsubscribe from them when new data is loaded into table
-    private _bodyCellSub: Subscription = new Subscription();
+    protected _tableCellSub: Subscription = new Subscription();
 
-    // _onTableFilterEvent is used by other components of the table like caption,
+    protected _displayItemSub: Subscription = new Subscription();
+
+    // onTableFilterEvent is used by other components of the table like caption,
     // column filter and body cell rows and will be emitted by table whenever
     // new data is loaded into the table via column filter or pagination
-    private _onTableFilterEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
+    @Output() public onTableFilterEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
 
-    // _onClearFiltersEvent is used by other components of the table like caption,
+    // onClearFiltersEvent is used by other components of the table like caption,
     // column filter and body cell rows and will be emitted by table whenever
     // the "Clear Filter Button" is triggered
-    private _onClearFiltersEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
+    @Output() public onClearFiltersEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
 
-    // _onSortEvent is triggered whenever a sort event occurs on a column
-    private _onSortEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
+    // onSortEvent is triggered whenever a sort event occurs on a column
+    @Output() public onSortEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
 
     // renderCallback is used for the expirimental expand all rows button
     // This is sent to inner table when current table expands row and will 
@@ -91,18 +99,14 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
 
     @ViewChild(TableCaptionDirective, { static: false })
     public headerCaptionDir: TableCaptionDirective;
-    @ViewChildren(TableExpansionDirective)
-    public expansionDirs: QueryList<TableExpansionDirective>;
+    @ViewChildren(TableRowExpansionDirective)
+    public expansionDirs: QueryList<TableRowExpansionDirective>;
+    @ViewChildren(DisplayItemDirective)
+    public displayItemDirs: QueryList<DisplayItemDirective>;
     @ViewChildren(TableBodyCellDirective)
-    public bodyCellDirs: QueryList<TableBodyCellDirective>;
-    // @ViewChildren(TableInputTemplateDirective)
-    // public inputTemplateDirs: QueryList<TableInputTemplateDirective>;
-    // @ViewChildren(TableOutputTemplateDirective)
-    // public outputTemplateDirs: QueryList<TableOutputTemplateDirective>;
+    public tableCellDirs: QueryList<TableBodyCellDirective>;
     @ViewChildren(TableColumnFilterDirective)
     public columnFilterDirs: QueryList<TableColumnFilterDirective>;
-    // @ViewChildren(TableCellDirective)
-    // public tableCellDirs: QueryList<TableCellDirective>;
 
     // captionCr keeps a reference to dynamically created caption component which can be 
     // modified through different events and will be destroyed on component destruction
@@ -118,10 +122,12 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // component destruction
     public rowExpansionCrs: ComponentRef<BaseRowExpansionComponent>[] = [];
 
-    // bodyCellCrs keeps a list of references to dynamically created body cell 
+    // tableCellCrs keeps a list of references to dynamically created body cell 
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    public bodyCellCrs: ComponentRef<BaseColumnComponent>[] = [];
+    public tableCellCrs: ComponentRef<BaseColumnComponent>[] = [];
+
+    public displayItemCrs: ComponentRef<BaseDisplayItemComponent>[] = [];
 
     // visibleColumns keeps track of the total number of visible columns
     // This is needed for when we use row expansion, the UI needs to know how
@@ -130,11 +136,17 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
 
     // state keeps track of the current table's filter state and is the info that is 
     // sent to the server whenever a column filter is used or pagination occurs
-    public state: State = getDefaultState();
+    public state: State;
 
     // columns represents the columns of table and various config for each column
     // including column filter, body cell etc.
     public columns: CoreColumn[];
+
+    public filterData: FilterData
+
+    public abstract closeExpandedRows();
+    public abstract onPageChange(event: any);
+    public abstract onSortChange(event: any);
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -153,77 +165,21 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // INIT COLUMN COMPONENTS
     ///////////////////////////////////////////
 
-    // initExpansionComponents initializes row expansion component reference
-    // and creates component if set by api
-    private initExpansionComponents() {
-        this._sub.add(
-            this.expansionDirs.changes.subscribe(val => {
-                //console.log("expansion dir");
-                //console.log(val);
-
-                if (val.last && this.config.rowExpansion && this._expansionLen < val.length) {
-                    //console.log('expansion being created')
-                    const e = val.last as TableExpansionDirective
-
-                    const cr = e.viewContainerRef.createComponent(
-                        this.cfr.resolveComponentFactory(
-                            this.config.rowExpansion.component,
-                        )
-                    );
-                    cr.instance.outerData = e.outerData;
-                    cr.instance.renderCallback = e.renderCallback;
-                    cr.instance.config = this.config.rowExpansion.config;
-                    this.rowExpansionCrs.push(cr);
-                    this.cdr.detectChanges();
-                }
-
-                this._expansionLen = val.length;
-            })
-        )
+    protected setTableEvents(cr: BaseTableEventComponent, eventCfg: TableEventOptions) {
+        cr.processTableCellEvent = eventCfg.processTableCellEvent;
+        cr.processCaptionEvent = eventCfg.processCaptionEvent;
+        cr.processClearFiltersEvent = eventCfg.processClearFiltersEvent;
+        cr.processColumnFilterEvent = eventCfg.processColumnFilterEvent;
+        cr.processDisplayItemEvent = eventCfg.processDisplayItemEvent;
+        cr.processInputTemplateEvent = eventCfg.processInputTemplateEvent;
+        cr.processPopupEvent = eventCfg.processPopupEvent;
+        cr.processSortEvent = eventCfg.processSortEvent;
+        cr.processTableFilterEvent = eventCfg.processTableFilterEvent;
     }
 
-    // initColumnFilterComponents initializes column filter component references
-    // and creates components if set by column api
-    private initColumnFilterComponents() {
-        this._sub.add(
-            this.columnFilterDirs.changes.subscribe(val => {
-                if (this._updateColumnFilter) {
-                    const results = val._results as TableColumnFilterDirective[];
-                    results.forEach((item) => {
-                        const columns: CoreColumn[] = this.columns
-
-                        const cf = this.cfr.resolveComponentFactory(
-                            columns[item.colIdx].columnFilter.component
-                        );
-
-                        const cr = item.viewContainerRef.createComponent(cf);
-                        cr.instance.componentRef = this;
-                        cr.instance.colIdx = item.colIdx;
-                        cr.instance.isColumnFilter = true;
-                        cr.instance.isInputTemplate = false;
-
-                        cr.instance.field = columns[item.colIdx].columnFilter.field;
-                        cr.instance.value = columns[item.colIdx].columnFilter.value;
-                        cr.instance.selectedValue = columns[item.colIdx].columnFilter.selectedValue;
-                        cr.instance.config = columns[item.colIdx].columnFilter.config;
-                        cr.instance.excludeFilter = columns[item.colIdx].columnFilter.excludeFilter;
-
-                        if (columns[item.colIdx].columnFilter.operator != undefined) {
-                            cr.instance.operator = columns[item.colIdx].columnFilter.operator;
-                        }
-
-                        this.columnFilterCrs.push(cr);
-                    });
-                }
-
-                this._updateColumnFilter = false;
-            })
-        )
-    }
-
-    // createCellComponentRef creates and return a component reference based on the directive
+    // createTableCellComponentRef creates and return a component reference based on the directive
     // and ComponentRef passed
-    private createCellComponentRef(dir: BaseTableCellDirective, ce: ColumnEntity): ComponentRef<BaseColumnComponent> {
+    protected createTableCellComponentRef(dir: BaseTableCellDirective, ce: ColumnFilterEntity): ComponentRef<BaseColumnComponent> {
         const cf = this.cfr.resolveComponentFactory(ce.component);
         const cr = dir.viewContainerRef.createComponent(cf);
         cr.instance.componentRef = this;
@@ -247,58 +203,178 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         return cr;
     }
 
-    private initCellComponents() {
-        const columns: CoreColumn[] = this.columns;
+    protected createDisplayItemComponentRef(dir: BaseTableCellDirective, ce: DisplayItemEntity): ComponentRef<BaseDisplayItemComponent> {
+        const cf = this.cfr.resolveComponentFactory(ce.component);
+        const cr = dir.viewContainerRef.createComponent(cf);
+        cr.instance.componentRef = this;
+        cr.instance.colIdx = dir.colIdx;
+        cr.instance.rowIdx = dir.rowIdx;
+        cr.instance.rowData = dir.rowData;
+        cr.instance.config = ce.config;
+        cr.instance.value = ce.value;
+        cr.instance.processRowData = ce.processRowData;
 
+        return cr;
+    }
+
+    // initExpansionComponents initializes row expansion component reference
+    // and creates component if set by api
+    protected initExpansionComponents() {
         this._sub.add(
-            this.bodyCellDirs.changes.subscribe(val => {
+            this.expansionDirs.changes.subscribe(val => {
+                //console.log("expansion dir");
+                //console.log(val);
+
+                if (val.last && this.config.rowExpansion && this._expansionLen < val.length) {
+                    const e = val.last as TableRowExpansionDirective
+
+                    const cr = e.viewContainerRef.createComponent(
+                        this.cfr.resolveComponentFactory(
+                            this.config.rowExpansion.component,
+                        )
+                    );
+                    cr.instance.outerData = e.outerData;
+                    cr.instance.renderCallback = e.renderCallback;
+                    cr.instance.config = this.config.rowExpansion.config;
+                    this.rowExpansionCrs.push(cr);
+                    this.cdr.detectChanges();
+                }
+
+                this._expansionLen = val.length;
+            })
+        )
+    }
+
+    // initColumnFilterComponents initializes column filter component references
+    // and creates components if set by column api
+    protected initColumnFilterComponents() {
+        this._sub.add(
+            this.columnFilterDirs.changes.subscribe(val => {
+                if (this._updateColumnFilter) {
+                    const results = val._results as TableColumnFilterDirective[];
+                    results.forEach((item) => {
+                        const columns: CoreColumn[] = this.columns
+
+                        const cr = item.viewContainerRef.createComponent(
+                            this.cfr.resolveComponentFactory(
+                                columns[item.colIdx].columnFilter.component
+                            )
+                        );
+                        cr.instance.componentRef = this;
+                        cr.instance.colIdx = item.colIdx;
+                        cr.instance.isColumnFilter = true;
+                        cr.instance.isInputTemplate = false;
+
+                        cr.instance.field = columns[item.colIdx].columnFilter.field;
+                        cr.instance.value = columns[item.colIdx].columnFilter.value;
+                        cr.instance.selectedValue = columns[item.colIdx].columnFilter.selectedValue;
+                        cr.instance.config = columns[item.colIdx].columnFilter.config;
+                        cr.instance.excludeFilter = columns[item.colIdx].columnFilter.excludeFilter;
+                        cr.instance.operator = columns[item.colIdx].columnFilter.operator;
+
+                        this.setTableEvents(cr.instance, columns[item.colIdx].columnFilter);
+                        this.columnFilterCrs.push(cr);
+                    });
+                }
+
+                this._updateColumnFilter = false;
+            })
+        )
+    }
+
+    protected initCellComponents() {
+        //const columns: CoreColumn[] = this.columns;
+        this._sub.add(
+            this.tableCellDirs.changes.subscribe(val => {
                 // console.log('change within body cell')
                 // console.log(val)
 
-                if (this._updateBodyCellComponents) {
+                if (this._updateTableCellComponents) {
                     //console.log('body cell dirs')
 
                     // If table has already been initialized, destroy current component references
-                    // and assign bodyCellCrs to empty array;
+                    // and assign tableCellCrs to empty array;
                     if (this._tableInit) {
-                        this.bodyCellCrs.forEach(item => {
+                        this.tableCellCrs.forEach(item => {
                             item.destroy();
                         })
-                        this.bodyCellCrs = [];
+                        this.tableCellCrs = [];
                     }
 
                     const results = val._results as TableBodyCellDirective[];
                     results.forEach(item => {
-                        let ce = columns[item.colIdx].bodyCell
-                        this.bodyCellCrs.push(this.createCellComponentRef(item, ce));
+                        const ce = this.columns[item.colIdx].tableCell
+                        const cr = this.createTableCellComponentRef(item, ce)
+                        this.setTableEvents(cr.instance, this.columns[item.colIdx].tableCell);
+                        this.tableCellCrs.push(cr);
                     });
 
                     // If table has already been initialized, unsubscribe from current
                     // body cell subscriptions and assign "_bodyCellSubs" to empty array
                     // and then initialize new body cell component references 
                     if (this._tableInit) {
-                        this._bodyCellSub.unsubscribe();
-                        this.initBodyCellCrEvents()
+                        this._tableCellSub.unsubscribe();
+                        this.initTableCellCrEvents()
                     }
 
                     this.cdr.detectChanges();
-                    this._updateBodyCellComponents = false;
+                    this._updateTableCellComponents = false;
+                }
+            })
+        )
+
+        this._sub.add(
+            this.displayItemDirs.changes.subscribe(val => {
+                // console.log('change within body cell')
+                // console.log(val)
+
+                if (this._updateDisplayItemComponents) {
+                    //console.log('body cell dirs')
+
+                    // If table has already been initialized, destroy current component references
+                    // and assign tableCellCrs to empty array;
+                    if (this._tableInit) {
+                        this.displayItemCrs.forEach(item => {
+                            item.destroy();
+                        })
+                        this.displayItemCrs = [];
+                    }
+
+                    const results = val._results as DisplayItemDirective[];
+                    results.forEach(item => {
+                        const ce = this.columns[item.colIdx].displayItem
+                        const cr = this.createDisplayItemComponentRef(item, ce)
+                        this.setTableEvents(cr.instance, this.columns[item.colIdx].displayItem);
+                        this.displayItemCrs.push(cr);
+                    });
+
+                    // If table has already been initialized, unsubscribe from current
+                    // body cell subscriptions and assign "_bodyCellSubs" to empty array
+                    // and then initialize new body cell component references 
+                    if (this._tableInit) {
+                        this._displayItemSub.unsubscribe();
+                        this.initDisplayItemCrEvents();
+                    }
+
+                    this.cdr.detectChanges();
+                    this._updateDisplayItemComponents = false;
                 }
             })
         )
     }
 
     // initCaptionComponent initializes and creates caption component if set by config
-    private initCaptionComponent() {
+    protected initCaptionComponent() {
         if (this.config.caption != undefined && this.config.caption != null) {
-            //console.log('caption dir')
-            const cf = this.cfr.resolveComponentFactory(
-                this.config.caption.component,
+            const cr = this.headerCaptionDir.viewContainerRef.createComponent(
+                this.cfr.resolveComponentFactory(
+                    this.config.caption.component,
+                )
             );
-
-            const cr = this.headerCaptionDir.viewContainerRef.createComponent(cf);
             cr.instance.config = this.config.caption.config;
             cr.instance.componentRef = this;
+            cr.instance.outerData = this.outerData;
+            this.setTableEvents(cr.instance, this.config.caption)
             this.captionCr = cr;
         }
     }
@@ -306,20 +382,20 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // initCRSEvents is in charge of taking all of the initialized components
     // references and subscribing them all to each other's events and having
     // ability for all parts of the table to listen to each other 
-    private initCRSEvents() {
+    protected initCRSEvents() {
         // subscribing all components to table filter event, which occurs
         // whenever new data is written to table via column filter,
         // pagination, etc.
         this._sub.add(
-            this._onTableFilterEvent.subscribe(r => {
+            this.onTableFilterEvent.subscribe(r => {
                 for (let i = 0; i < this.columnFilterCrs.length; i++) {
                     if (this.columnFilterCrs[i].instance.processTableFilterEvent != undefined) {
                         this.columnFilterCrs[i].instance.processTableFilterEvent(r, this);
                     }
                 }
-                for (let i = 0; i < this.bodyCellCrs.length; i++) {
-                    if (this.bodyCellCrs[i].instance.processTableFilterEvent != undefined) {
-                        this.bodyCellCrs[i].instance.processTableFilterEvent(r, this);
+                for (let i = 0; i < this.tableCellCrs.length; i++) {
+                    if (this.tableCellCrs[i].instance.processTableFilterEvent != undefined) {
+                        this.tableCellCrs[i].instance.processTableFilterEvent(r, this);
                     }
                 }
 
@@ -335,15 +411,15 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         // subscribing all components to clear filters event, which
         // occurs whenever a user clicks the "Clear Filters" button
         this._sub.add(
-            this._onClearFiltersEvent.subscribe(r => {
+            this.onClearFiltersEvent.subscribe(r => {
                 for (let i = 0; i < this.columnFilterCrs.length; i++) {
                     if (this.columnFilterCrs[i].instance.processClearFiltersEvent != undefined) {
                         this.columnFilterCrs[i].instance.processClearFiltersEvent(r, this);
                     }
                 }
-                for (let i = 0; i < this.bodyCellCrs.length; i++) {
-                    if (this.bodyCellCrs[i].instance.processClearFiltersEvent != undefined) {
-                        this.bodyCellCrs[i].instance.processClearFiltersEvent(r, this);
+                for (let i = 0; i < this.tableCellCrs.length; i++) {
+                    if (this.tableCellCrs[i].instance.processClearFiltersEvent != undefined) {
+                        this.tableCellCrs[i].instance.processClearFiltersEvent(r, this);
                     }
                 }
 
@@ -359,15 +435,15 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
 
         // subscribing all components to sort event which occurs when user sorts by field
         this._sub.add(
-            this._onSortEvent.subscribe(r => {
+            this.onSortEvent.subscribe(r => {
                 for (let i = 0; i < this.columnFilterCrs.length; i++) {
                     if (this.columnFilterCrs[i].instance.processSortEvent != undefined) {
                         this.columnFilterCrs[i].instance.processSortEvent(r, this);
                     }
                 }
-                for (let i = 0; i < this.bodyCellCrs.length; i++) {
-                    if (this.bodyCellCrs[i].instance.processSortEvent != undefined) {
-                        this.bodyCellCrs[i].instance.processSortEvent(r, this);
+                for (let i = 0; i < this.tableCellCrs.length; i++) {
+                    if (this.tableCellCrs[i].instance.processSortEvent != undefined) {
+                        this.tableCellCrs[i].instance.processSortEvent(r, this);
                     }
                 }
 
@@ -392,9 +468,9 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                             this.columnFilterCrs[i].instance.processCaptionEvent(r, this);
                         }
                     }
-                    for (let i = 0; i < this.bodyCellCrs.length; i++) {
-                        if (this.bodyCellCrs[i].instance.processCaptionEvent != undefined) {
-                            this.bodyCellCrs[i].instance.processCaptionEvent(r, this);
+                    for (let i = 0; i < this.tableCellCrs.length; i++) {
+                        if (this.tableCellCrs[i].instance.processCaptionEvent != undefined) {
+                            this.tableCellCrs[i].instance.processCaptionEvent(r, this);
                         }
                     }
 
@@ -410,10 +486,10 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         for (let i = 0; i < this.columnFilterCrs.length; i++) {
             this._sub.add(
                 this.columnFilterCrs[i].instance.onEvent.subscribe(r => {
-                    for (let t = 0; t < this.bodyCellCrs.length; t++) {
-                        if (this.bodyCellCrs[t].instance.colIdx == this.columnFilterCrs[i].instance.colIdx) {
-                            if (this.bodyCellCrs[t].instance.processColumnFilterEvent != undefined) {
-                                this.bodyCellCrs[t].instance.processColumnFilterEvent(r, this);
+                    for (let t = 0; t < this.tableCellCrs.length; t++) {
+                        if (this.tableCellCrs[t].instance.colIdx == this.columnFilterCrs[i].instance.colIdx) {
+                            if (this.tableCellCrs[t].instance.processColumnFilterEvent != undefined) {
+                                this.tableCellCrs[t].instance.processColumnFilterEvent(r, this);
                             }
                         }
                     }
@@ -484,38 +560,62 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             );
         }
 
-        this.initBodyCellCrEvents()
+        this.initTableCellCrEvents()
+        this.initDisplayItemCrEvents();
     }
 
-    // initBodyCellCrEvents subscribes all components to body cell events which occur
-    // when user emits event from body cell, which is usually a custom action
+    // initTableCellCrEvents subscribes all components to table cell events which occur
+    // when user emits event from table cell, which is usually a custom action
     //
     // The reason this is a seperate function and not used within our "initCRSEvents" function
     // is because this needs to be reused everytime our table gets new data
-    private initBodyCellCrEvents() {
-        for (let i = 0; i < this.bodyCellCrs.length; i++) {
-            this._bodyCellSub.add(
-                this.bodyCellCrs[i].instance.onEvent.subscribe(r => {
+    protected initTableCellCrEvents() {
+        for (let i = 0; i < this.tableCellCrs.length; i++) {
+            this._tableCellSub.add(
+                this.tableCellCrs[i].instance.onEvent.subscribe(r => {
                     for (let t = 0; t < this.columnFilterCrs.length; t++) {
-                        if (this.columnFilterCrs[t].instance.colIdx == this.bodyCellCrs[i].instance.colIdx) {
-                            if (this.columnFilterCrs[t].instance.processBodyCellEvent != undefined) {
-                                this.columnFilterCrs[t].instance.processBodyCellEvent(r, this);
+                        if (this.columnFilterCrs[t].instance.colIdx == this.tableCellCrs[i].instance.colIdx) {
+                            if (this.columnFilterCrs[t].instance.processTableCellEvent != undefined) {
+                                this.columnFilterCrs[t].instance.processTableCellEvent(r, this);
                             }
                         }
                     }
 
-                    if (this.captionCr != undefined && this.captionCr.instance.processBodyCellEvent != undefined) {
-                        this.captionCr.instance.processBodyCellEvent(r, this);
+                    if (this.captionCr != undefined && this.captionCr.instance.processTableCellEvent != undefined) {
+                        this.captionCr.instance.processTableCellEvent(r, this);
                     }
-                    if (this.config.processBodyCellEvent != undefined) {
-                        this.config.processBodyCellEvent(r, this);
+                    if (this.config.processTableCellEvent != undefined) {
+                        this.config.processTableCellEvent(r, this);
                     }
                 })
             );
         }
     }
 
-    private initAfterView() {
+    protected initDisplayItemCrEvents() {
+        for (let i = 0; i < this.displayItemCrs.length; i++) {
+            this._displayItemSub.add(
+                this.displayItemCrs[i].instance.onEvent.subscribe(r => {
+                    for (let t = 0; t < this.displayItemCrs.length; t++) {
+                        if (this.displayItemCrs[t].instance.colIdx == this.displayItemCrs[i].instance.colIdx) {
+                            if (this.displayItemCrs[t].instance.processDisplayItemEvent != undefined) {
+                                this.displayItemCrs[t].instance.processDisplayItemEvent(r, this);
+                            }
+                        }
+                    }
+
+                    if (this.captionCr != undefined && this.captionCr.instance.processDisplayItemEvent != undefined) {
+                        this.captionCr.instance.processDisplayItemEvent(r, this);
+                    }
+                    if (this.config.processDisplayItemEvent != undefined) {
+                        this.config.processDisplayItemEvent(r, this);
+                    }
+                })
+            );
+        }
+    }
+
+    protected initAfterView() {
         this.initDynamicComponents()
         this.saveHiddenColumns();
         this.saveHiddenColumnFilters();
@@ -523,7 +623,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         this.cdr.detectChanges();
     }
 
-    private initDynamicComponents() {
+    protected initDynamicComponents() {
         this.initCaptionComponent();
         this.initExpansionComponents();
         this.initColumnFilterComponents();
@@ -531,13 +631,47 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     }
 
     ///////////////////////////////////////////
-    // FILTER FUNCTIONALITY
+    // HELPER FUNCTIONS
     ///////////////////////////////////////////
+
+    // addHiddenColumn decreases our "visibleColumns" variable which is used for
+    // row expansion
+    // 
+    // This function should be used instead of trying to override "visibleColumns" manually
+    public addHiddenColumn(field: string) {
+        const columns: CoreColumn[] = this.columns;
+
+        for (let i = 0; i < columns.length; i++) {
+            if (columns[i].field == field) {
+                this.visibleColumns--;
+                columns[i].hideColumn = true;
+            }
+        }
+
+        console.log('add visible columns: ' + this.visibleColumns);
+    }
+
+    // removeHiddenColumn increases our "visibleColumns" variable which is used for
+    // row expansion
+    // 
+    // This function should be used instead of trying to override "visibleColumns" manually
+    public removeHiddenColumn(field: string) {
+        const columns: CoreColumn[] = this.columns;
+
+        for (let i = 0; i < columns.length; i++) {
+            if (columns[i].field == field) {
+                columns[i].hideColumn = false;
+                this.visibleColumns++;
+            }
+        }
+
+        console.log('remove visible columns: ' + this.visibleColumns);
+    }
 
     // saveHiddenColumnFilters is used to gather initial hidden column filters on table init
     // These are used later whenever a user clicks "Clear Filters" button; we can loop
     // through _hiddenColumnFilters array and set that column state back to initial load
-    private saveHiddenColumnFilters() {
+    protected saveHiddenColumnFilters() {
         const columns: CoreColumn[] = this.columns;
 
         for (let i = 0; i < columns.length; i++) {
@@ -550,7 +684,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // saveHiddenColumns is used to gather initial hidden columns on table init
     // These are used later whenever a user clicks "Clear Filters" button; we can loop
     // through _hiddenColumns array and set that column state back to initial load
-    private saveHiddenColumns() {
+    protected saveHiddenColumns() {
         const columns: CoreColumn[] = this.columns;
 
         for (let i = 0; i < columns.length; i++) {
@@ -563,6 +697,10 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         }
     }
 
+    ///////////////////////////////////////////
+    // FILTER FUNCTIONALITY
+    ///////////////////////////////////////////
+
     // getGridInfo is responsible for actually querying the server
     // The update() function should be used to call this indirectly
     //
@@ -573,6 +711,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             this.config.tableAPIConfig.apiOptions,
         ).subscribe(r => {
             const res = r as HttpResponse<FilterData>;
+            this.filterData = res.body;
 
             // If table is not yet initialized, initiate all of our cr event to 
             // listen to each other
@@ -581,12 +720,12 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             }
 
             this._tableInit = true;
+            this._updateTableCellComponents = true;
+
             const bte: BaseTableEvent = {
                 event: res
             }
-
-            this._onTableFilterEvent.emit(bte);
-            this._updateBodyCellComponents = true;
+            this.onTableFilterEvent.emit(bte);
 
             if (this.config.tableAPIConfig.processResult != undefined) {
                 this.config.tableAPIConfig.processResult(r, this);
@@ -602,10 +741,6 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // of filter, sort and group by and then update the table
     // by making call to server
     public clearFilters() {
-        this.clearFilterState();
-    }
-
-    private clearFilterState() {
         if (this.config.getState != undefined) {
             this.state = this.config.getState(this.outerData);
         } else {
@@ -616,23 +751,22 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             this.state.sort = [];
         }
 
-        this._onClearFiltersEvent.emit(null);
+        this.onClearFiltersEvent.emit(null);
         this.columnFilterCrs.forEach(item => {
             item.instance.clearFilter();
         })
 
-        const columns: CoreColumn[] = this.columns;
 
-        for (let i = 0; i < columns.length; i++) {
+        for (let i = 0; i < this.columns.length; i++) {
             for (let k = 0; k < this._hiddenColumnFilters.length; k++) {
-                if (this._hiddenColumnFilters[k] == columns[i].field) {
-                    columns[i].hideColumnFilter = true;
+                if (this._hiddenColumnFilters[k] == this.columns[i].field) {
+                    this.columns[i].hideColumnFilter = true;
                 }
             }
             for (let k = 0; k < this._hiddenColumns.length; k++) {
-                if (this._hiddenColumns[k] == columns[i].field) {
+                if (this._hiddenColumns[k] == this.columns[i].field) {
                     console.log('hide column ' + i)
-                    columns[i].hideColumn = true;
+                    this.columns[i].hideColumn = true;
                 }
             }
         }
@@ -666,25 +800,29 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
 
     // updateSettings updates a table's column filters if they are dynamic based
     public updateSettings() {
-        if (
-            this.config.tableSettingsAPIConfig != undefined &&
-            this.config.tableSettingsAPIConfig.apiURL(this.outerData) != "" &&
-            this.config.tableSettingsAPIConfig.apiURL(this.outerData) != null
-        ) {
-            const config = this.config.tableSettingsAPIConfig;
+        if (this.config.customTableSettingsSearch != undefined) {
+            this.config.customTableSettingsSearch(this);
+        } else {
+            if (
+                this.config.tableSettingsAPIConfig != undefined &&
+                this.config.tableSettingsAPIConfig.apiURL(this.outerData) != "" &&
+                this.config.tableSettingsAPIConfig.apiURL(this.outerData) != null
+            ) {
+                const config = this.config.tableSettingsAPIConfig;
 
-            this.http.get(
-                config.apiURL(this.outerData),
-                config.apiOptions as any,
-            ).subscribe(r => {
-                if (config.processResult != undefined) {
-                    config.processResult(r, this)
-                }
-            }, (err: any) => {
-                if (config.processError != undefined && config.processError != null) {
-                    config.processError(err);
-                }
-            });
+                this.http.get(
+                    config.apiURL(this.outerData),
+                    config.apiOptions as any,
+                ).subscribe(r => {
+                    if (config.processResult != undefined) {
+                        config.processResult(r, this)
+                    }
+                }, (err: any) => {
+                    if (config.processError != undefined && config.processError != null) {
+                        config.processError(err);
+                    }
+                });
+            }
         }
     }
 
@@ -692,5 +830,102 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     public refresh() {
         this.update();
         this.updateSettings();
+    }
+
+    ///////////////////////////////////////////
+    // SET FUNCTIONS
+    ///////////////////////////////////////////
+
+    public setTableConfig(cfg: BaseTableConfig) {
+        this.config = cfg;
+    }
+
+    ///////////////////////////////////////////
+    // GET FUNCTIONS
+    ///////////////////////////////////////////
+
+    public getTableConfig(): BaseTableConfig {
+        return this.config;
+    }
+
+    ///////////////////////////////////////////
+    // EXPORT FUNCTIONS
+    ///////////////////////////////////////////
+
+    public exportData(typ: ExportType, url: string, fileName: string) {
+        let fileType: string;
+        const blobOpts = {
+            type: ""
+        }
+
+        // Determine which type we want to export to
+        // We should then get a url specific for that file type request to
+        // send to server
+        switch (typ) {
+            case ExportType.csv:
+                blobOpts.type = 'text/csv';
+                fileType = '.csv';
+                break;
+            case ExportType.xls:
+                fileType = '.xls';
+                break;
+            case ExportType.xlsx:
+                fileType = '.xlsx';
+                break;
+        }
+
+        // Make request with proper url for particular file type
+        this.http.get<any>(
+            url,
+            { withCredentials: true, observe: 'response', responseType: 'blob' }
+        ).subscribe(r => {
+            const req = r as HttpResponse<any>
+            const newBlob = new Blob([req.body], blobOpts);
+
+            // For other browsers: 
+            // Create a link pointing to the ObjectURL containing the blob.
+            const data = window.URL.createObjectURL(newBlob);
+            var link = document.createElement('a');
+            link.href = data;
+            link.download = fileName + fileType;
+            link.click();
+            setTimeout(function () {
+                // For Firefox it is necessary to delay revoking the ObjectURL
+                window.URL.revokeObjectURL(data);
+            }, 100);
+        }, (err: HttpErrorResponse) => {
+            alert(JSON.stringify(err));
+        })
+    }
+
+    ///////////////////////////////////////////
+    // HOOK FUNCTIONS
+    ///////////////////////////////////////////
+
+    public ngOnDestroy() {
+        this._sub.unsubscribe();
+        this._tableCellSub.unsubscribe();
+        this._displayItemSub.unsubscribe();
+
+        if (this.captionCr != undefined) {
+            this.captionCr.destroy();
+        }
+
+        for (let i = 0; i < this.columnFilterCrs.length; i++) {
+            this.columnFilterCrs[i].destroy();
+        }
+        for (let i = 0; i < this.tableCellCrs.length; i++) {
+            this.tableCellCrs[i].destroy();
+        }
+        for (let i = 0; i < this.rowExpansionCrs.length; i++) {
+            this.rowExpansionCrs[i].destroy();
+        }
+
+        this.captionCr = null;
+        this.columnFilterCrs = null;
+        this.tableCellCrs = null;
+        this.rowExpansionCrs = null;
+        this._hiddenColumnFilters = null;
+        this._hiddenColumns = null;
     }
 }

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { encodeURIState } from '../../../util';
+import { CoreColumn } from '../../../table-api';
 import { TableEvents, BaseTableCaptionConfig, SelectItem, Column, BaseTableEvent, ExportType, FilterDescriptor } from '../../../table-api';
 import { BaseComponent } from '../../base/base.component';
 import { BaseTableEventComponent } from '../base-table-event/base-table-event.component';
@@ -13,12 +15,14 @@ import { BaseTableComponent } from '../base-table/base-table.component';
 export abstract class BaseTableCaptionComponent extends BaseTableEventComponent implements OnInit {
     public config: BaseTableCaptionConfig;
 
+    public componentRef: BaseTableComponent;
+
     // _rowMap is used for keeping track of what rows are currently selected
     // to be able to export those selected rows
     protected _rowMap: Map<number, string> = new Map();
 
     // _selectedColsMap is a map that keeps track of selected columns
-    // by field namae to properly show and hide columns
+    // by field name to properly show and hide columns
     protected _selectedColsMap: Map<string, boolean> = new Map();
 
     // selectedColumns is array of values for column dropdown
@@ -28,9 +32,7 @@ export abstract class BaseTableCaptionComponent extends BaseTableEventComponent 
     // to hide and show columns
     public columnOptions: SelectItem[] = [];
 
-    constructor(
-        public router: Router,
-    ) {
+    constructor() {
         super();
     }
 
@@ -56,7 +58,7 @@ export abstract class BaseTableCaptionComponent extends BaseTableEventComponent 
     }
 
     private initColumnFilterSelect() {
-        const columns: Column[] = this.componentRef.columns;
+        const columns: CoreColumn[] = this.componentRef.columns;
 
         columns.forEach(x => {
             if (x.showColumnOption) {
@@ -122,14 +124,9 @@ export abstract class BaseTableCaptionComponent extends BaseTableEventComponent 
     }
 
     public create() {
-        this.config.createCfg.actionFn(this);
-        // if (this.config.createCfg.pageURL != undefined) {
-        //     this.router.navigateByUrl(this.config.createCfg.pageURL(this.componentRef.outerData));
-        // } else if (this.config.createCfg.modal != undefined) {
-        //     this.config.createCfg.modal(this.componentRef);
-        // } else if (this.config.createCfg.actionFn != undefined) {
-        //     this.config.createCfg.actionFn(this.componentRef);
-        // }
+        if (this.config.createCfg != undefined) {
+            this.config.createCfg.actionFn(this);
+        }
     }
 
     public export(et: ExportType) {
@@ -159,7 +156,7 @@ export abstract class BaseTableCaptionComponent extends BaseTableEventComponent 
         })
 
         if (this._rowMap.size == 0) {
-            url += this.componentRef.getFilterParams() + '&' + this.config.exportCfg.columnHeadersParam + '=' +
+            url += encodeURIState(this.componentRef.state, this.componentRef.config.paramConfig) + '&' + this.config.exportCfg.columnHeadersParam + '=' +
                 encodeURI(JSON.stringify(headers));
         } else {
             const ids = [];

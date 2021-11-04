@@ -4,7 +4,7 @@ import { MobileTableExpansionDirective } from '../../../directives/table/mobile/
 import { MobileTableCaptionDirective } from '../../../directives/table/mobile/mobile-table-caption.directive';
 import { MobileTablePanelTitleDirective } from '../../../directives/table/mobile/mobile-table-panel-title.directive';
 import { MobileTablePanelDescriptionDirective } from '../../../directives/table/mobile/mobile-table-panel-description.directive';
-import { MobileTableExpansionPanelDirective } from '../../../directives/table/mobile/mobile-table-expansion-panel.directive';
+import { MobileTablePanelRowExpansionDirective } from '../../../directives/table/mobile/mobile-table-panel-row-expansion.directive';
 
 
 
@@ -14,7 +14,7 @@ import { MobileTableExpansionPanelDirective } from '../../../directives/table/mo
         MobileTableCaptionDirective,
         MobileTablePanelTitleDirective,
         MobileTablePanelDescriptionDirective,
-        MobileTableExpansionPanelDirective
+        MobileTablePanelRowExpansionDirective,
     ],
     imports: [
         CommonModule
@@ -24,7 +24,7 @@ import { MobileTableExpansionPanelDirective } from '../../../directives/table/mo
         MobileTableCaptionDirective,
         MobileTablePanelTitleDirective,
         MobileTablePanelDescriptionDirective,
-        MobileTableExpansionPanelDirective
+        MobileTablePanelRowExpansionDirective,
     ]
 })
 export class MobileTableDirectiveModule { }

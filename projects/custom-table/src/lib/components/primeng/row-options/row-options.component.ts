@@ -1,10 +1,9 @@
 import { Component, OnInit, OnDestroy, EventEmitter } from '@angular/core';
-import { BaseModalConfig, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { BaseTableEvent, TableEvents } from '../../../table-api';
 import { MenuItem } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { deepCopyMenuItem } from '../../../copy-util';
-import { DefaultTableEvents } from '../../../config';
 import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 
 export interface RowOptionsConfig {
@@ -37,7 +36,7 @@ export class RowOptionsComponent extends BaseColumnComponent implements OnInit, 
             } else {
                 items[i].command = (event: any) => {
                     let cfg: BaseTableEvent = {
-                        eventType: DefaultTableEvents.BodyCell,
+                        eventType: TableEvents.tableCell,
                         event: event,
                     }
 

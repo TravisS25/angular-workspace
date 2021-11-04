@@ -1,7 +1,7 @@
 <div *ngIf="config.outerDataHeader" [innerHTML]="config.outerDataHeader(outerData)"></div>
 <ng-template [libMobileTableCaption]></ng-template>
 <mat-accordion *ngIf="data" #mobileTable="matAccordion" multi>
-    <mat-expansion-panel [style]="config.panelStyle" [ngClass]="config.panelClass" [libMobileExpansionPanel]
+    <mat-expansion-panel [style]="config.panelStyle" [ngClass]="config.panelClass" [libMobileTablePanelRowExpansion]
         [rowIdx]="i" [disabled]="true" *ngFor="let item of data; let i = index">
         <mat-expansion-panel-header (click)="panelClick($event, item)">
             <mat-panel-title>

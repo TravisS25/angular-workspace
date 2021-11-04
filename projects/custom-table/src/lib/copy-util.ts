@@ -1,7 +1,6 @@
 import {
     Column,
-    ColumnEntity,
-    BaseModalConfig,
+    ColumnFilterEntity,
     APIConfig,
     State,
     CompositeFilterDescriptor,
@@ -9,11 +8,11 @@ import {
     GroupDescriptor,
     SortDescriptor,
     CoreColumn,
-    PrimengColumn,
 } from './table-api';
 import _ from "lodash" // Import the entire lodash library
 import { MenuItem } from 'primeng/api';
 import { skip } from 'rxjs/operators';
+import { PrimengColumn } from './components/primeng/primeng-table/primeng-table.component';
 
 export function deepCopyColumn(column: Column): Column {
     let c: Column = _.cloneDeep(column);
@@ -21,21 +20,21 @@ export function deepCopyColumn(column: Column): Column {
     c.colStyle = _.cloneDeep(column.colStyle);
     c.headerStyle = _.cloneDeep(column.headerStyle);
     c.columnFilterStyle = _.cloneDeep(column.columnFilterStyle);
-    c.bodyCellStyle = _.cloneDeep(column.bodyCellStyle);
+    c.tableCellStyle = _.cloneDeep(column.tableCellStyle);
     c.columnFilter = _.cloneDeepWith(column.columnFilter, function (val1) {
         if (val1 != undefined && val1 != null) {
-            let cf = val1 as ColumnEntity;
-            let newCF: ColumnEntity = _.cloneDeep(cf);
+            let cf = val1 as ColumnFilterEntity;
+            let newCF: ColumnFilterEntity = _.cloneDeep(cf);
             //newCF.component = cf.component;
             newCF.config = _.cloneDeep(cf.config);
             newCF.selectedValue = cf.selectedValue;
             return newCF;
         }
     });
-    c.bodyCell = _.cloneDeepWith(column.bodyCell, function (value) {
+    c.tableCell = _.cloneDeepWith(column.tableCell, function (value) {
         if (value != undefined && value != null) {
-            let bc = value as ColumnEntity;
-            let newBC: ColumnEntity = _.cloneDeep(bc);
+            let bc = value as ColumnFilterEntity;
+            let newBC: ColumnFilterEntity = _.cloneDeep(bc);
             newBC.component = _.cloneDeep(bc.component);
             newBC.config = _.cloneDeep(bc.config);
             newBC.processRowData = bc.processRowData;
@@ -45,7 +44,7 @@ export function deepCopyColumn(column: Column): Column {
 
         return null;
     });
-    c.bodyCellHTML = column.bodyCellHTML;
+    //c.tableCellHTML = column.tableCellHTML;
 
     return c
 }
@@ -55,22 +54,22 @@ export function deepCopyCoreColumn(column: CoreColumn): CoreColumn {
     c.sort = _.cloneDeep(column.sort);
     c.headerStyle = _.cloneDeep(column.headerStyle);
     c.columnFilterStyle = _.cloneDeep(column.columnFilterStyle);
-    c.bodyCellStyle = _.cloneDeep(column.bodyCellStyle);
-    c.bodyCellHTML = column.bodyCellHTML;
+    c.tableCellStyle = _.cloneDeep(column.tableCellStyle);
+    //c.tableCellHTML = column.tableCellHTML;
     c.columnFilter = _.cloneDeepWith(column.columnFilter, function (val1) {
         if (val1 != undefined && val1 != null) {
-            const cf = val1 as ColumnEntity;
-            const newCF: ColumnEntity = _.cloneDeep(cf);
+            const cf = val1 as ColumnFilterEntity;
+            const newCF: ColumnFilterEntity = _.cloneDeep(cf);
             newCF.config = _.cloneDeep(cf.config);
             return newCF;
         }
 
         return null;
     });
-    c.bodyCell = _.cloneDeepWith(column.bodyCell, function (val1) {
+    c.tableCell = _.cloneDeepWith(column.tableCell, function (val1) {
         if (val1 != undefined && val1 != null) {
-            const cf = val1 as ColumnEntity;
-            const newCF: ColumnEntity = _.cloneDeep(cf);
+            const cf = val1 as ColumnFilterEntity;
+            const newCF: ColumnFilterEntity = _.cloneDeep(cf);
             newCF.config = _.cloneDeep(cf.config);
             return newCF;
         }
@@ -88,16 +87,6 @@ export function deepCopyPrimengColumn(column: PrimengColumn): PrimengColumn {
     col.templateConfig = _.cloneDeep(column.templateConfig);
     col.colStyle = _.cloneDeep(column.colStyle);
     return col;
-}
-
-export function deepCopyBaseModalConfig(mc: BaseModalConfig): BaseModalConfig {
-    let m: BaseModalConfig = {
-        component: _.cloneDeep(mc.component),
-        dialogConfig: _.cloneDeep(mc.dialogConfig),
-        //processOnClose: mc.processOnClose,
-    }
-
-    return m;
 }
 
 export function deepCopyAPIConfig(c: APIConfig): APIConfig {

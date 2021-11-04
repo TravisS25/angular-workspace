@@ -47,8 +47,8 @@
                     <ng-container *ngIf="col.renderColumnContent; else noContent">
                         <ng-container *ngIf="col.templateConfig; else nonTemplate">
                             <td [pEditableColumn]="rowData" [pEditableColumnRowIndex]="i"
-                                [pEditableColumnField]="col.field" [ngStyle]="col.bodyCellStyle"
-                                [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn" [libTableCell] [colIdx]="idx"
+                                [pEditableColumnField]="col.field" [ngStyle]="col.tableCellStyle"
+                                [ngClass]="col.tableCellClass" [hidden]="col.hideColumn" [libTableCell] [colIdx]="idx"
                                 [rowIdx]="i" [rowData]="rowData" [field]="col.field">
                                 <p-cellEditor>
                                     <ng-template *ngIf="col.templateConfig.inputTemplate" pTemplate="input">
@@ -65,19 +65,19 @@
                             </td>
                         </ng-container>
                         <ng-template #nonTemplate>
-                            <td [ngStyle]="col.bodyCellStyle" [ngClass]="col.bodyCellClass" [hidden]="col.hideColumn"
+                            <td [ngStyle]="col.tableCellStyle" [ngClass]="col.tableCellClass" [hidden]="col.hideColumn"
                                 [libTableCell] [colIdx]="idx" [rowIdx]="i" [rowData]="rowData" [field]="col.field">
                                 <ng-container *ngIf="col.renderColumnContent; else noContent">
-                                    <ng-container *ngIf="col.bodyCell; else block1">
+                                    <ng-container *ngIf="col.tableCell; else block1">
                                         <ng-template [libTableBodyCell] [colIdx]="idx" [rowIdx]="i" [rowData]="rowData"
                                             [field]="col.field">
                                         </ng-template>
                                     </ng-container>
-                                    <ng-template #block1>
-                                        <ng-container *ngIf="col.bodyCellHTML && rowData != null">
-                                            <span [innerHTML]="col.bodyCellHTML(rowData)"></span>
+                                    <!-- <ng-template #block1>
+                                        <ng-container *ngIf="col.tableCellHTML && rowData != null">
+                                            <span [innerHTML]="col.tableCellHTML(rowData)"></span>
                                         </ng-container>
-                                    </ng-template>
+                                    </ng-template> -->
                                 </ng-container>
                             </td>
                         </ng-template>
@@ -98,7 +98,7 @@
         <ng-template let-i="rowIndex" pTemplate="rowexpansion" let-columns let-rowData>
             <tr>
                 <td [attr.colspan]="visibleColumns">
-                    <ng-template [libTableExpansion] [renderCallback]="renderCallback" [outerData]="rowData">
+                    <ng-template [libTableRowExpansion] [renderCallback]="renderCallback" [outerData]="rowData">
                     </ng-template>
                 </td>
             </tr>

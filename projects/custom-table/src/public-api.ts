@@ -72,18 +72,23 @@ export * from './lib/directives/table/table-body-cell.directive';
 export * from './lib/directives/table/table-caption.directive';
 export * from './lib/directives/table/table-cell.directive';
 export * from './lib/directives/table/table-column-filter.directive';
-export * from './lib/directives/table/table-expansion.directive';
+export * from './lib/directives/table/table-row-expansion.directive'
 export * from './lib/directives/table/table-input-template.directive';
 export * from './lib/directives/table/table-output-template.directive';
 
 export * from './lib/directives/table/mobile/base-mobile-table.directive';
 export * from './lib/directives/table/mobile/mobile-table-caption.directive';
 export * from './lib/directives/table/mobile/mobile-table-expansion.directive';
-export * from './lib/directives/table/mobile/mobile-table-expansion-panel.directive';
+export * from './lib/directives/table/mobile/mobile-table-panel-row-expansion.directive'
 export * from './lib/directives/table/mobile/mobile-table-panel-description.directive';
 export * from './lib/directives/table/mobile/mobile-table-panel-title.directive';
 
 // -------------------Modules------------------------------
+
+// Table Modules
+export * from './lib/modules/table/table-directive.module';
+export * from './lib/modules/table/mobile/mobile-table-directive.module';
+
 
 // Util Modules
 export * from './lib/modules/util/base-index.module';
@@ -117,6 +122,7 @@ export * from './lib/modules/material/material-popup-form.module';
 export * from './lib/modules/material/material-row-options.module';
 export * from './lib/modules/material/material-tab-view.module';
 export * from './lib/modules/material/material-text-area.module';
+export * from './lib/modules/material/material-table.module';
 //export * from './lib/modules/material/material-autocomplete.module';
 
 // -------------------Services---------------------
@@ -126,7 +132,7 @@ export * from './lib/services/window-resize.service';
 // -------------------Utils------------------------------
 
 // Utils
-export * from './lib/config';
+//export * from './lib/config';
 export * from './lib/copy-util';
 export * from './lib/default-values';
 export * from './lib/table-api';

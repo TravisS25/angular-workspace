@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import * as moment from 'moment';
-import { DefaultConsts } from '../../../config';
+import { DefaultConsts } from '../../../table-api';
 import { MaterialFilterOptionComponent } from '../material-filter-option/material-filter-option.component';
 import { SelectItem } from 'primeng';
 import { BaseColumnComponent } from '../../table/base-column/base-column.component';

@@ -1,10 +1,10 @@
-import { Directive, ViewContainerRef } from '@angular/core';
+import { Directive } from '@angular/core';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { BaseMobileTableDirective } from './base-mobile-table.directive';
 
 @Directive({
-    selector: '[libMobileTableExpansionPanel]'
+    selector: '[libMobileTablePanelRowExpansion]'
 })
-export class MobileTableExpansionPanelDirective extends BaseMobileTableDirective {
+export class MobileTablePanelRowExpansionDirective extends BaseMobileTableDirective {
     constructor(public viewContainerRef: MatExpansionPanel) { super() }
 }

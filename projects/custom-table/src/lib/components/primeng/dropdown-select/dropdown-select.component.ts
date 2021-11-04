@@ -1,8 +1,7 @@
 import { Component, ViewChild, ComponentFactoryResolver, ChangeDetectorRef, OnInit } from '@angular/core';
 import { Dropdown } from 'primeng/dropdown';
-import { BaseTableEvent } from '../../../table-api';
+import { TableEvents, BaseTableEvent } from '../../../table-api';
 import { GalleriaThumbnails } from 'primeng';
-import { DefaultTableEvents } from '../../../config';
 import { BaseColumnComponent } from '../../table/base-column/base-column.component';
 
 export interface DropdownSelectConfig {
@@ -65,7 +64,7 @@ export class DropdownSelectComponent extends BaseColumnComponent implements OnIn
                 value: val
             }
             let event: BaseTableEvent = {
-                eventType: DefaultTableEvents.ColumnFilter,
+                eventType: TableEvents.columnFilter,
                 event: dse
             }
             this.onEvent.emit(event);

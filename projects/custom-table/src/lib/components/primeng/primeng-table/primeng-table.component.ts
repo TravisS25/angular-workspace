@@ -31,10 +31,9 @@ import {
     BaseTableEvent,
     APIConfig,
     ParamConfig,
-    ColumnEntity,
-    BaseColumnI,
+    ColumnFilterEntity,
+    BaseColumnFilterI,
     EditEvent,
-    PrimengColumn,
     CoreColumn,
     BasePagination
 } from '../../../table-api';
@@ -43,14 +42,10 @@ import { Subscription, Subscribable, Subject } from 'rxjs';
 import { deepCopyColumn } from '../../../copy-util';
 import { encodeURIState, getJSONFieldValue } from '../../../util';
 import { ThrowStmt } from '@angular/compiler';
-import { DefaultTableEvents } from '../../../config';
+import { TableEvents, TemplateConfig } from '../../../table-api';
 import { getDefaultParamConfig, getDefaultState } from '../../../default-values';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { BaseColumnComponent } from '../../table/base-column/base-column.component';
-import { BaseRowExpansionComponent } from '../../table/base-row-expansion/base-row-expansion.component';
-import { BaseTableCaptionComponent } from '../../table/base-table-caption/base-table-caption.component';
-import { TableExpansionDirective } from '../../../directives/table/table-expansion.directive';
-import { TableBodyCellDirective } from '../../../directives/table/table-body-cell.directive';
 import { TableInputTemplateDirective } from '../../../directives/table/table-input-template.directive';
 import { TableOutputTemplateDirective } from '../../../directives/table/table-output-template.directive';
 import { TableColumnFilterDirective } from '../../../directives/table/table-column-filter.directive';
@@ -60,7 +55,6 @@ import { BaseTableCellDirective } from '../../../directives/table/base-table-cel
 import { PrimengSortIconComponent } from '../primeng-sort-icon/primeng-sort-icon.component';
 import { deepCopyPrimengColumn } from '../../../copy-util';
 import { HttpService } from '../../../services/http.service';
-import { PrimengPagination } from 'projects/custom-table/src/public-api';
 
 export interface PrimengTableConfig extends BaseTableConfig {
     // showNoRecordsLabel determines if we show a "No Records" label whenever
@@ -105,6 +99,15 @@ export interface PrimengTableConfig extends BaseTableConfig {
     // Default: undefined
     editMode?: 'row' | 'cell';
 
+    // columnResizeMode determines whether if the overall table expands
+    // when a column is resized or stays fit
+    // columnResizable must be set in order for this to work
+    //
+    // Default: fit
+    columnResizeMode?: 'expand' | 'fit'
+
+    loading?: boolean;
+
     // Template of the current page report element. 
     // Available placeholders are {currentPage},{totalPages},{rows},{first},{last} and {totalRecords} 
     // Default: 'Showing {first} to {last} of {totalRecords} entries'
@@ -148,7 +151,24 @@ export interface PrimengTableConfig extends BaseTableConfig {
     pagination?: PrimengPagination;
 }
 
-export interface PrimengTablePagination extends BasePagination {
+export interface PrimengColumn extends CoreColumn {
+    // renderColumnContent can be used to determine if the content in the table
+    // cell is even rendered, NOT just hidden
+    // This is used in conjunction with BaseTableAPI#showNoRecordsLabel and set by table api
+    // but can be set manually if one wishes to not render cell content based on some condition
+    //
+    // Default: true
+    renderColumnContent?: boolean;
+
+    // colStyle will style col group if set.  This style should
+    // really only be used to set width of column
+    colStyle?: Object;
+
+    // templateConfig is config used to set up inline edting for table
+    // by configuring an input and output template
+    templateConfig?: TemplateConfig;
+}
+export interface PrimengPagination extends BasePagination {
     paginatorPosition?: 'top' | 'bottom' | 'both'
 }
 
@@ -174,43 +194,12 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // This variable simply keeps track of which current row should be expanded
     private _rowExpandIdx: number = 0;
 
-    // _hiddenColumnFilters is used to keep track of all initial hidden column filters
-    // set in the column api when table is first loaded so whenever a user clicks the 
-    // "Clear Filter" button, we can reset to the same initial state 
-    private _hiddenColumnFilters: string[] = [];
-
-    // _hiddenColumns keeps track of all current hidden columns
-    // This is mainly used to help set the value of the "visibleColumns" variable as in:
-    // "this.visibleColumns = this.columnCheckboxes.length - this._hiddenColumns.length;"
-    private _hiddenColumns: string[] = [];
-
-    // _updateBodyCellComponents is used as a "hack flag" for body cell directives as
-    // change events occur with any little change so this is set on initial load
-    // and any events after that will not be effected
-    private _updateBodyCellComponents: boolean = false;
-
     private _updateTableCellDirs: boolean = false;
 
     // _updateOutputTemplateComponents is used as a "hack flag" for output template directives as
     // change events occur with any little change so this is set on initial load
     // and any events after that will not be effected
     private _updateOutputTemplateComponents: boolean = false;
-
-    // _updateColumnFilter is used as a "hack flag" as subscribing to the column filter
-    // events triggers when retrieving new data
-    // This variable will be set to false once we get initial data and will never need
-    // to be updated again
-    private _updateColumnFilter: boolean = true;
-
-    // _expansionLen is a "hack variable" for the expansion of a table
-    // It keeps track of total number of expanded rows and helps with dynamically
-    // creating row expansions
-    private _expansionLen: number = 0;
-
-    // _tableInit is flag used to keep track if the current table has be fully initialized or not
-    // This will be set true once the table is fully rendered and won't change again
-    // There are various variables that depend on this to function
-    private _tableInit: boolean = false;
 
     // _inputTemplateSubs is used to keep track of subscriptions of input templates for cell editing
     private _inputTemplateSub: Subscription = new Subscription();
@@ -238,46 +227,10 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // It continues to flip between "asc" and "desc" and never back to neutral
     private _sortMap: Map<string, number> = new Map<string, number>();
 
-    // _bodyCellSubs is used to keep reference to explicitly body cell subscriptions
-    // and will properly unsubscribe from them when new data is loaded into table
-    private _bodyCellSub: Subscription = new Subscription();
-
-    // _onTableFilterEvent is used by other components of the table like caption,
-    // column filter and body cell rows and will be emitted by table whenever
-    // new data is loaded into the table via column filter or pagination
-    private _onTableFilterEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
-
-    // _onClearFiltersEvent is used by other components of the table like caption,
-    // column filter and body cell rows and will be emitted by table whenever
-    // the "Clear Filter Button" is triggered
-    private _onClearFiltersEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
-
-    // _onSortEvent is triggered whenever a sort event occurs on a column
-    private _onSortEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
-
-    // columnFilterCrs keeps a list of references to dynamically created column filters
-    // components which can be modified through different events and will be destroyed on 
-    // component destruction
-    public columnFilterCrs: ComponentRef<BaseColumnComponent>[] = [];
-
-    // rowExpansionCrs keeps a list of references to dynamically created expanded row
-    // components which can be modified through different events and will be destroyed on 
-    // component destruction
-    public rowExpansionCrs: ComponentRef<BaseRowExpansionComponent>[] = [];
-
-    // bodyCellCrs keeps a list of references to dynamically created body cell 
-    // which can be modified through different events and will be destroyed on 
-    // component destruction
-    public bodyCellCrs: ComponentRef<BaseColumnComponent>[] = [];
-
     // outputTemplateCrMap keeps a list of references to dynamically created output template
     // which can be modified through different events and will be destroyed on 
     // component destruction
     public outputTemplateCrMap: Map<number, Map<string, ComponentRef<BaseColumnComponent>>> = new Map();
-
-    // captionCr keeps a reference to dynamically created caption component which can be 
-    // modified through different events and will be destroyed on component destruction
-    public captionCr: ComponentRef<BaseTableCaptionComponent>;
 
     // summaryCr keeps a reference to dynamically created summary component which can be 
     // modified through different events and will be destroyed on component destruction
@@ -305,20 +258,12 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     @Input() public config: PrimengTableConfig;
 
     @ViewChild('dt', { static: false }) public dt: Table;
-    // @ViewChild(TableCaptionDirective, { static: false })
-    // public headerCaptionDir: TableCaptionDirective;
-    // @ViewChildren(TableExpansionDirective)
-    // public expansionDirs: QueryList<TableExpansionDirective>;
-    // @ViewChildren(TableBodyCellDirective)
-    // public bodyCellDirs: QueryList<TableBodyCellDirective>;
-    // @ViewChildren(TableInputTemplateDirective)
-    // public inputTemplateDirs: QueryList<TableInputTemplateDirective>;
-    // @ViewChildren(TableOutputTemplateDirective)
-    // public outputTemplateDirs: QueryList<TableOutputTemplateDirective>;
-    // @ViewChildren(TableColumnFilterDirective)
-    // public columnFilterDirs: QueryList<TableColumnFilterDirective>;
-    // @ViewChildren(TableCellDirective)
-    // public tableCellDirs: QueryList<TableCellDirective>;
+    @ViewChildren(TableInputTemplateDirective)
+    public inputTemplateDirs: QueryList<TableInputTemplateDirective>;
+    @ViewChildren(TableOutputTemplateDirective)
+    public outputTemplateDirs: QueryList<TableOutputTemplateDirective>;
+    @ViewChildren(TableCellDirective)
+    public tableCellDirs: QueryList<TableCellDirective>;
 
     @ViewChildren(PrimengSortIconComponent) public sortIcons: QueryList<PrimengSortIconComponent>;
     @ViewChildren(SortableColumn) public sortColumns: QueryList<SortableColumn>;
@@ -341,7 +286,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
     // state keeps track of the current table's filter state and is the info that is 
     // sent to the server whenever a column filter is used or pagination occurs
-    public state: State = getDefaultState();
+    public state: State;
 
     public columns: PrimengColumn[];
 
@@ -422,15 +367,17 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
             }
         }
 
-        if (this.config.state != undefined) {
-            this.state = this.config.state
-        } else if (this.config.getState != undefined) {
-            this.state = this.config.getState(this.outerData);
+        if (this.state == undefined) {
+            if (this.config.getState != undefined) {
+                this.state = this.config.getState(this.outerData);
+            } else {
+                this.state = getDefaultState();
+            }
         }
 
-        // if (this.config.resetEditedRowsOnTableFilter == undefined) {
-        //     this.config.resetEditedRowsOnTableFilter = true;
-        // }
+        if (this.config.resetEditedRowsOnTableFilter == undefined) {
+            this.config.resetEditedRowsOnTableFilter = true;
+        }
     }
 
     // initDefaultTableValues initializes default values for table 
@@ -460,9 +407,6 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
             if (col.renderColumnContent == undefined) {
                 col.renderColumnContent = true;
             }
-            if (col.showColumnOption == undefined) {
-                col.showColumnOption = true;
-            }
 
             columns.push(col);
         }
@@ -475,6 +419,145 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     ///////////////////////////////////////////
     // FILTER FUNCTIONALITY
     ///////////////////////////////////////////
+
+    protected initCellComponents() {
+        super.initCellComponents();
+        this._sub.add(
+            this.outputTemplateDirs.changes.subscribe(val => {
+                // console.log('output template dir change');
+                // console.log(val)
+
+                const results = val._results as TableOutputTemplateDirective[];
+
+                if (this._updateOutputTemplateComponents || this._outputTemplateCfg.updateOutputTemplate) {
+                    if (this._tableInit && this._updateOutputTemplateComponents) {
+                        this.outputTemplateCrMap.forEach(items => {
+                            items.forEach(item => {
+                                item.destroy();
+                            })
+                        })
+                        this.outputTemplateCrMap.clear();
+                    }
+
+                    results.forEach(item => {
+                        const ce = this.columns[item.colIdx].templateConfig.outputTemplate;
+
+                        if (this._updateOutputTemplateComponents) {
+                            const cr = this.createTableCellComponentRef(item, ce);
+                            let rowCrMap: Map<string, ComponentRef<BaseColumnComponent>>;
+
+                            if (this.outputTemplateCrMap.has(item.rowIdx)) {
+                                rowCrMap = this.outputTemplateCrMap.get(item.rowIdx);
+                            } else {
+                                rowCrMap = new Map();
+                            }
+
+                            rowCrMap.set(item.field, cr);
+                            this.outputTemplateCrMap.set(item.rowIdx, rowCrMap);
+                        } else if (this.config.editMode == 'cell') {
+                            console.log('re creating some stuff')
+
+                            if (
+                                item.field == this._outputTemplateCfg.field &&
+                                item.rowIdx == this._outputTemplateCfg.rowIdx
+                            ) {
+                                this.createTableCellComponentRef(item, ce);
+                            }
+                        }
+                    });
+
+                    // console.log('output template dir after init')
+                    // console.log(this._outputTemplateDirMap);
+                }
+
+                this.cdr.detectChanges();
+                this._updateOutputTemplateComponents = false;
+                this._outputTemplateCfg.updateOutputTemplate = false;
+                this._outputTemplateCfg.rowIdx = -1;
+                this._outputTemplateCfg.field = '';
+            })
+        )
+        this._sub.add(
+            this.inputTemplateDirs.changes.subscribe(val => {
+                // console.log('input template dir change');
+                // console.log(val);
+
+                const results = val._results as TableInputTemplateDirective[];
+
+                results.forEach(item => {
+                    // Check edit mode as logic might have to be slightly different between cell and row edit
+                    if (this.config.editMode == 'cell') {
+                        const cr = this.createTableCellComponentRef(item, this.columns[item.colIdx].templateConfig.inputTemplate);
+
+                        // Manually setting the selectedValue as when we go from output template to input template,
+                        // we want the input template component to have same value as what is being displayed to user
+                        // in output template
+                        cr.instance.selectedValue = getJSONFieldValue(item.field, this._currentEditedRow)
+
+                        // As each input template is being dynamically created, we want to subscribe to each of
+                        // its events as this will give ability to reflect change to output template display
+                        this._inputTemplateSub.add(
+                            cr.instance.onEvent.subscribe(r => {
+                                let result: BaseTableEvent = r;
+                                let cfg = result.event as EditEvent;
+
+                                if (this._currentEditedRow[cfg.field] != cfg.data[cfg.field]) {
+                                    this._editedRowData[cfg.data[this.config.dataKey]] = cfg.data;
+                                    this.dt.value[item.rowIdx] = cfg.data;
+                                }
+
+                                if (this.config.localStorageKeyForEditedRows != undefined) {
+                                    window.localStorage.setItem(
+                                        this.config.localStorageKeyForEditedRows,
+                                        JSON.stringify(this._editedRowData)
+                                    )
+                                }
+
+                                // columns.forEach(x => {
+                                //     if (x.field == item.field && x.processInputTemplateEvent != undefined) {
+                                //         x.processInputTemplateEvent(r, this);
+                                //     }
+                                // })
+
+                                this.columnFilterCrs.forEach(x => {
+                                    if (x.instance.field == item.field && x.instance.processInputTemplateEvent != undefined) {
+                                        x.instance.processInputTemplateEvent(r, this);
+                                    }
+                                })
+
+                                if (this.captionCr != undefined && this.captionCr.instance.processInputTemplateEvent != undefined) {
+                                    this.captionCr.instance.processInputTemplateEvent(r, this);
+                                }
+                            })
+                        )
+                    }
+                });
+
+                this.cdr.detectChanges();
+            })
+        )
+        this._sub.add(
+            this.tableCellDirs.changes.subscribe(val => {
+                if (this._updateTableCellDirs) {
+                    this.tableCellDirMap.clear();
+                    let results = val._results as TableCellDirective[];
+
+                    results.forEach(item => {
+                        let rowTableCellDir: Map<string, TableCellDirective>
+
+                        if (this.tableCellDirMap.has(item.rowIdx)) {
+                            rowTableCellDir = this.tableCellDirMap.get(item.rowIdx);
+                        } else {
+                            rowTableCellDir = new Map();
+                        }
+
+                        rowTableCellDir.set(item.field, item);
+                        this.tableCellDirMap.set(item.rowIdx, rowTableCellDir)
+                    });
+                }
+            })
+        )
+    }
 
     // getGridInfo is responsible for actually querying the server
     // The update() function should be used to call this indirectly
@@ -508,8 +591,8 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                 event: res
             }
 
-            this._onTableFilterEvent.emit(bte);
-            this._updateBodyCellComponents = true;
+            this.onTableFilterEvent.emit(bte);
+            this._updateTableCellComponents = true;
             this._updateOutputTemplateComponents = true;
             this._updateTableCellDirs = true;
 
@@ -581,13 +664,6 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     ///////////////////////////////////////////
     // EDIT FUNCTIONALITY
     ///////////////////////////////////////////
-
-    // private unsubscribeTemplateCells() {
-    //     this._inputTemplateSubs.forEach(x => {
-    //         x.unsubscribe();
-    //     })
-    //     this._inputTemplateSubs = [];
-    // }
 
     public onEditInit(event: EditEvent) {
         console.log('edit init row data');
@@ -794,11 +870,10 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
             }
         })
 
-        this._onSortEvent.emit(event.field);
-        // this._onEvent.emit({
-        //     eventType: DefaultTableEvents.Sort,
-        //     event: event.field
-        // })
+        this.onSortEvent.emit({
+            eventType: TableEvents.sort,
+            event: event.field
+        });
 
         if (this.config.autoSearch) {
             this.update();
@@ -852,8 +927,6 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
     public onRowExpand(event: any) {
         console.log("row expand: visible columns " + this.visibleColumns);
-        //console.log(this.visibleColumns);
-        //this.initExpansionComponents(event.data);
     }
 
     // onRowCollapse allows user to collapse all currently open rows
@@ -922,7 +995,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
             // For other browsers: 
             // Create a link pointing to the ObjectURL containing the blob.
             const data = window.URL.createObjectURL(newBlob);
-            var link = document.createElement('a');
+            const link = document.createElement('a');
             link.href = data;
             link.download = fileName + fileType;
             link.click();
@@ -939,45 +1012,45 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // HOOK FUNCTIONS
     ///////////////////////////////////////////
 
-    public ngOnDestroy() {
-        console.log('base table destroy called');
-        console.log('Table Name');
+    // public ngOnDestroy() {
+    //     console.log('base table destroy called');
+    //     console.log('Table Name');
 
-        if (this.outerData != undefined) {
-            console.log(this.outerData.name);
-        } else {
-            console.log('project name');
-        }
+    //     if (this.outerData != undefined) {
+    //         console.log(this.outerData.name);
+    //     } else {
+    //         console.log('project name');
+    //     }
 
-        this._sub.unsubscribe();
-        this._bodyCellSub.unsubscribe();
+    //     this._sub.unsubscribe();
+    //     this._bodyCellSub.unsubscribe();
 
-        if (this.captionCr != undefined) {
-            this.captionCr.destroy();
-        }
+    //     if (this.captionCr != undefined) {
+    //         this.captionCr.destroy();
+    //     }
 
-        for (let i = 0; i < this.columnFilterCrs.length; i++) {
-            this.columnFilterCrs[i].destroy();
-        }
-        for (let i = 0; i < this.bodyCellCrs.length; i++) {
-            this.bodyCellCrs[i].destroy();
-        }
-        for (let i = 0; i < this.rowExpansionCrs.length; i++) {
-            this.rowExpansionCrs[i].destroy();
-        }
+    //     for (let i = 0; i < this.columnFilterCrs.length; i++) {
+    //         this.columnFilterCrs[i].destroy();
+    //     }
+    //     for (let i = 0; i < this.bodyCellCrs.length; i++) {
+    //         this.bodyCellCrs[i].destroy();
+    //     }
+    //     for (let i = 0; i < this.rowExpansionCrs.length; i++) {
+    //         this.rowExpansionCrs[i].destroy();
+    //     }
 
-        this.captionCr = null;
-        this.columnFilterCrs = null;
-        this.bodyCellCrs = null;
-        this.rowExpansionCrs = null;
-        this._hiddenColumnFilters = null;
-        this._hiddenColumns = null;
+    //     this.captionCr = null;
+    //     this.columnFilterCrs = null;
+    //     this.bodyCellCrs = null;
+    //     this.rowExpansionCrs = null;
+    //     this._hiddenColumnFilters = null;
+    //     this._hiddenColumns = null;
 
-        let columns: Column[] = this.dt.columns
+    //     let columns: Column[] = this.dt.columns
 
-        for (let i = 0; i < columns.length; i++) {
-            columns[i].hideColumn = false;
-        }
-    }
+    //     for (let i = 0; i < columns.length; i++) {
+    //         columns[i].hideColumn = false;
+    //     }
+    // }
 
 }
