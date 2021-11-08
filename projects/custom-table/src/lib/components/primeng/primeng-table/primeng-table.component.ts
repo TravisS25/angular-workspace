@@ -27,7 +27,6 @@ import {
     SortDescriptor,
     FieldName,
     ExportType,
-    BaseRowExpansionI,
     BaseTableEvent,
     APIConfig,
     ParamConfig,
@@ -45,7 +44,7 @@ import { ThrowStmt } from '@angular/compiler';
 import { TableEvents, TemplateConfig } from '../../../table-api';
 import { getDefaultParamConfig, getDefaultState } from '../../../default-values';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 import { TableInputTemplateDirective } from '../../../directives/table/table-input-template.directive';
 import { TableOutputTemplateDirective } from '../../../directives/table/table-output-template.directive';
 import { TableColumnFilterDirective } from '../../../directives/table/table-column-filter.directive';
@@ -230,7 +229,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // outputTemplateCrMap keeps a list of references to dynamically created output template
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    public outputTemplateCrMap: Map<number, Map<string, ComponentRef<BaseColumnComponent>>> = new Map();
+    public outputTemplateCrMap: Map<number, Map<string, ComponentRef<BaseColumnFilterComponent>>> = new Map();
 
     // summaryCr keeps a reference to dynamically created summary component which can be 
     // modified through different events and will be destroyed on component destruction
@@ -444,7 +443,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
                         if (this._updateOutputTemplateComponents) {
                             const cr = this.createTableCellComponentRef(item, ce);
-                            let rowCrMap: Map<string, ComponentRef<BaseColumnComponent>>;
+                            let rowCrMap: Map<string, ComponentRef<BaseColumnFilterComponent>>;
 
                             if (this.outputTemplateCrMap.has(item.rowIdx)) {
                                 rowCrMap = this.outputTemplateCrMap.get(item.rowIdx);

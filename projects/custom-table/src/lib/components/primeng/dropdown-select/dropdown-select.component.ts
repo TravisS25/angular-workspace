@@ -2,7 +2,7 @@ import { Component, ViewChild, ComponentFactoryResolver, ChangeDetectorRef, OnIn
 import { Dropdown } from 'primeng/dropdown';
 import { TableEvents, BaseTableEvent } from '../../../table-api';
 import { GalleriaThumbnails } from 'primeng';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
 export interface DropdownSelectConfig {
     // Inline style of the element
@@ -30,7 +30,7 @@ export interface DropdownSelectEvent {
     templateUrl: './dropdown-select.component.html',
     styleUrls: ['./dropdown-select.component.scss']
 })
-export class DropdownSelectComponent extends BaseColumnComponent implements OnInit {
+export class DropdownSelectComponent extends BaseColumnFilterComponent implements OnInit {
     private initConfig() {
         if (this.config == undefined) {
             throw ('MUST SET CONFIG FOR DROPDOWN SELECT');

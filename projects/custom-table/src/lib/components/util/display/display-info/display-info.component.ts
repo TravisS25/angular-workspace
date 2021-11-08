@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Directive, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, QueryList, Type, ViewChild, ViewChildren, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { DisplayItemEntity, DisplayFormat, PopupFormI, MobileDisplayItemEntity } from '../../../../table-api';
+import { DisplayItemEntity, DisplayFormat, PopupFormI } from '../../../../table-api';
 import { Subscription } from 'rxjs';
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
 

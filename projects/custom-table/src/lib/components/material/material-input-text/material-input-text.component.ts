@@ -5,7 +5,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ChangeDetectorRef } from '@angular/core';
 import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { getDefaultTextMask } from '../../../default-values';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 import { SelectItem, MaskConfig } from '../../../table-api';
 
 export interface MaterialInputTextConfig {
@@ -38,7 +38,7 @@ export interface MaterialInputTextConfig {
     templateUrl: './material-input-text.component.html',
     styleUrls: ['./material-input-text.component.scss'],
 })
-export class MaterialInputTextComponent extends BaseColumnComponent implements OnInit, AfterViewInit, OnDestroy {
+export class MaterialInputTextComponent extends BaseColumnFilterComponent implements OnInit, AfterViewInit, OnDestroy {
     protected modelChangeSubscription: Subscription;
     protected txtChanged: Subject<string> = new Subject<string>();
 

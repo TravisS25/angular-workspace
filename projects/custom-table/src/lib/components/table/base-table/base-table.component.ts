@@ -1,23 +1,21 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { BaseTableEvent, State, CoreColumn, ExportType, FilterData, FilterDescriptor, TableEventOptions, BaseTableConfig, ColumnFilterEntity, DisplayItemEntity } from '../../../table-api';
+import { BaseTableEvent, State, CoreColumn, ExportType, FilterData, FilterDescriptor, BaseTableConfig, ColumnFilterEntity, DisplayItemEntity, BaseEventOptionsI } from '../../../table-api';
 import { Subscription } from 'rxjs';
 import { BaseComponent } from '../../base/base.component';
-import { BaseTableEventComponent } from '../base-table-event/base-table-event.component';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component'
-import { BaseRowExpansionComponent } from '../../table/base-row-expansion/base-row-expansion.component'
-import { PrimengTableConfig } from '../../primeng/primeng-table/primeng-table.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component'
 import { getDefaultState } from '../../../default-values'
 import { TableCaptionDirective } from '../../../directives/table/table-caption.directive';
 import { TableBodyCellDirective } from '../../../directives/table/table-body-cell.directive';
 import { TableColumnFilterDirective } from '../../../directives/table/table-column-filter.directive';
 import { HttpService } from '../../../services/http.service';
-import { encodeURIState } from '../../../util'
+import { encodeURIState, setTableEvents } from '../../../util'
 import { BaseTableCaptionComponent } from '../../table/base-table-caption/base-table-caption.component'
 import { BaseTableCellDirective } from '../../../directives/table/base-table-cell.directive'
-import { DisplayItemDirective } from '../../../directives/table/display-item.directive';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { TableRowExpansionDirective } from '../../../directives/table/table-row-expansion.directive';
 import { BaseDisplayItemComponent } from '../../../components/table/base-display-item/base-display-item.component';
+import { BaseComponentI, TableDisplayItemDirective } from 'projects/custom-table/src/public-api';
+import 'rxjs/add/observable/combineLatest';
 
 
 @Component({
@@ -100,9 +98,9 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     @ViewChild(TableCaptionDirective, { static: false })
     public headerCaptionDir: TableCaptionDirective;
     @ViewChildren(TableRowExpansionDirective)
-    public expansionDirs: QueryList<TableRowExpansionDirective>;
-    @ViewChildren(DisplayItemDirective)
-    public displayItemDirs: QueryList<DisplayItemDirective>;
+    public rowExpansionDirs: QueryList<TableRowExpansionDirective>;
+    @ViewChildren(TableDisplayItemDirective)
+    public displayItemDirs: QueryList<TableDisplayItemDirective>;
     @ViewChildren(TableBodyCellDirective)
     public tableCellDirs: QueryList<TableBodyCellDirective>;
     @ViewChildren(TableColumnFilterDirective)
@@ -115,17 +113,17 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // columnFilterCrs keeps a list of references to dynamically created column filters
     // components which can be modified through different events and will be destroyed on 
     // component destruction
-    public columnFilterCrs: ComponentRef<BaseColumnComponent>[] = [];
+    public columnFilterCrs: ComponentRef<BaseColumnFilterComponent>[] = [];
 
     // rowExpansionCrs keeps a list of references to dynamically created expanded row
     // components which can be modified through different events and will be destroyed on 
     // component destruction
-    public rowExpansionCrs: ComponentRef<BaseRowExpansionComponent>[] = [];
+    public rowExpansionCrs: ComponentRef<BaseComponent>[] = [];
 
     // tableCellCrs keeps a list of references to dynamically created body cell 
     // which can be modified through different events and will be destroyed on 
     // component destruction
-    public tableCellCrs: ComponentRef<BaseColumnComponent>[] = [];
+    public tableCellCrs: ComponentRef<BaseColumnFilterComponent>[] = [];
 
     public displayItemCrs: ComponentRef<BaseDisplayItemComponent>[] = [];
 
@@ -155,6 +153,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     ) { super() }
 
     public ngOnInit(): void {
+
     }
 
     public ngAfterViewInit() {
@@ -165,23 +164,10 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // INIT COLUMN COMPONENTS
     ///////////////////////////////////////////
 
-    protected setTableEvents(cr: BaseTableEventComponent, eventCfg: TableEventOptions) {
-        cr.processTableCellEvent = eventCfg.processTableCellEvent;
-        cr.processCaptionEvent = eventCfg.processCaptionEvent;
-        cr.processClearFiltersEvent = eventCfg.processClearFiltersEvent;
-        cr.processColumnFilterEvent = eventCfg.processColumnFilterEvent;
-        cr.processDisplayItemEvent = eventCfg.processDisplayItemEvent;
-        cr.processInputTemplateEvent = eventCfg.processInputTemplateEvent;
-        cr.processPopupEvent = eventCfg.processPopupEvent;
-        cr.processSortEvent = eventCfg.processSortEvent;
-        cr.processTableFilterEvent = eventCfg.processTableFilterEvent;
-    }
-
     // createTableCellComponentRef creates and return a component reference based on the directive
     // and ComponentRef passed
-    protected createTableCellComponentRef(dir: BaseTableCellDirective, ce: ColumnFilterEntity): ComponentRef<BaseColumnComponent> {
-        const cf = this.cfr.resolveComponentFactory(ce.component);
-        const cr = dir.viewContainerRef.createComponent(cf);
+    protected createTableCellComponentRef(dir: BaseTableCellDirective, ce: ColumnFilterEntity): ComponentRef<BaseColumnFilterComponent> {
+        const cr = dir.viewContainerRef.createComponent(this.cfr.resolveComponentFactory(ce.component));
         cr.instance.componentRef = this;
         cr.instance.colIdx = dir.colIdx;
         cr.instance.rowIdx = dir.rowIdx;
@@ -204,8 +190,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     }
 
     protected createDisplayItemComponentRef(dir: BaseTableCellDirective, ce: DisplayItemEntity): ComponentRef<BaseDisplayItemComponent> {
-        const cf = this.cfr.resolveComponentFactory(ce.component);
-        const cr = dir.viewContainerRef.createComponent(cf);
+        const cr = dir.viewContainerRef.createComponent(this.cfr.resolveComponentFactory(ce.component));
         cr.instance.componentRef = this;
         cr.instance.colIdx = dir.colIdx;
         cr.instance.rowIdx = dir.rowIdx;
@@ -221,7 +206,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // and creates component if set by api
     protected initExpansionComponents() {
         this._sub.add(
-            this.expansionDirs.changes.subscribe(val => {
+            this.rowExpansionDirs.changes.subscribe(val => {
                 //console.log("expansion dir");
                 //console.log(val);
 
@@ -233,8 +218,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                             this.config.rowExpansion.component,
                         )
                     );
-                    cr.instance.outerData = e.outerData;
-                    cr.instance.renderCallback = e.renderCallback;
+                    cr.instance.outerData = this.outerData;
                     cr.instance.config = this.config.rowExpansion.config;
                     this.rowExpansionCrs.push(cr);
                     this.cdr.detectChanges();
@@ -253,11 +237,9 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                 if (this._updateColumnFilter) {
                     const results = val._results as TableColumnFilterDirective[];
                     results.forEach((item) => {
-                        const columns: CoreColumn[] = this.columns
-
                         const cr = item.viewContainerRef.createComponent(
                             this.cfr.resolveComponentFactory(
-                                columns[item.colIdx].columnFilter.component
+                                this.columns[item.colIdx].columnFilter.component
                             )
                         );
                         cr.instance.componentRef = this;
@@ -265,14 +247,14 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                         cr.instance.isColumnFilter = true;
                         cr.instance.isInputTemplate = false;
 
-                        cr.instance.field = columns[item.colIdx].columnFilter.field;
-                        cr.instance.value = columns[item.colIdx].columnFilter.value;
-                        cr.instance.selectedValue = columns[item.colIdx].columnFilter.selectedValue;
-                        cr.instance.config = columns[item.colIdx].columnFilter.config;
-                        cr.instance.excludeFilter = columns[item.colIdx].columnFilter.excludeFilter;
-                        cr.instance.operator = columns[item.colIdx].columnFilter.operator;
+                        cr.instance.field = this.columns[item.colIdx].columnFilter.field;
+                        cr.instance.value = this.columns[item.colIdx].columnFilter.value;
+                        cr.instance.selectedValue = this.columns[item.colIdx].columnFilter.selectedValue;
+                        cr.instance.config = this.columns[item.colIdx].columnFilter.config;
+                        cr.instance.excludeFilter = this.columns[item.colIdx].columnFilter.excludeFilter;
+                        cr.instance.operator = this.columns[item.colIdx].columnFilter.operator;
 
-                        this.setTableEvents(cr.instance, columns[item.colIdx].columnFilter);
+                        setTableEvents(cr.instance, this.columns[item.colIdx].columnFilter);
                         this.columnFilterCrs.push(cr);
                     });
                 }
@@ -305,7 +287,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                     results.forEach(item => {
                         const ce = this.columns[item.colIdx].tableCell
                         const cr = this.createTableCellComponentRef(item, ce)
-                        this.setTableEvents(cr.instance, this.columns[item.colIdx].tableCell);
+                        setTableEvents(cr.instance, ce);
                         this.tableCellCrs.push(cr);
                     });
 
@@ -340,11 +322,11 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                         this.displayItemCrs = [];
                     }
 
-                    const results = val._results as DisplayItemDirective[];
+                    const results = val._results as TableDisplayItemDirective[];
                     results.forEach(item => {
-                        const ce = this.columns[item.colIdx].displayItem
-                        const cr = this.createDisplayItemComponentRef(item, ce)
-                        this.setTableEvents(cr.instance, this.columns[item.colIdx].displayItem);
+                        const di = this.columns[item.colIdx].displayItem
+                        const cr = this.createDisplayItemComponentRef(item, di)
+                        setTableEvents(cr.instance, di);
                         this.displayItemCrs.push(cr);
                     });
 
@@ -374,7 +356,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             cr.instance.config = this.config.caption.config;
             cr.instance.componentRef = this;
             cr.instance.outerData = this.outerData;
-            this.setTableEvents(cr.instance, this.config.caption)
+            setTableEvents(cr.instance, this.config.caption)
             this.captionCr = cr;
         }
     }
@@ -711,16 +693,16 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             this.config.tableAPIConfig.apiOptions,
         ).subscribe(r => {
             const res = r as HttpResponse<FilterData>;
-            this.filterData = res.body;
-
-            // If table is not yet initialized, initiate all of our cr event to 
-            // listen to each other
-            if (!this._tableInit) {
-                this.initCRSEvents();
-            }
-
             this._tableInit = true;
             this._updateTableCellComponents = true;
+            this._updateDisplayItemComponents = true;
+            this.filterData = res.body;
+
+            // // If table is not yet initialized, initiate all of our cr event to 
+            // // listen to each other
+            // if (!this._tableInit) {
+            //     this.initCRSEvents();
+            // }
 
             const bte: BaseTableEvent = {
                 event: res
@@ -751,7 +733,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             this.state.sort = [];
         }
 
-        this.onClearFiltersEvent.emit(null);
+        this.onClearFiltersEvent.emit({});
         this.columnFilterCrs.forEach(item => {
             item.instance.clearFilter();
         })

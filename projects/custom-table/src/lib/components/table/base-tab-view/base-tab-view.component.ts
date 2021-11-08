@@ -1,16 +1,16 @@
 import { ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { TabViewConfig, ConfigI } from '../../../table-api';
 import { BaseComponent } from '../../base/base.component';
-import { BaseRowExpansionComponent } from '../../table/base-row-expansion/base-row-expansion.component';
 import { TabPanelHeaderDirective } from '../../../directives/tab-view/tab-panel-header.directive';
 import { TabPanelContentDirective } from '../../../directives/tab-view/tab-panel-content.directive';
+import { BaseEventComponent } from 'projects/custom-table/src/public-api';
 
 @Component({
     selector: 'lib-base-tab-view',
     templateUrl: './base-tab-view.component.html',
     styleUrls: ['./base-tab-view.component.scss']
 })
-export abstract class BaseTabViewComponent extends BaseRowExpansionComponent implements OnInit {
+export abstract class BaseTabViewComponent extends BaseEventComponent implements OnInit {
     private _openedPanelIdxs: number[] = [];
     private _panelCrs: ComponentRef<BaseComponent>[] = [];
     private _panelHeaderCrs: ComponentRef<ConfigI>[] = [];
@@ -88,7 +88,6 @@ export abstract class BaseTabViewComponent extends BaseRowExpansionComponent imp
 
     public ngOnInit(): void {
         this.initTabPanelConfigs();
-        this.renderCallback.emit(null);
     }
 
     public ngAfterViewInit() {

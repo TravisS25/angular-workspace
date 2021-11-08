@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TableEvents } from '../../../table-api';
 import { BaseTableEvent, CheckboxEvent } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
 export interface MaterialCheckboxConfig {
     color?: any;
@@ -21,7 +21,7 @@ export interface MaterialCheckboxConfig {
     templateUrl: './material-checkbox.component.html',
     styleUrls: ['./material-checkbox.component.scss']
 })
-export class MaterialCheckboxComponent extends BaseColumnComponent implements OnInit {
+export class MaterialCheckboxComponent extends BaseColumnFilterComponent implements OnInit {
     public checked: boolean = false;
     public cfg: MaterialCheckboxConfig
 

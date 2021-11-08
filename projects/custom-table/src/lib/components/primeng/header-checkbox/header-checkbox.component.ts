@@ -3,14 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Checkbox } from 'primeng/checkbox';
 import { CheckboxEvent, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
 @Component({
     selector: 'app-header-checkbox',
     templateUrl: './header-checkbox.component.html',
     styleUrls: ['./header-checkbox.component.scss']
 })
-export class HeaderCheckboxComponent extends BaseColumnComponent implements OnInit, OnDestroy {
+export class HeaderCheckboxComponent extends BaseColumnFilterComponent implements OnInit, OnDestroy {
     public checked: boolean = false;
     private _hcbCfg: BaseTableEventConfig
 

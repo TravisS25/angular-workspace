@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import { DefaultConsts } from '../../../table-api';
 import { MaterialFilterOptionComponent } from '../material-filter-option/material-filter-option.component';
 import { SelectItem } from 'primeng';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
 export interface MaterialDatePickerConfig {
     // dateLabel is label used for date input
@@ -41,7 +41,7 @@ export interface MaterialDatePickerEvent {
     templateUrl: './material-date-picker.component.html',
     styleUrls: ['./material-date-picker.component.scss']
 })
-export class MaterialDatePickerComponent extends BaseColumnComponent implements OnInit {
+export class MaterialDatePickerComponent extends BaseColumnFilterComponent implements OnInit {
     @ViewChild(MaterialFilterOptionComponent) public filterOption: MaterialFilterOptionComponent;
 
     constructor() {

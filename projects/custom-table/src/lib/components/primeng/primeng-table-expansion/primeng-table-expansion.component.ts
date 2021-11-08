@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { RowToggler } from 'primeng/table';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 import { TableEvents } from '../../../table-api';
 
 @Component({
@@ -8,7 +8,7 @@ import { TableEvents } from '../../../table-api';
     templateUrl: './primeng-table-expansion.component.html',
     styleUrls: ['./primeng-table-expansion.component.scss']
 })
-export class PrimengTableExpansionComponent extends BaseColumnComponent implements OnInit {
+export class PrimengTableExpansionComponent extends BaseColumnFilterComponent implements OnInit {
     @ViewChild(RowToggler, { static: false }) public toggler: RowToggler;
 
     public expanded: boolean = false;

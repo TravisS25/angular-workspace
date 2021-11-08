@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BaseColumnComponent } from './base-column.component';
+import { BaseColumnFilterComponent } from './base-column-filter.component';
 
-describe('BaseColumnComponent', () => {
-  let component: BaseColumnComponent;
-  let fixture: ComponentFixture<BaseColumnComponent>;
+describe('BaseColumnFilterComponent', () => {
+  let component: BaseColumnFilterComponent;
+  let fixture: ComponentFixture<BaseColumnFilterComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BaseColumnComponent ]
+      declarations: [ BaseColumnFilterComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BaseColumnComponent);
+    fixture = TestBed.createComponent(BaseColumnFilterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

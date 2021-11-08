@@ -33,6 +33,15 @@ export class HttpService {
         return headers;
     }
 
+    public request<T>(method: string, url: string, options: HTTPOptions): Observable<T> {
+        return this.http.request<T>(method, url, {
+            withCredentials: options.withCredentials,
+            headers: options.headers,
+            params: options.params,
+            reportProgress: options.reportProgress,
+        });
+    }
+
     public get<T>(url: string, options: HTTPOptions): Observable<T> {
         return this.http.get<T>(url, {
             withCredentials: options.withCredentials,

@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, Directive, Input, OnInit, 
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatOption } from '@angular/material/core';
 import { MatSelectChange } from '@angular/material/select';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 import { SelectItem } from '../../../table-api';
 
 @Directive({
@@ -53,7 +53,7 @@ export interface MaterialDropdownSelectConfig {
     templateUrl: './material-dropdown-select.component.html',
     styleUrls: ['./material-dropdown-select.component.scss']
 })
-export class MaterialDropdownSelectComponent extends BaseColumnComponent implements OnInit, AfterViewInit {
+export class MaterialDropdownSelectComponent extends BaseColumnFilterComponent implements OnInit, AfterViewInit {
     @ViewChild('selectAll') public selectAll: MatOption;
     @ViewChildren(MatOptionDirective) public options: QueryList<MatOptionDirective>;
 

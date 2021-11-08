@@ -1,22 +1,19 @@
 <div *ngIf="config.outerDataHeader" [innerHTML]="config.outerDataHeader(outerData)"></div>
-<ng-template [libMobileTableCaption]></ng-template>
-<mat-accordion *ngIf="data" #mobileTable="matAccordion" multi>
-    <mat-expansion-panel [style]="config.panelStyle" [ngClass]="config.panelClass" [libMobileTablePanelRowExpansion]
-        [rowIdx]="i" [disabled]="true" *ngFor="let item of data; let i = index">
-        <mat-expansion-panel-header (click)="panelClick($event, item)">
-            <mat-panel-title>
-                <ng-template [libMobileTablePanelTitle] [rowData]="item" [rowIdx]="i"></ng-template>
-            </mat-panel-title>
-            <mat-panel-description>
-                <ng-template [libMobileTablePanelDescription] [rowData]="item" [rowIdx]="i"></ng-template>
-            </mat-panel-description>
-        </mat-expansion-panel-header>
-        <div *ngIf="config.expansion" [style]="config.expansion.borderStyle" [ngClass]="config.expansion.borderClass">
-            <ng-template [libMobileTableExpansion] [rowIdx]="i"></ng-template>
-        </div>
-    </mat-expansion-panel>
-</mat-accordion>
-<mat-paginator *ngIf="config.pagination" (page)="onPage($event)" [length]="total"
+<ng-template [libTableCaption]></ng-template>
+<table #table mat-table [dataSource]="filterData.data">
+    <tr mat-row *matRowDef="let row; columns: [''];" (click)="config.rowEvent($event, row)" [style]="config.rowStyle"
+        [ngClass]="config.rowClass">
+        <ng-template></ng-template>
+    </tr>
+    <tr style="height: 0;" mat-row *matRowDef="let row; let i = index; columns: [''];">
+        <td mat-cell *matCellDef="let element">
+            <div [@detailExpand]="expandedRows.get(i) ? 'expanded' : 'collapsed'">
+                <ng-template [libTableRowExpansion] [rowData]="row" [rowIdx]="i"></ng-template>
+            </div>
+        </td>
+    </tr>
+</table>
+<mat-paginator *ngIf="config.pagination" (page)="onPageChange($event)" [length]="filterData.total"
     [pageSize]="config.pagination.pageSize" [pageSizeOptions]="config.pagination.pageSizeOptions"
     aria-label="Select page">
 </mat-paginator>

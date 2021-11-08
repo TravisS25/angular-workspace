@@ -4,15 +4,15 @@ import { encodeURIState } from '../../../util';
 import { CoreColumn } from '../../../table-api';
 import { TableEvents, BaseTableCaptionConfig, SelectItem, Column, BaseTableEvent, ExportType, FilterDescriptor } from '../../../table-api';
 import { BaseComponent } from '../../base/base.component';
-import { BaseTableEventComponent } from '../base-table-event/base-table-event.component';
 import { BaseTableComponent } from '../base-table/base-table.component';
+import { BaseEventComponent } from 'projects/custom-table/src/public-api';
 
 @Component({
     selector: 'lib-base-table-caption',
     templateUrl: './base-table-caption.component.html',
     styleUrls: ['./base-table-caption.component.scss']
 })
-export abstract class BaseTableCaptionComponent extends BaseTableEventComponent implements OnInit {
+export abstract class BaseTableCaptionComponent extends BaseEventComponent implements OnInit {
     public config: BaseTableCaptionConfig;
 
     public componentRef: BaseTableComponent;

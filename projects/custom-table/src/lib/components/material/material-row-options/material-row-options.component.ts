@@ -4,7 +4,7 @@ import { Menu } from 'primeng';
 import { MaterialMenuItemModule } from '../../../modules/material/material-menu-item.module';
 import { BaseTableEvent, } from '../../../table-api';
 import { MaterialMenuItemComponent } from '../material-menu-item/material-menu-item.component';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
 export interface MaterialRowOptionConfig {
     items: MaterialMenuItem[];
@@ -15,7 +15,7 @@ export interface MaterialRowOptionConfig {
     templateUrl: './material-row-options.component.html',
     styleUrls: ['./material-row-options.component.scss']
 })
-export class MaterialRowOptionsComponent extends BaseColumnComponent implements OnInit {
+export class MaterialRowOptionsComponent extends BaseColumnFilterComponent implements OnInit {
     constructor() {
         super();
     }

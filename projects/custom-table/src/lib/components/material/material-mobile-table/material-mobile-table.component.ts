@@ -12,382 +12,43 @@ import { encodeURIState } from '../../../util';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/combineLatest';
 import { take } from 'rxjs/operators';
-import { BaseMobileTableConfig, DisplayItemEntity, State, FilterData, MobileDisplayItemEntity } from '../../../table-api';
-import { BaseMobileTableDirective } from '../../../directives/table/mobile/base-mobile-table.directive';
-import { MobileTableCaptionDirective } from '../../../directives/table/mobile/mobile-table-caption.directive';
-import { MobileTablePanelTitleDirective } from '../../../directives/table/mobile/mobile-table-panel-title.directive';
-import { MobileTablePanelDescriptionDirective } from '../../../directives/table/mobile/mobile-table-panel-description.directive';
-import { BaseComponent } from '../../base/base.component';
-import { BaseTableCaptionComponent } from '../../table/base-table-caption/base-table-caption.component';
-import { BaseDisplayItemComponent } from '../../table/base-display-item/base-display-item.component';
-import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { BaseMobileTableComponent } from '../../table/mobile/base-mobile-table/base-mobile-table.component';
-import { BaseMobileDisplayItemComponent } from '../../table/mobile/base-mobile-display-item/base-mobile-display-item.component';
-import { BaseMobileTableEventComponent } from '../../table/mobile/base-mobile-table-event/base-mobile-table-event.component';
-import { MobileTableExpansionDirective } from '../../../directives/table/mobile/mobile-table-expansion.directive';
-import { MobileTablePanelRowExpansionDirective } from '../../../directives/table/mobile/mobile-table-panel-row-expansion.directive';
+import { MatTable } from '@angular/material/table';
+import { HttpService } from '../../../services/http.service';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
 
 @Component({
     selector: 'lib-material-mobile-table',
     templateUrl: './material-mobile-table.component.html',
-    styleUrls: ['./material-mobile-table.component.scss']
+    styleUrls: ['./material-mobile-table.component.scss'],
+    animations: [
+        trigger('detailExpand', [
+            state('collapsed', style({ height: '0px', minHeight: '0' })),
+            state('expanded', style({ height: '*' })),
+            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+        ]),
+    ],
 })
 export class MaterialMobileTableComponent extends BaseMobileTableComponent implements OnInit {
-    // _isInit is used as flag to indicate whether the mobile table component
-    // has been initalized or not
-    // This will be set to true once table has been initialized
-    //
-    // This is internally used to only render table's caption once
-    // and every event after will skip this
-    private _isInit: boolean = false;
-
-    // _updatePanelDescription is used as flag to indicate whether to update
-    // mobile table's panel description section
-    // This will be set to false once receiving info from server and 
-    // will be set back to true on every call to server
-    private _updatePanelDescription: boolean = true;
-
-    // _updatePanelTitle is used as flag to indicate whether to update
-    // mobile table's panel title section
-    // This will be set to false once receiving info from server and 
-    // will be set back to true on every call to server
-    private _updatePanelTitle: boolean = true;
-
-    // _panelDescriptionRenderer is used indicate that the panel description
-    // section of mobile table is done rendering
-    private _panelDescriptionRenderer: Subject<void> = new Subject();
-
-    // _panelTitleRenderer is used indicate that the panel title
-    // section of mobile table is done rendering
-    private _panelTitleRenderer: Subject<void> = new Subject();
-
-    private _panelTitleEventSub: Subscription = new Subscription()
-    private _panelDescriptionEventSub: Subscription = new Subscription();
-
-    // data is info received from server
-    public data: any[];
-
-    // total is the total number of records found 
-    // on server for current criteria
-    public total: number;
-
-    // state is current filter state of table
-    public state: State;
-
-    public captionCr: ComponentRef<BaseMobileTableEventComponent>;
-    public panelTitleCrs: ComponentRef<BaseMobileDisplayItemComponent>[] = [];
-    public panelDescriptionCrs: ComponentRef<BaseMobileDisplayItemComponent>[] = [];
-    public tableExpansionCrs: Map<number, ComponentRef<BaseMobileTableComponent>> = new Map();
-
-    @ViewChild(MatAccordion) public table: MatAccordion;
-    @ViewChild(MobileTableCaptionDirective) public captionDir: MobileTableCaptionDirective;
-    @ViewChildren(MobileTableExpansionDirective) public tableExpansionDirs: QueryList<MobileTableExpansionDirective>;
-    @ViewChildren(MobileTablePanelRowExpansionDirective) public panelRowExpansionDirs: QueryList<MobileTablePanelRowExpansionDirective>;
-    @ViewChildren(MobileTablePanelDescriptionDirective) public panelDescriptionDirs: QueryList<MobileTablePanelDescriptionDirective>;
-    @ViewChildren(MobileTablePanelTitleDirective) public panelTitleDirs: QueryList<MobileTablePanelTitleDirective>;
-
-    @Input() public config: BaseMobileTableConfig;
+    @ViewChild(MatTable) public table: MatTable<any>;
+    public expandedRows: Map<number, boolean> = new Map();
 
     constructor(
-        public http: HttpClient,
+        public http: HttpService,
         public cfr: ComponentFactoryResolver,
         public cdr: ChangeDetectorRef,
-        public router: Router,
     ) {
-        super()
-    }
-
-    private search() {
-        if (this.config.customTableSearch != undefined) {
-            this.config.customTableSearch(null);
-        } else {
-            this.getTableInfo();
-        }
-    }
-
-    private getTableInfo() {
-        this.http.get<any>(
-            this.config.tableAPIConfig.apiURL(this.outerData) +
-            encodeURIState(this.state, this.config.paramConfig),
-            this.config.tableAPIConfig.apiOptions as any
-        ).subscribe(r => {
-            const res = r as HttpResponse<FilterData>;
-            this._updatePanelDescription = true;
-            this._updatePanelTitle = true;
-            this.total = res.body.total;
-            this.data = res.body.data;
-
-            if (this.config.tableAPIConfig.processResult != undefined) {
-                this.config.tableAPIConfig.processResult(res, this);
-            }
-        }, (err: HttpErrorResponse) => {
-            if (this.config.tableAPIConfig.processError != undefined) {
-                this.config.tableAPIConfig.processError(err)
-            }
-        })
-    }
-
-    private destroyPanelTitleCRs() {
-        this.panelTitleCrs.forEach(x => {
-            x.destroy();
-        });
-        this.panelTitleCrs = []
-    }
-
-    private destroyPanelDescriptionCRs() {
-        this.panelDescriptionCrs.forEach(x => {
-            x.destroy();
-        });
-        this.panelDescriptionCrs = [];
-    }
-
-    private destroyTableExpansionCRs() {
-        this.tableExpansionCrs.forEach(x => {
-            x.destroy();
-        });
-        this.tableExpansionCrs.clear();
-    }
-
-    private initValues() {
-        if (this.state == undefined) {
-            if (this.config.getState != undefined) {
-                this.state = this.config.getState(this.outerData);
-            } else {
-                this.state = getDefaultState();
-            }
-        }
-
-        if (this.config.paramConfig == undefined) {
-            this.config.paramConfig = {};
-        }
-    }
-
-    protected refreshCleanUp() {
-        this._panelTitleEventSub.unsubscribe();
-        this._panelDescriptionEventSub.unsubscribe();
-        this.destroyPanelTitleCRs();
-        this.destroyPanelDescriptionCRs();
-        this.destroyTableExpansionCRs();
-    }
-
-    private initCRs() {
-        const that = this;
-
-        const setCr = function (
-            cr: ComponentRef<BaseMobileDisplayItemComponent>,
-            dir: BaseMobileTableDirective,
-            panelCfg: MobileDisplayItemEntity,
-        ) {
-            cr.instance.config = panelCfg.config;
-            cr.instance.componentRef = that;
-            cr.instance.outerData = that.outerData;
-            cr.instance.rowData = dir.rowData
-            cr.instance.rowIdx = dir.rowIdx;
-            cr.instance.processRowData = panelCfg.processRowData;
-        }
-
-        if (this.config.captionConfig != undefined) {
-            this.captionCr = this.captionDir.viewContainerRef.createComponent(
-                this.cfr.resolveComponentFactory(this.config.captionConfig.component),
-            )
-
-            this.captionCr.instance.config = this.config.captionConfig.config;
-            this.captionCr.instance.componentRef = this;
-            this.captionCr.instance.outerData = this.outerData;
-        }
-
-        if (this.config.panelTitleConfig != undefined) {
-            this._sub.add(
-                this.panelTitleDirs.changes.subscribe(val => {
-                    if (this._updatePanelTitle) {
-                        let results = val._results as MobileTablePanelTitleDirective[];
-                        results.forEach(x => {
-                            const cr = x.viewContainerRef.createComponent(
-                                this.cfr.resolveComponentFactory(this.config.panelTitleConfig.component),
-                            )
-                            setCr(cr, x, this.config.panelTitleConfig);
-                            this.panelTitleCrs.push(cr);
-                        });
-
-                        this._panelTitleRenderer.next();
-                        this._updatePanelTitle = false;
-                        this.cdr.detectChanges();
-                    }
-                })
-            );
-        }
-
-        if (this.config.panelDescriptionConfig != undefined) {
-            this._sub.add(
-                this.panelDescriptionDirs.changes.subscribe(val => {
-                    if (this._updatePanelDescription) {
-                        let results = val._results as MobileTablePanelDescriptionDirective[];
-                        results.forEach(x => {
-                            const cr = x.viewContainerRef.createComponent(
-                                this.cfr.resolveComponentFactory(this.config.panelDescriptionConfig.component),
-                            )
-                            setCr(cr, x, this.config.panelDescriptionConfig);
-                            this.panelDescriptionCrs.push(cr);
-                        });
-
-                        this._panelDescriptionRenderer.next();
-                        this._updatePanelDescription = false;
-                        this.cdr.detectChanges();
-                    }
-                })
-            );
-        }
-
-        this.cdr.detectChanges();
-    }
-
-
-    private initCRSEvents() {
-        this._sub.add(
-            combineLatest([this._panelDescriptionRenderer, this._panelTitleRenderer]).subscribe(r => {
-                if (!this._isInit) {
-                    this._isInit = true;
-                    this._sub.add(
-                        this.captionCr.instance.onEvent.subscribe(r => {
-                            if (this.config.processCaptionEvent != undefined) {
-                                this.config.processCaptionEvent(r, this);
-                            }
-                            this.panelTitleCrs.forEach(item => {
-                                if (item.instance.processCaptionEvent != undefined) {
-                                    item.instance.processCaptionEvent(r, this);
-                                }
-                            })
-                            this.panelDescriptionCrs.forEach(item => {
-                                if (item.instance.processCaptionEvent != undefined) {
-                                    item.instance.processCaptionEvent(r, this);
-                                }
-                            })
-                        })
-                    )
-                }
-
-                for (let i = 0; i < this.panelTitleCrs.length; i++) {
-                    this._panelTitleEventSub.add(
-                        this.panelTitleCrs[i].instance.onEvent.subscribe(r => {
-                            if (this.config.processTitlePanelEvent != undefined) {
-                                this.config.processTitlePanelEvent(r, this);
-                            }
-                            if (this.captionCr.instance.processTitlePanelEvent != undefined) {
-                                this.captionCr.instance.processTitlePanelEvent(r, this);
-                            }
-                            if (this.panelTitleCrs[i].instance.processTitlePanelEvent != undefined) {
-                                this.panelTitleCrs[i].instance.processTitlePanelEvent(r, this);
-                            }
-                        })
-                    );
-                }
-
-                for (let i = 0; i < this.panelDescriptionCrs.length; i++) {
-                    this._panelDescriptionEventSub.add(
-                        this.panelDescriptionCrs[i].instance.onEvent.subscribe(r => {
-                            if (this.config.processDescriptionPanelEvent != undefined) {
-                                this.config.processDescriptionPanelEvent(r, this);
-                            }
-                            if (this.captionCr.instance.processDescriptionPanelEvent != undefined) {
-                                this.captionCr.instance.processDescriptionPanelEvent(r, this);
-                            }
-                            if (this.panelDescriptionCrs[i].instance.processDescriptionPanelEvent != undefined) {
-                                this.panelDescriptionCrs[i].instance.processDescriptionPanelEvent(r, this);
-                            }
-                        })
-                    );
-                }
-            }, (err: any) => {
-                console.log(err);
-            })
-        )
+        super(http, cfr, cdr);
     }
 
     public ngOnInit(): void {
-        this.initValues();
-        this.initCRSEvents();
-        this.search();
+        super.ngOnInit();
     }
 
-    public ngAfterViewInit() {
-        this.initCRs();
-    }
-
-    public panelClick(event: any, item: any) {
-        if (this.config.panelHeaderEvent != undefined) {
-            this.config.panelHeaderEvent(event, item, this);
-        }
-    }
-
-    public refresh() {
-        this.refreshCleanUp();
-        this.table.closeAll();
-        this.search();
-    }
-
-    public clearFilters() {
-        if (this.config.getState != undefined) {
-            this.state = this.config.getState(this.outerData);
-        } else {
-            this.state = getDefaultState();
-        }
-
-        this.refresh();
-    }
-
-    public collapse(idx: number) {
-        const cr = this.tableExpansionCrs.get(idx);
-
-        if (cr) {
-            this.tableExpansionCrs.get(idx).destroy();
-            this.tableExpansionCrs.delete(idx);
-            this.panelRowExpansionDirs.toArray()[idx].viewContainerRef.close();
-        }
-    }
-
-    public expand(expandKey: string, idx: number, rowData: any) {
-        if (this.config.rowExpansion.expansionMap == undefined) {
-            throw ('EXPANSION MAP FOR CONFIG IS NOT SET FOR MOBILE TABLE!');
-        }
-        if (!this.config.rowExpansion.expansionMap.has(expandKey)) {
-            throw ('EXPAND KEY DOES NOT EXIST!');
-        }
-
-        let panel: MatExpansionPanel;
-
-        this.panelRowExpansionDirs.forEach(x => {
-            if (x.rowIdx == idx) {
-                panel = x.viewContainerRef;
-            }
-        })
-
-        panel.afterExpand.pipe(take(1)).subscribe(r => {
-            this.tableExpansionDirs.forEach(x => {
-                if (x.rowIdx == idx) {
-                    const expandCfg = this.config.rowExpansion.expansionMap.get(expandKey);
-
-                    const cr = x.viewContainerRef.createComponent(
-                        this.cfr.resolveComponentFactory(expandCfg.component)
-                    )
-
-                    cr.instance.config = expandCfg.config;
-                    cr.instance.outerData = rowData;
-                    this.tableExpansionCrs.set(idx, cr);
-                }
-            })
-        })
-        panel.open();
-    }
-
-    public onPage(event: PageEvent) {
+    public onPageChange(event: PageEvent) {
         this.state.take = event.pageSize;
         this.state.skip = event.pageIndex * event.pageSize;
         this.refresh();
-    }
-
-    public ngOnDestroy() {
-        this.refreshCleanUp();
-        this._sub.unsubscribe();
     }
 }

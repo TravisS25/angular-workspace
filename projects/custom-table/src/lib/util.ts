@@ -3,7 +3,8 @@ import { Subscription } from 'rxjs';
 import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { BaseTableComponent } from './components/table/base-table/base-table.component';
 import { MaterialMenuItem } from './components/material/material-menu-item/material-menu-item.component';
-import { State, FilterDescriptor, ParamConfig, SelectItem, CheckboxEvent } from './table-api';
+import { State, FilterDescriptor, ParamConfig, SelectItem, CheckboxEvent, BaseEventOptionsI } from './table-api';
+import { BaseEventComponent } from "../public-api";
 
 // setColumnFilterValue sets the column filter reference values in table passed with
 // the values found in map passed
@@ -37,6 +38,18 @@ export function setColumnFilterValue(baseTable: any, fieldMap: Map<string, Selec
             })
         }
     }
+}
+
+export function setTableEvents(cr: BaseEventComponent, eventCfg: BaseEventOptionsI) {
+    cr.processTableCellEvent = eventCfg.processTableCellEvent;
+    cr.processCaptionEvent = eventCfg.processCaptionEvent;
+    cr.processClearFiltersEvent = eventCfg.processClearFiltersEvent;
+    cr.processColumnFilterEvent = eventCfg.processColumnFilterEvent;
+    cr.processDisplayItemEvent = eventCfg.processDisplayItemEvent;
+    cr.processInputTemplateEvent = eventCfg.processInputTemplateEvent;
+    cr.processPopupEvent = eventCfg.processPopupEvent;
+    cr.processSortEvent = eventCfg.processSortEvent;
+    cr.processTableFilterEvent = eventCfg.processTableFilterEvent;
 }
 
 export function defaultProcessError(err: any) {

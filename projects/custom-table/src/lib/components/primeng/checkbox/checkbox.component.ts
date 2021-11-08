@@ -1,14 +1,14 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { BaseTableEvent, BaseTableEventConfig, CheckboxEvent } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
 @Component({
     selector: 'app-checkbox',
     templateUrl: './checkbox.component.html',
     styleUrls: ['./checkbox.component.scss']
 })
-export class CheckboxComponent extends BaseColumnComponent implements OnInit {
+export class CheckboxComponent extends BaseColumnFilterComponent implements OnInit {
     public checked: boolean = false;
     public _cbCfg: BaseTableEventConfig;
 

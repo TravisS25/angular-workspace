@@ -5,13 +5,9 @@ import { HttpClient, HttpResponse, HttpErrorResponse, HttpHeaders, HttpParams } 
 import { MessageService, Message, MenuItem } from 'primeng/api';
 import { IConfig } from 'ngx-mask';
 import { BaseTableCaptionComponent } from './components/table/base-table-caption/base-table-caption.component';
-import { BaseColumnComponent } from './components/table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from './components/table/base-column-filter/base-column-filter.component';
 import { BaseDisplayItemComponent } from './components/table/base-display-item/base-display-item.component';
 import { BaseMobileFilterComponent } from './components/table/mobile/base-mobile-filter/base-mobile-filter.component';
-import { BaseRowExpansionComponent } from './components/table/base-row-expansion/base-row-expansion.component';
-import { BaseMobileTableComponent } from './components/table/mobile/base-mobile-table/base-mobile-table.component';
-import { BaseMobileDisplayItemComponent } from './components/table/mobile/base-mobile-display-item/base-mobile-display-item.component';
-import { BaseMobileTableEventComponent } from './components/table/mobile/base-mobile-table-event/base-mobile-table-event.component';
 import { BaseComponent } from './components/base/base.component';
 
 //---------------- EVENT ENUMS ----------------------- 
@@ -253,6 +249,7 @@ export interface ParamConfig {
 // HTTPOptions is just a type safe way of applying api options
 // to HTTPClient#get parameter
 export interface HTTPOptions {
+    body?: any;
     headers?: HttpHeaders
     observe?: 'body' | 'response' | 'events';
     params?: HttpParams
@@ -461,32 +458,29 @@ interface baseConfig {
 }
 
 // BaseMobileTableConfig is the main config used for mobile table
-export interface BaseMobileTableConfig extends MobileTableEventOptions, baseConfig {
+export interface BaseMobileTableConfig extends BaseEventOptionsI, baseConfig {
     // captionCfg is config used to generate dynamic caption component with settings
-    captionConfig?: MobileCaptionEntity;
+    caption?: CaptionEntity;
 
-    // panelTitleCfg is config used generate dynamic component for mobile table with settings
-    panelTitleConfig?: MobileDisplayItemEntity;
-
-    // panelDescriptionCfg is config used generate dynamic component for mobile table with settings
-    panelDescriptionConfig?: MobileDisplayItemEntity;
+    // displayItem is config used to generate dynamic component in mobile table row
+    displayItem?: DisplayItemEntity;
 
     // panelHeaderEvent is function that will be called whenever panel header of mobile is clicked
     // The event parameter can be used to determine what to do with event
-    panelHeaderEvent?: (event: any, rowData: any, table: any) => void;
+    rowEvent?: (event: any, rowData: any, componentRef: any) => void;
 
     // panelHeaderStyle is styling to be used for panel header of mobile stable
-    panelHeaderStyle?: Object;
+    rowStyle?: Object;
 
     // panelHeaderClass is classes to be used for panel header of mobile stable
-    panelHeaderClass?: string;
+    rowClass?: string;
 
-    // expansion is config used to expand an inner table with current mobile table
+    // rowExpansion is config used to expand an inner table with current mobile table
     rowExpansion?: MobileRowExpansionEntity;
 }
 
 // BaseTableConfig is the main config that is used against our table api
-export interface BaseTableConfig extends TableEventOptions, baseConfig {
+export interface BaseTableConfig extends BaseEventOptionsI, baseConfig {
     // tableSettingsAPIConfig makes an api call based on given url and applies the results
     // to column filter values specified
     tableSettingsAPIConfig?: APIConfig;
@@ -537,26 +531,19 @@ export interface BaseColumnFilterI extends BaseMobileFilterI, ProcessRowDataI {
 
 export interface BaseDisplayItemI extends BaseComponentI, ProcessRowDataI { }
 
-export interface BaseMobileDisplayItemI extends BaseDisplayItemI {
-    isTitlePanel?: boolean;
-}
 
 export interface BaseMobileRowExpansionI extends ConfigI {
-    expansionMap: Map<string, MobileRowExpansionEntity>;
-    borderStyle?: Object;
-    borderClass?: string;
+    //expansionMap: Map<string, MobileRowExpansionEntity>;
+    collapse: (rowIdx: number, componentRef: any) => void;
+    expand: (rowIdx: number, rowData: any, componentRef: any) => void;
 }
 
-export interface BaseRowExpansionI extends ConfigI {
-    renderCallback?: EventEmitter<any>
-}
 
 // ---------------- TABLE CONFIGURATION ------------------
 
 export interface IndexTableI extends ConfigI {
     state?: State;
 }
-
 
 // ---------------- TABLE IMPLEMENTATION ------------------
 
@@ -569,12 +556,12 @@ export interface PopupFormEntity extends PopupFormI {
 }
 
 // CaptionEntity is used to display caption component in caption part of table
-export interface CaptionEntity extends ConfigI, TableEventOptions {
+export interface CaptionEntity extends ConfigI, BaseEventOptionsI {
     component: Type<BaseTableCaptionComponent>;
 }
 
-export interface MobileCaptionEntity extends ConfigI, TableEventOptions {
-    component: Type<BaseMobileTableEventComponent>;
+export interface MobileCaptionEntity extends ConfigI, BaseEventOptionsI {
+    component: Type<BaseComponent>;
 }
 
 
@@ -584,67 +571,56 @@ export interface ConfigEntity extends ConfigI {
     component: Type<ConfigI>;
 }
 
-/////// Table /////////
-
 export interface BaseComponentEntity extends BaseComponentI {
     component: Type<BaseComponent>;
 }
 
+/////// Table /////////
+
 // RowExpansionEntity is used to display expansion component of table
-export interface RowExpansionEntity extends BaseRowExpansionI {
+export interface RowExpansionEntity extends BaseComponentI {
     // component is component to use for expansion of table
-    component: Type<BaseRowExpansionComponent>;
+    component: Type<BaseComponent>;
 }
 
-export interface ColumnFilterEntity extends BaseColumnFilterI, TableEventOptions {
-    component: Type<BaseColumnComponent>;
+export interface ColumnFilterEntity extends BaseColumnFilterI, BaseEventOptionsI {
+    component: Type<BaseColumnFilterComponent>;
 }
 
-export interface DisplayItemEntity extends BaseDisplayItemI, TableEventOptions {
+export interface DisplayItemEntity extends BaseDisplayItemI, BaseEventOptionsI {
     component: Type<BaseDisplayItemComponent>;
 }
 
 /////// Mobile /////////
 
-export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI, MobileTableEventOptions {
-    component: Type<BaseMobileTableComponent>;
+export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI {
+    component: Type<BaseComponent>;
 }
 
-export interface MobileFilterEntity extends BaseMobileFilterI, MobileTableEventOptions {
+export interface MobileFilterEntity extends BaseMobileFilterI, BaseEventOptionsI {
     component: Type<BaseMobileFilterComponent>;
-}
-
-export interface MobileDisplayItemEntity extends BaseMobileDisplayItemI, MobileTableEventOptions {
-    component: Type<BaseMobileDisplayItemComponent>;
 }
 
 // ------------------ COLUMN CONFIGS -----------------------
 
 
-// BaseEventOptions represents the base event options that every table should contain
-export interface BaseEventOptions {
+// BaseEventOptionsI represents the base event options that every table should contain
+export interface BaseEventOptionsI {
     // processCaptionEvent activates whenever an event occurs from the caption
-    processCaptionEvent?: (event: any, componentRef: any) => void;
+    processCaptionEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
     // processPopupEvent will process any event that occurs within a popup form/display
-    processPopupEvent?: (event: any, componentRef: any) => void;
-}
+    processPopupEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
-// TableEventOptions is config that can be optionally be added to a config passed
-// to different parts of table api such as caption, column filter, etc.
-//
-// The purpose of TableEventOptions is to be able to listen to events on a per 
-// column basis and should be used within the Column config
-export interface TableEventOptions extends BaseEventOptions {
     // processTableCellEvent processes an event from body cell for current column
     // This function will only activate if tableCell#field property is set 
     // to field that is exposed when a body cell creates an event which
     // should be based off the BaseTableEvent interface
-    processTableCellEvent?: (event: any, componentRef: any) => void;
+    processTableCellEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
     // processDisplayItemEvent process any event that a display item emits
     // This will usually be either a text link or button
-    processDisplayItemEvent?: (event: any, componentRef: any) => void;
+    processDisplayItemEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
     // processColumnFilterEvent processes an event from column filter for current column
     // There is no need to make explicit api request within this function as the table
@@ -653,30 +629,20 @@ export interface TableEventOptions extends BaseEventOptions {
     // The main purpose of this function is to be able to do various checks and
     // potentially modify BaseTableComponent#state variable before it is sent to 
     // server by table api
-    processColumnFilterEvent?: (event: any, componentRef: any) => void;
+    processColumnFilterEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
     // processSortEvent is activated whenever a column is sorted
-    processSortEvent?: (event: any, componentRef: any) => void;
+    processSortEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
     // processTableFilterEvent activates whenever the table changes data through
     // a column filter change, pagination etc.
-    processTableFilterEvent?: (event: any, componentRef: any) => void;
+    processTableFilterEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
     // processClearFiltersEvent activates whenever the "Clear Filters" button
     // is used by user
-    processClearFiltersEvent?: (event: any, componentRef: any) => void;
+    processClearFiltersEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
-    processInputTemplateEvent?: (event: any, componentRef: any) => void;
-}
-
-export interface MobileTableEventOptions extends BaseEventOptions {
-    // processTitlePanelEvent will process events that happen within the title 
-    // section of a mobile table
-    processTitlePanelEvent?: (event: any, componentRef: any) => void;
-
-    // processDescriptionPanelEvent will process events that happen within the
-    // description section of a mobile table
-    processDescriptionPanelEvent?: (event: any, componentRef: any) => void;
+    processInputTemplateEvent?: (event: BaseTableEvent, componentRef: any) => void;
 }
 
 // TemplateConfig is config used for cell/row editing and determines

@@ -4,7 +4,7 @@ import { MenuItem } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { deepCopyMenuItem } from '../../../copy-util';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
 export interface RowOptionsConfig {
     items: MenuItem[];
@@ -20,7 +20,7 @@ export interface RowOptionsChangeEvent extends BaseTableEvent {
     templateUrl: './row-options.component.html',
     styleUrls: ['./row-options.component.scss']
 })
-export class RowOptionsComponent extends BaseColumnComponent implements OnInit, OnDestroy {
+export class RowOptionsComponent extends BaseColumnFilterComponent implements OnInit, OnDestroy {
     private _roConfig: RowOptionsConfig;
 
     public newList: MenuItem[] = [];

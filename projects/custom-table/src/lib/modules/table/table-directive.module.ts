@@ -8,30 +8,26 @@ import { TableColumnFilterDirective } from '../../directives/table/table-column-
 import { TableInputTemplateDirective } from '../../directives/table/table-input-template.directive';
 import { TableOutputTemplateDirective } from '../../directives/table/table-output-template.directive';
 import { TableRowExpansionDirective } from '../../directives/table/table-row-expansion.directive';
+import { MobileTableDirectiveModule } from 'projects/custom-table/src/public-api';
 
 
 
 @NgModule({
     declarations: [
-        BaseTableCellDirective,
         TableBodyCellDirective,
-        TableCaptionDirective,
         TableCellDirective,
         TableColumnFilterDirective,
-        TableRowExpansionDirective,
         TableInputTemplateDirective,
         TableOutputTemplateDirective,
     ],
     imports: [
-        CommonModule
+        CommonModule,
+        MobileTableDirectiveModule,
     ],
     exports: [
-        BaseTableCellDirective,
         TableBodyCellDirective,
-        TableCaptionDirective,
         TableCellDirective,
         TableColumnFilterDirective,
-        TableRowExpansionDirective,
         TableInputTemplateDirective,
         TableOutputTemplateDirective,
     ]

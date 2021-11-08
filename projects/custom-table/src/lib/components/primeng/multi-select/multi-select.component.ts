@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ViewChildren, ViewChild, Output, EventEmitter, ComponentFactoryResolver, ChangeDetectorRef } from '@angular/core';
 import { MultiSelect, MultiSelectItem } from 'primeng/multiselect';
 import { BaseTableEvent } from '../../../table-api';
-import { BaseColumnComponent } from '../../table/base-column/base-column.component';
+import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
 export interface MultiSelectConfig {
     // Inline style of the element
@@ -55,7 +55,7 @@ export interface MultiSelectEvent {
     templateUrl: './multi-select.component.html',
     styleUrls: ['./multi-select.component.scss']
 })
-export class MultiSelectComponent extends BaseColumnComponent {
+export class MultiSelectComponent extends BaseColumnFilterComponent {
     @ViewChild('select', { static: false }) public select: MultiSelect;
 
     constructor() {

@@ -1,24 +1,20 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BaseTableEvent, FilterDescriptor, TableEvents } from '../../../table-api';
-import { BaseTableEventComponent } from '../base-table-event/base-table-event.component'
 import { BaseComponent } from '../../base/base.component';
 import { BaseMobileFilterComponent } from '../mobile/base-mobile-filter/base-mobile-filter.component';
 
 @Component({
-    selector: 'lib-base-column',
-    templateUrl: './base-column.component.html',
-    styleUrls: ['./base-column.component.scss']
+    selector: 'lib-base-column-filter',
+    templateUrl: './base-column-filter.component.html',
+    styleUrls: ['./base-column-filter.component.scss']
 })
-export abstract class BaseColumnComponent extends BaseTableEventComponent implements OnInit {
+export class BaseColumnFilterComponent extends BaseMobileFilterComponent implements OnInit {
     @Input() public colIdx: number;
     @Input() public isColumnFilter: boolean;
     @Input() public isInputTemplate: boolean;
     @Input() public excludeFilter: boolean;
     @Input() public rowIdx: number;
     @Input() public rowData: any;
-    @Input() public selectedValue: any;
-    @Input() public field: string;
-    @Input() public operator: string;
     @Input() public processRowData: (rowData: any, componentRef: any) => void;
 
     constructor() {
@@ -56,4 +52,5 @@ export abstract class BaseColumnComponent extends BaseTableEventComponent implem
             this.operator = 'eq';
         }
     }
+
 }
