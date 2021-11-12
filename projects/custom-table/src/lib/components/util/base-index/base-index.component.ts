@@ -6,7 +6,7 @@ import _ from "lodash" // Import the entire lodash library
 import { WindowResizeService } from '../../../services/window-resize.service';
 import { IndexTableI } from '../../../table-api';
 
-
+// TableDirective is directive used to dynamically generate a table from <ng-template>
 @Directive({
     selector: '[libTable]'
 })
@@ -14,6 +14,7 @@ export class TableDirective {
     constructor(public viewContainerRef: ViewContainerRef) { }
 }
 
+// MobileTableDirective is directive used to dynamically generate a mobile table from <ng-template>
 @Directive({
     selector: '[libMobileTable]'
 })
@@ -21,73 +22,77 @@ export class MobileTableDirective {
     constructor(public viewContainerRef: ViewContainerRef) { }
 }
 
+// BaseIndexComponent is component that helps dynamically generate desktop or
+// mobile table based on display size
 @Component({
     selector: 'lib-base-index',
     templateUrl: './base-index.component.html',
     styleUrls: ['./base-index.component.scss']
 })
 export class BaseIndexComponent implements OnInit {
+    // _sub is generic subscription
     private _sub: Subscription = new Subscription();
+
+    // _currentState is state that will be set to table entity transitioning between
+    // mobile and desktop views
     private _currentState: State;
 
+    // _tableCR is reference to dynamically generated desktop table
     private _tableCR: ComponentRef<IndexTableI>;
+
+    // _mobileTableCR is reference to dynamically generated mobile table
     private _mobileTableCR: ComponentRef<IndexTableI>;
 
+    // _isPreviousMobile is a flag variable that is used to determine
+    // if window was previously for mobile before current window resize
+    //
+    // This is used to compare with isMobileTable variable and if they 
+    // are different, we know the user just resized screen from/to mobile view
+    private _isPreviousMobile = false;
+
+    // isMobileTable determines if currently diplaying mobile table
     public isMobileTable: boolean = false;
 
+    // tableDir represents directive that will generate desktop table
     @ViewChildren(TableDirective) public tableDir: QueryList<TableDirective>;
+
+    // mobileTableDir represents directive that will generate mobile table
     @ViewChildren(MobileTableDirective) public mobileTableDir: QueryList<MobileTableDirective>;
 
+    // tableChangeWidth is width, in pixels, at which we determine when to 
+    // transitiom from mobile to desktop or visa versa
     @Input() public tableChangeWidth: number = 991;
+
+    // disableTableChange allows user to disable changing table views
+    //
+    // This can be useful in certain situations such as current user
+    // does not want a mobile view even when on a phone
     @Input() public disableTableChange: boolean = false;
+
+    // tableEntity is settings to dynamically generate table
     @Input() public tableEntity: BaseIndexTableEntity;
+
+    // mobileTableEntity is settings to dynamically generate mobile table
     @Input() public mobileTableEntity: BaseIndexTableEntity;
     @Output() public onWindowChange: EventEmitter<number> = new EventEmitter();
 
     constructor(
         public cdr: ChangeDetectorRef,
         public cfr: ComponentFactoryResolver,
-        public windowResizeService: WindowResizeService,
     ) { }
 
-    private subscribeDirChanges() {
-        this._sub.add(
-            this.tableDir.changes.subscribe(r => {
-                console.log('table dir changes')
-                console.log(r)
-
-                if (r.length > 0) {
-                    this.tableEntity.state = this._currentState;
-
-                    this.destroyCr();
-                    this.createCr();
-                    this.cdr.detectChanges();
-                }
-            })
-        )
-        this._sub.add(
-            this.mobileTableDir.changes.subscribe(r => {
-                console.log('mobile table dir changes')
-                console.log(r)
-
-                this.mobileTableEntity.state = this._currentState;
-
-                if (r.length > 0) {
-                    this.destroyCr()
-                    this.createCr();
-                    this.cdr.detectChanges();
-                }
-            })
-        )
+    private destroyAndCreateCr() {
+        this.destroyCr();
+        this.createCr();
+        this.cdr.detectChanges();
     }
 
+    // createCr looks at table flag and determines what table view to create
     private createCr() {
         if (this.isMobileTable) {
             console.log('creating mobile table!')
             this._mobileTableCR = this.mobileTableDir.toArray()[0].viewContainerRef.createComponent(
-                this.cfr.resolveComponentFactory(
-                    this.mobileTableEntity.component
-                ),
+                this.cfr.resolveComponentFactory(this.mobileTableEntity.component),
             );
 
             this._mobileTableCR.instance.state = this._currentState
@@ -96,9 +101,7 @@ export class BaseIndexComponent implements OnInit {
         } else {
             console.log('creating table!')
             this._tableCR = this.tableDir.toArray()[0].viewContainerRef.createComponent(
-                this.cfr.resolveComponentFactory(
-                    this.tableEntity.component
-                ),
+                this.cfr.resolveComponentFactory(this.tableEntity.component),
             );
 
             this._tableCR.instance.state = this._currentState;
@@ -107,20 +110,19 @@ export class BaseIndexComponent implements OnInit {
         }
     }
 
+    // destroyCr looks at table flag and determines what table view to destroy
     private destroyCr() {
-        if (this.isMobileTable) {
-            if (this._tableCR != undefined) {
-                this._tableCR.destroy();
-                this._tableCR = undefined;
-            }
-        } else {
-            if (this._mobileTableCR != undefined) {
-                this._mobileTableCR.destroy();
-                this._mobileTableCR = undefined;
-            }
+        if (this.isMobileTable && this._tableCR != undefined) {
+            this._tableCR.destroy();
+            this._tableCR = undefined;
+        } else if (this._mobileTableCR != undefined) {
+            this._mobileTableCR.destroy();
+            this._mobileTableCR = undefined;
         }
     }
 
+    // setCurrentState looks at table flag and sets _currentState based state
+    // of that table view
     private setCurrentState() {
         if (this.isMobileTable) {
             this._currentState = this._mobileTableCR.instance.state;
@@ -129,9 +131,10 @@ export class BaseIndexComponent implements OnInit {
         }
     }
 
-    private setTableSettings(width: number) {
+    // setTableFlag will set table flag which determines 
+    private setTableFlag() {
         if (!this.disableTableChange) {
-            if (width < this.tableChangeWidth) {
+            if (window.innerWidth < this.tableChangeWidth) {
                 this.isMobileTable = true;
             } else {
                 this.isMobileTable = false;
@@ -139,24 +142,19 @@ export class BaseIndexComponent implements OnInit {
         }
     }
 
-    private unsubscribeSub() {
-        if (this._sub && !this._sub.closed) {
-            this._sub.unsubscribe();
-        }
-        this._sub = null;
-    }
-
+    // subscribeWindow uses global window object and listens for resizing of window
+    // to change table views based on tableChangeWidth
     private subscribeWindow() {
         window.onresize = () => {
-            this.windowResizeService.setWindowSize(window.innerWidth);
+            this.setCurrentState();
+            this.setTableFlag();
+
+            if (this._isPreviousMobile != this.isMobileTable) {
+                this.destroyAndCreateCr()
+            }
+
+            this._isPreviousMobile = this.isMobileTable;
         }
-        this._sub.add(
-            this.windowResizeService.getWindowSizeObs().subscribe(r => {
-                this.setCurrentState();
-                this.setTableSettings(r);
-                this.onWindowChange.emit(r);
-            })
-        )
     }
 
     public ngOnInit(): void {
@@ -165,16 +163,16 @@ export class BaseIndexComponent implements OnInit {
         }
 
         this.subscribeWindow();
-        this.setTableSettings(window.innerWidth);
+        this.setTableFlag();
+        this._isPreviousMobile = this.isMobileTable;
     }
 
     public ngAfterViewInit() {
         this.createCr()
-        this.subscribeDirChanges();
         this.cdr.detectChanges();
     }
 
     public ngOnDestroy() {
-        this.unsubscribeSub();
+        this._sub.unsubscribe();
     }
 }

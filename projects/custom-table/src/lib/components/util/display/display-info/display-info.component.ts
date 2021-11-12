@@ -3,8 +3,9 @@ import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angul
 import { DisplayItemEntity, DisplayFormat, PopupFormI } from '../../../../table-api';
 import { Subscription } from 'rxjs';
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
+import { BaseComponentEntity, BaseEventComponent, BaseEventEntity, setTableEvents } from 'projects/custom-table/src/public-api';
 
-
+// DisplayInfoItem is used to render a header and display item entity with some styling
 export interface DisplayInfoItem {
     // colClass is class to determine how much column space each item gets
     colClass?: string;
@@ -22,6 +23,7 @@ export interface DisplayInfoItem {
     displayEntity: DisplayItemEntity;
 }
 
+// DisplayInfoConfig is config used in DisplayInfoComponent component
 export interface DisplayInfoConfig {
     // componentRef should be a component reference passed to popup display component
     // that can access the component that called current popup display component
@@ -40,12 +42,13 @@ export interface DisplayInfoConfig {
     header?: DisplayFormat;
 
     // action is dynamic component
-    actionEntity?: DisplayItemEntity;
+    actionSection?: DisplayItemEntity;
 
     // displayItems are items to be dynamically created for component
     displayItems: DisplayInfoItem[];
 }
 
+// DisplayInfoItemDirective is directive used to dynamically generate display items
 @Directive({
     selector: '[libDisplayInfoItem]'
 })
@@ -53,6 +56,8 @@ export class DisplayInfoItemDirective {
     constructor(public viewContainerRef: ViewContainerRef) { }
 }
 
+// DisplayInfoActionDirective is directive used to dynamically generate an action
+// section of the display
 @Directive({
     selector: '[libDisplayInfoAction]'
 })
@@ -60,6 +65,10 @@ export class DisplayInfoActionDirective {
     constructor(public viewContainerRef: ViewContainerRef) { }
 }
 
+// DisplayInfoComponent is a generic component to dynamically generate display information
+//
+// The main purpose of this component is to dynamically generate a details page for any
+// type of entity and have an action section for making an update/delete action
 @Component({
     selector: 'lib-display-info',
     templateUrl: './display-info.component.html',
@@ -68,9 +77,16 @@ export class DisplayInfoActionDirective {
 export class DisplayInfoComponent implements OnInit {
     private _sub: Subscription = new Subscription();
 
+    // config is config used for component
     @Input() public config: DisplayInfoConfig;
+
+    // displayItemDirs are directives to dynamically generate display item components
     @ViewChildren(DisplayInfoItemDirective) public displayItemDirs: QueryList<DisplayInfoItemDirective>;
+
+    // actionDir is directive to dynamically generate action section of display info
     @ViewChild(DisplayInfoActionDirective) public actionDir: DisplayInfoActionDirective;
+
+    // displayCrs are references to display items
     public displayCrs: ComponentRef<BaseDisplayItemComponent>[] = [];
 
     constructor(
@@ -85,6 +101,7 @@ export class DisplayInfoComponent implements OnInit {
         cr.instance.rowIdx = this.config.rowIdx;
         cr.instance.colIdx = this.config.colIdx;
         cr.instance.processRowData = item.processRowData;
+        setTableEvents(cr.instance, item);
 
         this._sub.add(
             cr.instance.onEvent.subscribe(r => {
@@ -108,11 +125,11 @@ export class DisplayInfoComponent implements OnInit {
             this.displayCrs.push(cr);
         }
 
-        if (this.config.actionEntity != undefined) {
+        if (this.config.actionSection != undefined) {
             const cr = this.actionDir.viewContainerRef.createComponent(
-                this.cfr.resolveComponentFactory(this.config.actionEntity.component),
+                this.cfr.resolveComponentFactory(this.config.actionSection.component),
             )
-            this.updateCr(cr, this.config.actionEntity);
+            this.updateCr(cr, this.config.actionSection);
             this.displayCrs.push(cr);
         }
     }

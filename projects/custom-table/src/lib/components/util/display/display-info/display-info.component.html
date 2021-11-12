@@ -1,14 +1,16 @@
 <div *ngIf="config.header" [style]="config.header.borderStyle" [ngClass]="config.header.borderClass"
     [innerHTML]="config.header">
 </div>
-<ng-container *ngFor="let item of config.displayItems">
-    <div [ngClass]="item.colClass">
-        <div [style]="item.borderStyle" [ngClass]="item.borderClass">
-            <span *ngIf="item.displayHeader" [style]="item.displayHeader.borderStyle"
-                [ngClass]="item.displayHeader.borderClass" [innerHTML]="item.displayHeader.item">
-            </span>
-            <ng-template [libDisplayInfoItem]></ng-template>
+<div class="row">
+    <ng-container *ngFor="let item of config.displayItems">
+        <div [ngClass]="item.colClass">
+            <div [style]="item.borderStyle" [ngClass]="item.borderClass">
+                <span *ngIf="item.displayHeader" [style]="item.displayHeader.borderStyle"
+                    [ngClass]="item.displayHeader.borderClass" [innerHTML]="item.displayHeader.item">
+                </span>
+                <ng-template [libDisplayInfoItem]></ng-template>
+            </div>
         </div>
-    </div>
-</ng-container>
+    </ng-container>
+</div>
 <ng-template [libDisplayInfoAction]></ng-template>

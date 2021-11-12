@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { BaseTableEvent } from '../../table-api';
 import { Subscription } from 'rxjs';
 
+// BaseComponent is component that every component in table should inherit
 @Component({
     selector: 'lib-base',
     templateUrl: './base.component.html',

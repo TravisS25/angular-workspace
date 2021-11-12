@@ -10,11 +10,6 @@ import { BaseComponent } from '../../base/base.component';
 export abstract class BaseEventComponent extends BaseComponent implements OnInit {
     @Output() public onEvent: EventEmitter<BaseTableEvent> = new EventEmitter();
 
-    constructor() { super() }
-
-    public ngOnInit(): void {
-    }
-
     // processCaptionEvent will process any event that is emitted from caption of table
     @Input() public processCaptionEvent: (event: BaseTableEvent, componentRef: any) => void;
 
@@ -40,4 +35,9 @@ export abstract class BaseEventComponent extends BaseComponent implements OnInit
 
     // processDisplayItemEvent will process any event that comes from mobile table row
     @Input() public processDisplayItemEvent: (event: BaseTableEvent, componentRef: any) => void;
+
+    constructor() { super() }
+
+    public ngOnInit(): void {
+    }
 }

@@ -9,6 +9,7 @@ import { BaseColumnFilterComponent } from './components/table/base-column-filter
 import { BaseDisplayItemComponent } from './components/table/base-display-item/base-display-item.component';
 import { BaseMobileFilterComponent } from './components/table/mobile/base-mobile-filter/base-mobile-filter.component';
 import { BaseComponent } from './components/base/base.component';
+import { BaseEventComponent } from '../public-api';
 
 //---------------- EVENT ENUMS ----------------------- 
 
@@ -573,6 +574,10 @@ export interface ConfigEntity extends ConfigI {
 
 export interface BaseComponentEntity extends BaseComponentI {
     component: Type<BaseComponent>;
+}
+
+export interface BaseEventEntity extends BaseComponentI {
+    component: Type<BaseEventComponent>;
 }
 
 /////// Table /////////

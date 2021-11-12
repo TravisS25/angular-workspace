@@ -1,18 +1,26 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DisplayInfoComponent } from '../../../components/util/display/display-info/display-info.component';
+import {
+    DisplayInfoComponent,
+    DisplayInfoItemDirective,
+    DisplayInfoActionDirective
+} from '../../../components/util/display/display-info/display-info.component';
 
 
 
 @NgModule({
     declarations: [
-        DisplayInfoComponent
+        DisplayInfoComponent,
+        DisplayInfoItemDirective,
+        DisplayInfoActionDirective,
     ],
     imports: [
         CommonModule
     ],
     exports: [
-        DisplayInfoComponent
+        DisplayInfoComponent,
+        DisplayInfoItemDirective,
+        DisplayInfoActionDirective,
     ]
 })
 export class DisplayInfoModule { }
