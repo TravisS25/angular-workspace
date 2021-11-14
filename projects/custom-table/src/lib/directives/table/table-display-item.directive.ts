@@ -1,5 +1,5 @@
 import { Directive, ViewContainerRef } from '@angular/core';
-import { BaseTableCellDirective } from 'projects/custom-table/src/public-api';
+import { BaseTableCellDirective } from '../../directives/table/base-table-cell.directive';
 
 @Directive({
     selector: '[libTableDisplayItem]'

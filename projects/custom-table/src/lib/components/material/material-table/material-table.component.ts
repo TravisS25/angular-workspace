@@ -7,6 +7,7 @@ import { Sort } from '@angular/material/sort';
 import { TableEvents } from '../../../table-api';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { PageEvent } from '@angular/material/paginator';
+import { onMaterialPageChange, onMaterialRowExpandAnimation, onMaterialSortChange } from '../material-util';
 
 
 export interface MaterialTableConfig extends BaseTableConfig {
@@ -22,7 +23,7 @@ export interface MaterialColumn extends CoreColumn {
     templateUrl: './material-table.component.html',
     styleUrls: ['./material-table.component.scss'],
     animations: [
-        trigger('detailExpand', [
+        trigger('rowExpand', [
             state('collapsed', style({ height: '0px', minHeight: '0' })),
             state('expanded', style({ height: '*' })),
             transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
@@ -30,9 +31,9 @@ export interface MaterialColumn extends CoreColumn {
     ],
 })
 export class MaterialTableComponent extends BaseTableComponent implements OnInit {
-    @Input() public columns: MaterialColumn[];
-    @ViewChild('table', { static: false }) public table: MatTable<any>
+    @ViewChild(MatTable, { static: false }) public table: MatTable<any>;
 
+    public columns: MaterialColumn[];
     public columnHeaders: string[] = [];
 
     constructor(
@@ -53,24 +54,35 @@ export class MaterialTableComponent extends BaseTableComponent implements OnInit
     }
 
     public onSortChange(sort: Sort) {
-        this.onSortEvent.emit({
-            eventType: TableEvents.sort,
-            eventFieldName: sort.active,
-        });
-
-        if (this.config.autoSearch) {
-            this.update();
-        }
+        onMaterialSortChange(
+            sort,
+            this.onSortEvent,
+            this.config.autoSearch,
+            this.state,
+            this.update,
+        )
     }
 
     public onPageChange(event: PageEvent) {
-        this.state.skip = event.pageSize * event.pageIndex;
-        this.state.take = event.pageSize;
-        this.update();
+        onMaterialPageChange(event, this.state, this.update);
     }
 
-    public closeExpandedRows() {
+    public closeRows() {
 
+    }
+
+    // onRowExpandAnimation will activate when table row either expands or collapses
+    // This function will create row expansion component on expand, if not already created
+    public onRowExpandAnimation(event: AnimationEvent, rowIdx: number) {
+        onMaterialRowExpandAnimation(
+            event,
+            rowIdx,
+            this.rowExpansionDirs,
+            this.rowExpansionCrs,
+            this.config.rowExpansion,
+            this.cfr,
+            this,
+        )
     }
 
     ///////////////////////////////////////////

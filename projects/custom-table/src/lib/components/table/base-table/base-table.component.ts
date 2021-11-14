@@ -14,7 +14,8 @@ import { BaseTableCellDirective } from '../../../directives/table/base-table-cel
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { TableRowExpansionDirective } from '../../../directives/table/table-row-expansion.directive';
 import { BaseDisplayItemComponent } from '../../../components/table/base-display-item/base-display-item.component';
-import { BaseComponentI, TableDisplayItemDirective } from 'projects/custom-table/src/public-api';
+import { TableDisplayItemDirective } from '../../../directives/table/table-display-item.directive';
+import { TableEvents } from '../../../table-api';
 import 'rxjs/add/observable/combineLatest';
 
 
@@ -140,11 +141,9 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // including column filter, body cell etc.
     public columns: CoreColumn[];
 
+    // filterData represents the data that will be retrieved from server which is 
+    // an array of objects and the total number of records based on current filter
     public filterData: FilterData
-
-    public abstract closeExpandedRows();
-    public abstract onPageChange(event: any);
-    public abstract onSortChange(event: any);
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -159,6 +158,10 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     public ngAfterViewInit() {
         this.initAfterView();
     }
+
+    public abstract onPageChange(event: any);
+    public abstract onSortChange(event: any);
+    public abstract closeRows();
 
     ///////////////////////////////////////////
     // INIT COLUMN COMPONENTS
@@ -698,16 +701,10 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             this._updateDisplayItemComponents = true;
             this.filterData = res.body;
 
-            // // If table is not yet initialized, initiate all of our cr event to 
-            // // listen to each other
-            // if (!this._tableInit) {
-            //     this.initCRSEvents();
-            // }
-
-            const bte: BaseTableEvent = {
+            this.onTableFilterEvent.emit({
+                eventType: TableEvents.tableFilter,
                 event: res
-            }
-            this.onTableFilterEvent.emit(bte);
+            });
 
             if (this.config.tableAPIConfig.processResult != undefined) {
                 this.config.tableAPIConfig.processResult(r, this);
@@ -733,11 +730,12 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             this.state.sort = [];
         }
 
-        this.onClearFiltersEvent.emit({});
+        this.onClearFiltersEvent.emit({
+            eventType: TableEvents.clearFilters,
+        });
         this.columnFilterCrs.forEach(item => {
             item.instance.clearFilter();
         })
-
 
         for (let i = 0; i < this.columns.length; i++) {
             for (let k = 0; k < this._hiddenColumnFilters.length; k++) {
@@ -861,8 +859,8 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             url,
             { withCredentials: true, observe: 'response', responseType: 'blob' }
         ).subscribe(r => {
-            const req = r as HttpResponse<any>
-            const newBlob = new Blob([req.body], blobOpts);
+            const res = r as HttpResponse<any>
+            const newBlob = new Blob([res.body], blobOpts);
 
             // For other browsers: 
             // Create a link pointing to the ObjectURL containing the blob.

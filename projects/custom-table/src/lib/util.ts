@@ -4,7 +4,7 @@ import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { BaseTableComponent } from './components/table/base-table/base-table.component';
 import { MaterialMenuItem } from './components/material/material-menu-item/material-menu-item.component';
 import { State, FilterDescriptor, ParamConfig, SelectItem, CheckboxEvent, BaseEventOptionsI } from './table-api';
-import { BaseEventComponent } from "../public-api";
+import { BaseEventComponent } from "./components/table/base-event/base-event.component";
 
 // setColumnFilterValue sets the column filter reference values in table passed with
 // the values found in map passed

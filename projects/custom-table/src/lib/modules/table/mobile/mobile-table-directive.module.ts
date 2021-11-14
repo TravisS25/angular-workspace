@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableCaptionDirective, TableRowExpansionDirective } from 'projects/custom-table/src/public-api';
+import { TableCaptionDirective } from '../../../directives/table/table-caption.directive';
+import { TableRowExpansionDirective } from '../../../directives/table/table-row-expansion.directive';
 import { TableDisplayItemDirective } from '../../../directives/table/table-display-item.directive';
 
 

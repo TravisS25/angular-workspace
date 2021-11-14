@@ -2,6 +2,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { BaseTableEvent } from '../../../table-api';
 import { BaseComponent } from '../../base/base.component';
 
+// BaseEventComponent should be extended by any component within table
+// and is responsible for processing any events that occurs within table
 @Component({
     selector: 'lib-base-event',
     templateUrl: './base-event.component.html',
@@ -37,7 +39,4 @@ export abstract class BaseEventComponent extends BaseComponent implements OnInit
     @Input() public processDisplayItemEvent: (event: BaseTableEvent, componentRef: any) => void;
 
     constructor() { super() }
-
-    public ngOnInit(): void {
-    }
 }

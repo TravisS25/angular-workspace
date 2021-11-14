@@ -1,9 +1,9 @@
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, Type, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { getDefaultState } from '../../../../default-values';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import _ from "lodash" // Import the entire lodash library
-import { encodeURIState } from '../../../../util';
+import { encodeURIState, setTableEvents } from '../../../../util';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/combineLatest';
 import { take } from 'rxjs/operators';
@@ -12,7 +12,11 @@ import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-
 import { MatTable } from '@angular/material/table';
 import { HttpService } from '../../../../services/http.service';
 import { BaseComponent } from '../../../base/base.component'
-import { BaseEventComponent, BaseTableEvent, TableDisplayItemDirective, setTableEvents, TableCaptionDirective, TableRowExpansionDirective } from 'projects/custom-table/src/public-api';
+import { BaseTableEvent, TableEvents } from '../../../../table-api'
+import { TableRowExpansionDirective } from '../../../../directives/table/table-row-expansion.directive';
+import { BaseEventComponent } from '../../base-event/base-event.component';
+import { TableDisplayItemDirective } from '../../../../directives/table/table-display-item.directive';
+import { TableCaptionDirective } from '../../../../directives/table/table-caption.directive'
 
 
 @Component({
@@ -21,11 +25,20 @@ import { BaseEventComponent, BaseTableEvent, TableDisplayItemDirective, setTable
     styleUrls: ['./base-mobile-table.component.scss']
 })
 export abstract class BaseMobileTableComponent extends BaseComponent implements OnInit {
+    // _isTableInit is flag used to indicate whether table has been
+    // initialized for the first time or not
+    //
+    // This is used to make sure we only create table caption once
+    // Once table is initialized this will be set to true
     private _isTableInit: boolean = false;
 
+    // _displayItemSub is subscription that keeps track of all display item events
     private _displayItemSub: Subscription = new Subscription()
 
-    private _displayItemRender: EventEmitter<void> = new EventEmitter();
+    // _displayItemRender is subject that we use as a "flag" to indicate when
+    // all the dynamically generated display items are done rendering so we
+    // can then subscribe events with rest of table
+    private _displayItemRender: Subject<void> = new Subject();
 
     // _updateDisplayItem is used as flag to indicate whether to update
     // mobile table's panel description section
@@ -39,28 +52,38 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
     // state is current filter state of table
     public state: State;
 
+    // captionCr is component ref to table caption
     public captionCr: ComponentRef<BaseEventComponent>;
-    public displayItemCrs: ComponentRef<BaseDisplayItemComponent>[] = [];
-    public tableRowExpansionCrs: Map<number, ComponentRef<BaseComponent>> = new Map();
 
+    // displayItemCrs is list of component refs for table's display items
+    public displayItemCrs: ComponentRef<BaseDisplayItemComponent>[] = [];
+
+    // rowExpansionDirs is list of component refs for table's expansion items
+    public rowExpansionCrs: ComponentRef<BaseComponent>[] = [];
+
+    // captionDir is directive to dynamically generate table caption
     @ViewChild(TableCaptionDirective) public captionDir: TableCaptionDirective;
+
+    // displayItemDirs is list of directives to dynamically generate display item components
     @ViewChildren(TableDisplayItemDirective) public displayItemDirs: QueryList<TableDisplayItemDirective>;
-    @ViewChildren(TableRowExpansionDirective) public tableRowExpansionDirs: QueryList<TableRowExpansionDirective>;
+
+    // tableRowExpansionDirs is list of directives to dynamically generate row expansion components
+    @ViewChildren(TableRowExpansionDirective) public rowExpansionDirs: QueryList<TableRowExpansionDirective>;
 
     @Input() public config: BaseMobileTableConfig;
 
     // onTableFilterEvent is used by other components of the table like caption,
     // column filter and body cell rows and will be emitted by table whenever
     // new data is loaded into the table via column filter or pagination
-    @Output() public onTableFilterEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
+    @Output() public onTableFilterEvent: EventEmitter<BaseTableEvent> = new EventEmitter<BaseTableEvent>();
 
-    // onClearFiltersEvent is used by other components of the table like caption,
-    // column filter and body cell rows and will be emitted by table whenever
-    // the "Clear Filter Button" is triggered
-    @Output() public onClearFiltersEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
+    // // onClearFiltersEvent is used by other components of the table like caption,
+    // // column filter and body cell rows and will be emitted by table whenever
+    // // the "Clear Filter Button" is triggered
+    // @Output() public onClearFiltersEvent: EventEmitter<BaseTableEvent> = new EventEmitter<BaseTableEvent>();
 
-    // onSortEvent is triggered whenever a sort event occurs on a column
-    @Output() public onSortEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
+    // // onSortEvent is triggered whenever a sort event occurs on a column
+    // @Output() public onSortEvent: EventEmitter<BaseTableEvent> = new EventEmitter<BaseTableEvent>();
 
     constructor(
         public http: HttpService,
@@ -70,6 +93,8 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
         super()
     }
 
+    // getTableInfo makes request to server for table records and total
+    // number of records based off of current filter
     private getTableInfo() {
         this.http.get<any>(
             this.config.tableAPIConfig.apiURL(this.outerData) +
@@ -87,6 +112,11 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
             if (this.config.tableAPIConfig.processResult != undefined) {
                 this.config.tableAPIConfig.processResult(r, this);
             }
+
+            this.onTableFilterEvent.emit({
+                eventType: TableEvents.tableFilter,
+                event: res,
+            })
         }, (err: HttpErrorResponse) => {
             if (this.config.tableAPIConfig.processError != undefined) {
                 this.config.tableAPIConfig.processError(err)
@@ -94,20 +124,23 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
         })
     }
 
-    private destroyDisplayItemCRs() {
+    // destroyDisplayItemCRs is helper function to clean up display item crs
+    private destroyDisplayItemCrs() {
         this.displayItemCrs.forEach(x => {
             x.destroy()
         })
         this.displayItemCrs = [];
     }
 
-    private destroyTableRowExpansionCrs() {
-        this.tableRowExpansionCrs.forEach(x => {
+    // destroyrowExpansionDirs is helper function to clean up row expansion crs
+    private destroyRowExpansionCrs() {
+        this.rowExpansionCrs.forEach(x => {
             x.destroy();
         });
-        this.tableRowExpansionCrs.clear();
+        this.rowExpansionCrs = [];
     }
 
+    // initValues initiates default values for table properties
     private initValues() {
         if (this.state == undefined) {
             if (this.config.getState != undefined) {
@@ -122,12 +155,14 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
         }
     }
 
+    // refreshCleanUp is helper function to combine all clean up functions into one call
     private refreshCleanUp() {
         this._displayItemSub.unsubscribe();
-        this.destroyDisplayItemCRs();
-        this.destroyTableRowExpansionCrs();
+        this.destroyDisplayItemCrs();
+        this.destroyRowExpansionCrs();
     }
 
+    // initCrEvents initiates all components to listen to each others events once they created 
     private initCrEvents() {
         this._sub.add(
             this._displayItemRender.subscribe(d => {
@@ -166,6 +201,7 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
         )
     }
 
+    // initCRs initiates and creates all dynamic components of table
     private initCRs() {
         if (this.config.caption != undefined && this.captionDir != undefined) {
             this.captionCr = this.captionDir.viewContainerRef.createComponent(
@@ -201,7 +237,7 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
 
                             this.displayItemCrs.push(cr);
                         });
-                        this._displayItemRender.emit()
+                        this._displayItemRender.next();
                     }
                 })
             );
@@ -210,6 +246,8 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
         this.cdr.detectChanges();
     }
 
+    // search is helper function to either initiate a default request
+    // or to create a custom request based on customTableSearch passed
     private search() {
         if (this.config.customTableSearch != undefined) {
             this.config.customTableSearch(this);
@@ -228,29 +266,20 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
         this.search();
     }
 
-    public rowClick(event: any, item: any) {
+    // onRowClick will only work when config#rowEvent is initialized
+    public onRowClick(event: any, item: any) {
         if (this.config.rowEvent != undefined) {
             this.config.rowEvent(event, item, this);
         }
     }
 
-    public collapse(rowIdx: number) {
-        if (this.config.rowExpansion.collapse != undefined) {
-            this.config.rowExpansion.collapse(rowIdx, this);
-        }
-    }
-
-    public expand(rowIdx: number, rowData: any) {
-        if (this.config.rowExpansion.expand != undefined) {
-            this.config.rowExpansion.expand(rowIdx, rowData, this);
-        }
-    }
-
+    // refresh is helper function that both cleans up crs and initiates request to server
     public refresh() {
         this.refreshCleanUp();
         this.search();
     }
 
+    // clearFilters clears the table's state and makes request to server
     public clearFilters() {
         if (this.config.getState != undefined) {
             this.state = this.config.getState(this.outerData);
@@ -259,7 +288,9 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
         }
 
         if (this.config.processClearFiltersEvent != undefined) {
-            this.config.processClearFiltersEvent({}, this)
+            this.config.processClearFiltersEvent({
+                eventType: TableEvents.clearFilters
+            }, this)
         }
 
         this.refresh();
@@ -270,5 +301,7 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
         this._sub.unsubscribe();
     }
 
+    public abstract rowCollapse(rowIdx: number, rowKeyMap: string);
+    public abstract rowExpand(rowIdx: number, rowKeyMap: string);
     public abstract onPageChange(event: any);
 }

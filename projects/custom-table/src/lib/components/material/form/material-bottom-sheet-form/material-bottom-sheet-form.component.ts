@@ -4,6 +4,8 @@ import { PopupFormEntity } from '../../../../table-api';
 import { BasePopupFormComponent } from '../../../../components/util/form/base-popup-form/base-popup-form.component'
 import { take } from 'rxjs/operators';
 
+// MaterialBottomSheetFormComponent is component used for mobile views to display
+// detail information without leaving current page
 @Component({
     selector: 'lib-material-bottom-sheet-form',
     templateUrl: './material-bottom-sheet-form.component.html',

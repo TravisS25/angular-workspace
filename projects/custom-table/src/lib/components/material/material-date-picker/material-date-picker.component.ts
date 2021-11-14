@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import * as moment from 'moment';
 import { DefaultConsts } from '../../../table-api';
@@ -6,6 +6,7 @@ import { MaterialFilterOptionComponent } from '../material-filter-option/materia
 import { SelectItem } from 'primeng';
 import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
+// MaterialDatePickerConfig is config for MaterialDatePickerComponent component
 export interface MaterialDatePickerConfig {
     // dateLabel is label used for date input
     //
@@ -31,17 +32,14 @@ export interface MaterialDatePickerConfig {
     filterOptions?: SelectItem[];
 }
 
-export interface MaterialDatePickerEvent {
-    value: any;
-}
-
-
 @Component({
     selector: 'lib-material-date-picker',
     templateUrl: './material-date-picker.component.html',
     styleUrls: ['./material-date-picker.component.scss']
 })
 export class MaterialDatePickerComponent extends BaseColumnFilterComponent implements OnInit {
+    @Input() public config: MaterialDatePickerConfig
+
     @ViewChild(MaterialFilterOptionComponent) public filterOption: MaterialFilterOptionComponent;
 
     constructor() {
@@ -54,26 +52,22 @@ export class MaterialDatePickerComponent extends BaseColumnFilterComponent imple
         if (this.config == undefined || this.config == null) {
             throw ('MUST SET MATERIAL DATE PICKER CONFIG');
         } else {
-            let cfg: MaterialDatePickerConfig = this.config;
-
-            if (cfg.filterOptions == undefined || cfg.filterOptions == null) {
+            if (this.config.filterOptions == undefined || this.config.filterOptions == null) {
                 throw ('CONFIG MUST BE MATERIAL DATE PICKER CONFIG')
             }
 
-            if (cfg.dateLabel == undefined) {
-                cfg.dateLabel = '--Date--';
+            if (this.config.dateLabel == undefined) {
+                this.config.dateLabel = '--Date--';
             }
-            if (cfg.style == undefined) {
-                cfg.style = { 'width': '70%' };
+            if (this.config.style == undefined) {
+                this.config.style = { 'width': '70%' };
             }
-            if (cfg.disableInput == undefined) {
-                cfg.disableInput = true;
+            if (this.config.disableInput == undefined) {
+                this.config.disableInput = true;
             }
-            if (cfg.disableIcon == undefined) {
-                cfg.disableIcon = false;
+            if (this.config.disableIcon == undefined) {
+                this.config.disableIcon = false;
             }
-
-            this.config = cfg;
         }
     }
 
@@ -99,19 +93,5 @@ export class MaterialDatePickerComponent extends BaseColumnFilterComponent imple
         }
 
         this.emitFilterChange(this.selectedValue)
-
-        // if (this.isColumnFilter) {
-        //     this.emitFilterChange(this.selectedValue)
-        // } else {
-        //     let eCfg: MaterialDatePickerEvent = {
-        //         value: this.selectedValue,
-        //     }
-
-        //     let cfg: BaseTableEvent = {
-        //         eventType: this.field,
-        //         event: eCfg,
-        //     }
-        //     this.onEvent.emit(cfg);
-        // }
     }
 }

@@ -1,5 +1,3 @@
-<!-- <mat-icon matRipple [matMenuTriggerFor]="menu.childMenu">more_vert</mat-icon> -->
 <lib-material-ellipsis-icon [matMenuTriggerFor]="menu.childMenu"></lib-material-ellipsis-icon>
-<lib-material-menu-item #menu (onEvent)="onChangeEvent($event)" [field]="field" [rowData]="rowData"
-    [items]="config.items">
+<lib-material-menu-item #menu (onEvent)="onChangeEvent($event)" [rowData]="rowData" [items]="config.items">
 </lib-material-menu-item>

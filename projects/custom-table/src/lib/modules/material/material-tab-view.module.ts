@@ -4,21 +4,25 @@ import { MaterialTabViewComponent } from '../../components/material/material-tab
 import { TabPanelDirectiveModule } from '../util/tab-view/tab-panel-directive.module';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TabPanelHeaderModule } from '../../modules/util/tab-view/tab-panel-header.module';
+import { MaterialTabPanelHeaderComponent } from '../../components/material/material-tab-panel-header/material-tab-panel-header.component';
+import { MatIconModule } from '@angular/material/icon';
 
 
 
 @NgModule({
     declarations: [
-        MaterialTabViewComponent
+        MaterialTabViewComponent,
+        MaterialTabPanelHeaderComponent,
     ],
     imports: [
         CommonModule,
         TabPanelDirectiveModule,
         MatTabsModule,
-        TabPanelHeaderModule
+        MatIconModule,
     ],
     exports: [
-        MaterialTabViewComponent
+        MaterialTabViewComponent,
+        MaterialTabPanelHeaderComponent,
     ]
 })
 export class MaterialTabViewModule { }

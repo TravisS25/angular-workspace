@@ -7,9 +7,8 @@ import { IConfig } from 'ngx-mask';
 import { BaseTableCaptionComponent } from './components/table/base-table-caption/base-table-caption.component';
 import { BaseColumnFilterComponent } from './components/table/base-column-filter/base-column-filter.component';
 import { BaseDisplayItemComponent } from './components/table/base-display-item/base-display-item.component';
-import { BaseMobileFilterComponent } from './components/table/mobile/base-mobile-filter/base-mobile-filter.component';
 import { BaseComponent } from './components/base/base.component';
-import { BaseEventComponent } from '../public-api';
+import { BaseEventComponent } from './components/table/base-event/base-event.component';
 
 //---------------- EVENT ENUMS ----------------------- 
 
@@ -411,8 +410,8 @@ export interface BaseTableCaptionConfig {
     // to a file format specific to config
     exportCfg?: TableCaptionExportConfig;
 
-    // createCfg is config used to create entry for table either
-    createCfg?: BaseTableActionConfig;
+    // createAction is custom function to be used whenever table
+    createAction?: (any) => void;
 }
 
 interface baseConfig {
@@ -461,7 +460,7 @@ interface baseConfig {
 // BaseMobileTableConfig is the main config used for mobile table
 export interface BaseMobileTableConfig extends BaseEventOptionsI, baseConfig {
     // captionCfg is config used to generate dynamic caption component with settings
-    caption?: CaptionEntity;
+    caption?: MobileCaptionEntity;
 
     // displayItem is config used to generate dynamic component in mobile table row
     displayItem?: DisplayItemEntity;
@@ -477,7 +476,7 @@ export interface BaseMobileTableConfig extends BaseEventOptionsI, baseConfig {
     rowClass?: string;
 
     // rowExpansion is config used to expand an inner table with current mobile table
-    rowExpansion?: MobileRowExpansionEntity;
+    rowExpansion?: Map<string, BaseComponentEntity>;
 }
 
 // BaseTableConfig is the main config that is used against our table api
@@ -491,7 +490,7 @@ export interface BaseTableConfig extends BaseEventOptionsI, baseConfig {
 
     // rowExpansion is ability to inject component into table expansion to
     // display related items of particular row
-    rowExpansion?: RowExpansionEntity;
+    rowExpansion?: BaseComponentEntity;
 
     // caption is ability to inject component into table caption header
     caption?: CaptionEntity;
@@ -525,18 +524,16 @@ export interface BaseMobileFilterI extends BaseComponentI {
     operator?: string;
 }
 
-export interface BaseColumnFilterI extends BaseMobileFilterI, ProcessRowDataI {
+export interface BaseColumnFilterI extends BaseMobileFilterI, ProcessRowDataI, BaseEventOptionsI {
     getSelectedValue?: (rowData: any) => any;
     excludeFilter?: boolean;
 }
 
-export interface BaseDisplayItemI extends BaseComponentI, ProcessRowDataI { }
+export interface BaseDisplayItemI extends BaseComponentI, ProcessRowDataI, BaseEventOptionsI { }
 
 
-export interface BaseMobileRowExpansionI extends ConfigI {
-    //expansionMap: Map<string, MobileRowExpansionEntity>;
-    collapse: (rowIdx: number, componentRef: any) => void;
-    expand: (rowIdx: number, rowData: any, componentRef: any) => void;
+export interface BaseMobileRowExpansionI extends BaseComponentI {
+    //rowExpansionMap: Map<string,>
 }
 
 
@@ -557,12 +554,12 @@ export interface PopupFormEntity extends PopupFormI {
 }
 
 // CaptionEntity is used to display caption component in caption part of table
-export interface CaptionEntity extends ConfigI, BaseEventOptionsI {
+export interface CaptionEntity extends BaseComponentI, BaseEventOptionsI {
     component: Type<BaseTableCaptionComponent>;
 }
 
-export interface MobileCaptionEntity extends ConfigI, BaseEventOptionsI {
-    component: Type<BaseComponent>;
+export interface MobileCaptionEntity extends BaseComponentI, BaseEventOptionsI {
+    component: Type<BaseEventComponent>;
 }
 
 
@@ -582,29 +579,26 @@ export interface BaseEventEntity extends BaseComponentI {
 
 /////// Table /////////
 
-// RowExpansionEntity is used to display expansion component of table
-export interface RowExpansionEntity extends BaseComponentI {
-    // component is component to use for expansion of table
-    component: Type<BaseComponent>;
-}
+// // RowExpansionEntity is used to display expansion component of table
+// export interface RowExpansionEntity extends BaseComponentI {
+//     // component is component to use for expansion of table
+//     component: Type<BaseComponent>;
+// }
 
-export interface ColumnFilterEntity extends BaseColumnFilterI, BaseEventOptionsI {
+export interface ColumnFilterEntity extends BaseColumnFilterI {
     component: Type<BaseColumnFilterComponent>;
 }
 
-export interface DisplayItemEntity extends BaseDisplayItemI, BaseEventOptionsI {
+export interface DisplayItemEntity extends BaseDisplayItemI {
     component: Type<BaseDisplayItemComponent>;
 }
 
 /////// Mobile /////////
 
-export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI {
-    component: Type<BaseComponent>;
-}
+// export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI {
+//     component: Type<BaseComponent>;
+// }
 
-export interface MobileFilterEntity extends BaseMobileFilterI, BaseEventOptionsI {
-    component: Type<BaseMobileFilterComponent>;
-}
 
 // ------------------ COLUMN CONFIGS -----------------------
 

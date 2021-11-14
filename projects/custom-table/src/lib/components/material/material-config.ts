@@ -4,7 +4,6 @@ import { ThemePalette } from "@angular/material/core";
 
 export interface MaterialButton {
     text: string;
-    foo: MatButton
     leftIcon?: string;
     leftMatIcon?: string;
     rightIcon?: string;

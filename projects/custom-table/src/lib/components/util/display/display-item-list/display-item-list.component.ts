@@ -1,5 +1,8 @@
 import { ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { BaseDisplayItemComponent, BaseTableEvent, DisplayItemEntity, setTableEvents, TableDisplayItemDirective } from 'projects/custom-table/src/public-api';
+import { setTableEvents } from '../../../../util'
+import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
+import { DisplayItemEntity } from '../../../../table-api'
+import { TableDisplayItemDirective } from '../../../../directives/table/table-display-item.directive';
 
 // DisplayItemListComponent is util component that allows user to display multiple display
 // item components with their own styling

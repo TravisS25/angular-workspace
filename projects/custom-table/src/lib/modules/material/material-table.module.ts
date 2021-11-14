@@ -5,6 +5,7 @@ import { HttpService } from '../../services/http.service';
 import { MatTableModule } from '@angular/material/table';
 import { TableDirectiveModule } from '../table/table-directive.module';
 import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
     declarations: [
@@ -14,6 +15,7 @@ import { MatSortModule } from '@angular/material/sort';
         CommonModule,
         MatTableModule,
         MatSortModule,
+        MatPaginatorModule,
         TableDirectiveModule,
     ],
     exports: [

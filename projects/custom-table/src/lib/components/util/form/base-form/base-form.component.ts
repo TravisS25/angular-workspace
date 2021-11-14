@@ -5,8 +5,9 @@ import { Subscription } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { getDefaultCSRFHeader } from '../../../../default-values';
 import { FormEvents } from '../../../../table-api';
-import { HttpService } from 'projects/custom-table/src/lib/services/http.service';
+import { HttpService } from '../../../../services/http.service';
 
+// BaseFormComponent is component form should extend to get basic form functions
 @Component({
     selector: 'lib-base-form',
     templateUrl: './base-form.component.html',

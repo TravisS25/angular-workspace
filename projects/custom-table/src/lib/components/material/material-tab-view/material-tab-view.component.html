@@ -1,4 +1,4 @@
-<mat-tab-group (selectedTabChange)="tabChange($event)">
+<mat-tab-group (selectedTabChange)="onTabChange($event)">
     <ng-container *ngFor="let item of config.panels; let i = index">
         <mat-tab>
             <ng-template mat-tab-label>

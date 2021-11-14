@@ -1,4 +1,4 @@
-<p-tabView (onChange)="tabChange($event)" #tab>
+<p-tabView (onChange)="onTabChange($event)" #tab>
     <ng-container *ngFor="let item of config.panels; let i = index">
         <p-tabPanel [selected]="i == config.selectIdx" [closable]="item.tabPanelConfig.closable"
             [disabled]="item.tabPanelConfig.disabled">

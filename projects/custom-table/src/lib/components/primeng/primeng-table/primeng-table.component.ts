@@ -783,7 +783,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     }
 
     // closeExpandedRows will close all row expansion for current table
-    public closeExpandedRows() {
+    public closeRows() {
         for (let i = 0; i < this.dt.value.length; i++) {
             if (this.dt.isRowExpanded(this.dt.value[i])) {
                 this.dt.toggleRow(this.dt.value[i]);

@@ -105,19 +105,6 @@ export class MaterialDropdownSelectComponent extends BaseColumnFilterComponent i
         }
 
         this.emitFilterChange(this.selectedValue);
-
-        // if (this.isColumnFilter) {
-        //     this.emitFilterChange(this.selectedValue);
-        // } else {
-        //     let sEvent: MaterialDropdownSelectEvent = {
-        //         isSelectAll: false
-        //     }
-        //     let event: BaseTableEvent = {
-        //         eventType: this.cfg.eventType,
-        //         event: sEvent,
-        //     }
-        //     this.onEvent.emit(event);
-        // }
     }
 
     public toggleAll() {
@@ -131,19 +118,5 @@ export class MaterialDropdownSelectComponent extends BaseColumnFilterComponent i
 
         this.removeNulls(this.selectedValue as any[]);
         this.emitFilterChange(this.selectedValue);
-
-        // if (this.isColumnFilter) {
-        //     this.emitFilterChange(this.selectedValue);
-        // } else {
-        //     let sEvent: MaterialDropdownSelectEvent = {
-        //         isSelectAll: true
-        //     }
-        //     let event: BaseTableEvent = {
-        //         eventType: this.cfg.eventType,
-        //         event: sEvent
-        //     }
-
-        //     this.onEvent.emit(event);
-        // }
     }
 }

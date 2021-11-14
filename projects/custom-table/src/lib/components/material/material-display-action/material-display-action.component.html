@@ -1,3 +1,16 @@
-<button>
-
+<button (click)="onClick('approve')" mat-raised-button [disableRipple]="config.approveBtn.disableRipple"
+    [disabled]="config.approveBtn.disabled" [color]="config.approveBtn.color">
+    <i *ngIf="config.approveBtn.leftIcon"></i>
+    <mat-icon *ngIf="config.approveBtn.leftMatIcon"></mat-icon>
+    {{ config.approveBtn.text }}
+    <i *ngIf="config.approveBtn.rightIcon"></i>
+    <mat-icon *ngIf="config.approveBtn.rightMatIcon"></mat-icon>
+</button>
+<button (click)="onClick('deny')" mat-raised-button [disableRipple]="config.denyBtn.disableRipple"
+    [disabled]="config.denyBtn.disabled" [color]="config.denyBtn.color">
+    <i *ngIf="config.denyBtn.leftIcon"></i>
+    <mat-icon *ngIf="config.denyBtn.leftMatIcon"></mat-icon>
+    {{ config.denyBtn.text }}
+    <i *ngIf="config.denyBtn.rightIcon"></i>
+    <mat-icon *ngIf="config.denyBtn.rightMatIcon"></mat-icon>
 </button>

@@ -51,20 +51,14 @@
         <tr mat-header-row *matHeaderRowDef="['caption']"></tr>
     </ng-container>
 
-    <!-- <ng-container matColumnDef="expandedDetail">
-        <td mat-cell *matCellDef="let element" [attr.colspan]="columnHeaders.length">
-            <div [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-                <ng-template [libTableRowExpansion] []></ng-template>
-            </div>
-        </td>
-    </ng-container> -->
-
     <tr mat-header-row *matHeaderRowDef="columnHeaders"></tr>
     <tr mat-row *matRowDef="let row; columns: columnHeaders;" [style]="config.rowStyle" [ngClass]="config.rowClass">
     </tr>
-    <tr mat-row *matRowDef="let row; let i = index; columns: [''];">
-        <td mat-cell *matCellDef="let element" [attr.colspan]="columnHeaders.length">
-            <div [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+    <tr style="height: 0;" mat-row *matRowDef="let row; let i = index; columns: [''];">
+        <td mat-cell *matCellDef="let element" [attr.colspan]="visibleColumns">
+            <div [@rowExpand]="element == expandedElement ? 'expanded' : 'collapsed'"
+                (@rowExpand.start)="onRowExpandAnimation($event, i)"
+                (@rowExpand.done)="onRowExpandAnimation($event, i)">
                 <ng-template [libTableRowExpansion] [rowData]="row" [rowIdx]="i"></ng-template>
             </div>
         </td>

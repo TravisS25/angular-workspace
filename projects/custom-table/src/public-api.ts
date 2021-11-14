@@ -14,11 +14,11 @@ export * from './lib/components/table/base-tab-view/base-tab-view.component';
 export * from './lib/components/table/base-table/base-table.component';
 export * from './lib/components/table/base-table-caption/base-table-caption.component';
 
-export * from './lib/components/table/mobile/base-mobile-filter/base-mobile-filter.component';
 export * from './lib/components/table/mobile/base-mobile-table/base-mobile-table.component';
 
 // Util Components
 export * from './lib/components/util/base-index/base-index.component';
+export * from './lib/components/util/display/base-display-info-action/base-display-info-action.component';
 export * from './lib/components/util/display/display-info/display-info.component';
 export * from './lib/components/util/display/display-item-list/display-item-list.component';
 export * from './lib/components/util/display/display-text/display-text.component';
@@ -39,9 +39,11 @@ export * from './lib/components/material/material-input-text/material-input-text
 export * from './lib/components/material/material-menu-item/material-menu-item.component';
 export * from './lib/components/material/material-mobile-table/material-mobile-table.component';
 export * from './lib/components/material/material-row-options/material-row-options.component';
+export * from './lib/components/material/material-tab-panel-header/material-tab-panel-header.component';
 export * from './lib/components/material/material-tab-view/material-tab-view.component';
 export * from './lib/components/material/material-table/material-table.component';
 export * from './lib/components/material/material-text-area/material-text-area.component';
+export * from './lib/components/material/material-mobile-row-display-item/material-mobile-row-display-item.component';
 
 // Primeng components
 export * from './lib/components/primeng/checkbox/checkbox.component';
@@ -117,16 +119,16 @@ export * from './lib/modules/material/material-row-options.module';
 export * from './lib/modules/material/material-tab-view.module';
 export * from './lib/modules/material/material-text-area.module';
 export * from './lib/modules/material/material-table.module';
-//export * from './lib/modules/material/material-autocomplete.module';
+export * from './lib/modules/material/material-mobile-row-display-item.module';
 
 // -------------------Services---------------------
 
 export * from './lib/services/window-resize.service';
+export * from './lib/services/http.service';
 
 // -------------------Utils------------------------------
 
 // Utils
-//export * from './lib/config';
 export * from './lib/copy-util';
 export * from './lib/default-values';
 export * from './lib/table-api';

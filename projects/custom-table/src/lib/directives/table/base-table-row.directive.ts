@@ -7,5 +7,5 @@ export abstract class BaseTableRowDirective {
     @Input() public rowData: any;
     @Input() public rowIdx: number;
 
-    constructor(public viewContainer: ViewContainerRef) { }
+    constructor(public viewContainerRef: ViewContainerRef) { }
 }

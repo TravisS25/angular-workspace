@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { encodeURIState } from '../../../util';
 import { CoreColumn } from '../../../table-api';
 import { TableEvents, BaseTableCaptionConfig, SelectItem, Column, BaseTableEvent, ExportType, FilterDescriptor } from '../../../table-api';
 import { BaseComponent } from '../../base/base.component';
 import { BaseTableComponent } from '../base-table/base-table.component';
-import { BaseEventComponent } from 'projects/custom-table/src/public-api';
+import { BaseEventComponent } from '../base-event/base-event.component';
 
 @Component({
     selector: 'lib-base-table-caption',
@@ -13,13 +13,14 @@ import { BaseEventComponent } from 'projects/custom-table/src/public-api';
     styleUrls: ['./base-table-caption.component.scss']
 })
 export abstract class BaseTableCaptionComponent extends BaseEventComponent implements OnInit {
-    public config: BaseTableCaptionConfig;
+    @Input() public config: BaseTableCaptionConfig;
 
-    public componentRef: BaseTableComponent;
+    // componentRef is reference to table current caption is attached to
+    @Input() public componentRef: BaseTableComponent;
 
-    // _rowMap is used for keeping track of what rows are currently selected
+    // _idMap is used for keeping track of what rows are currently selected
     // to be able to export those selected rows
-    protected _rowMap: Map<number, string> = new Map();
+    protected _idMap: Map<string, boolean> = new Map();
 
     // _selectedColsMap is a map that keeps track of selected columns
     // by field name to properly show and hide columns
@@ -36,9 +37,10 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         super();
     }
 
+    // initConfig will initialize config if undefined with default values
     private initConfig() {
         if (this.config == undefined) {
-            const cfg: BaseTableCaptionConfig = {
+            this.config = {
                 showRefreshBtn: true,
                 showClearFiltersBtn: true,
                 showCollapseBtn: true,
@@ -52,11 +54,15 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
                     idFilterParam: '',
                 }
             }
-
-            this.config = cfg;
         }
     }
 
+    // initColumnFilterSelect will loop through componentRef's columns
+    // and if the CoreColumn#showColumnOption option is set, we add
+    // it our columnsOptions list which can be used to have dropdown
+    // list of columns to select to hide or show
+    //
+    // Also we can set to hide columns on initialization
     private initColumnFilterSelect() {
         const columns: CoreColumn[] = this.componentRef.columns;
 
@@ -73,7 +79,6 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
                     this.selectedColumns.push(x.field);
                     this._selectedColsMap.set(x.field, true);
                 }
-
             }
         })
     }
@@ -83,30 +88,46 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         this.initColumnFilterSelect();
     }
 
-    public closeRows() {
-        this.componentRef.closeExpandedRows();
-        const event: BaseTableEvent = {
-            eventType: TableEvents.closeRows
-        }
-        this.onEvent.emit(event);
+    // setRowIDs will set _idMap keys with passed arrays of row ids
+    public setRowIDs(ids: string[]) {
+        ids.forEach(x => {
+            this._idMap.set(x, true)
+        })
     }
 
+    // clearRowIDs will clear _idMap's contents
+    public clearRowIDs() {
+        this._idMap.clear();
+    }
+
+    // closeRows will close all expand rows
+    public closeRows() {
+        this.componentRef.closeRows();
+        this.onEvent.emit({
+            eventType: TableEvents.closeRows
+        });
+    }
+
+    // clearFilters will clear all column filters
     public clearFilters() {
         this.componentRef.clearFilters();
-        const event: BaseTableEvent = {
+        this._idMap.clear();
+        this.onEvent.emit({
             eventType: TableEvents.clearFilters,
-        }
-        this.onEvent.emit(event);
+        });
     }
 
+    // refresh will make request to server for updated rows and table settings
     public refresh() {
         this.componentRef.refresh();
-        const event: BaseTableEvent = {
+        this._idMap.clear();
+        this.onEvent.emit({
             eventType: TableEvents.refresh,
-        }
-        this.onEvent.emit(event);
+        });
     }
 
+    // columnFilterChange should activate when a column dropdown list is activated
+    // It takes the 
     public columnFilterChange(val: string) {
         if (this._selectedColsMap.get(val)) {
             this.componentRef.addHiddenColumn(val);
@@ -116,52 +137,58 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
             this._selectedColsMap.set(val, true);
         }
 
-        const event: BaseTableEvent = {
-            eventType: TableEvents.columnFilter,
+        this.onEvent.emit({
+            eventType: TableEvents.caption,
             event: val
-        }
-        this.onEvent.emit(event);
+        });
     }
 
+    // create will activate the "createAction" function of config
     public create() {
-        if (this.config.createCfg != undefined) {
-            this.config.createCfg.actionFn(this);
+        if (this.config.createAction != undefined) {
+            this.config.createAction(this);
         }
     }
 
+    // export takes enum of ExportType, which determines the url/file type we will be requesting
+    // from server and applies the current componentRef's state to url
+    //
+    // If _idMap contains entries, then we will apply those key ids to filter
     public export(et: ExportType) {
         let url: string;
 
+        // Determine url
         switch (et) {
             case ExportType.csv:
-                et = ExportType.csv
                 url = this.config.exportCfg.csvURL;
                 break;
             case ExportType.xls:
-                et = ExportType.xls
                 url = this.config.exportCfg.xlsURL;
                 break;
             case ExportType.xlsx:
-                et = ExportType.xlsx
                 url = this.config.exportCfg.xlsxURL;
                 break;
         }
 
         const headers: string[] = [];
 
+        // Loop and find current selected columns to use for headers
         this._selectedColsMap.forEach((v, k) => {
             if (v) {
                 headers.push(k);
             }
         })
 
-        if (this._rowMap.size == 0) {
+        // If _idMap does not contain entries, modify url solely based on table state
+        //
+        // Else loop through _idMap, get keys, and add to list to use for filtering
+        if (this._idMap.size == 0) {
             url += encodeURIState(this.componentRef.state, this.componentRef.config.paramConfig) + '&' + this.config.exportCfg.columnHeadersParam + '=' +
                 encodeURI(JSON.stringify(headers));
         } else {
             const ids = [];
-            this._rowMap.forEach((v, k) => {
-                ids.push(v)
+            this._idMap.forEach((v, k) => {
+                ids.push(k)
             })
 
             const filter: FilterDescriptor = {
@@ -177,11 +204,9 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         }
 
         this.componentRef.exportData(et, url, this.config.exportCfg.fileName);
-
-        const event: BaseTableEvent = {
+        this.onEvent.emit({
             eventType: TableEvents.export,
-        }
-        this.onEvent.emit(event);
+        });
     }
 
 }

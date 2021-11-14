@@ -5,6 +5,7 @@ import { MobileTableDirectiveModule } from '../table/mobile/mobile-table-directi
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import { MaterialMobileRowDisplayItemModule } from '../../modules/material/material-mobile-row-display-item.module';
 
 
 
@@ -18,6 +19,7 @@ import { MatTableModule } from '@angular/material/table';
         MobileTableDirectiveModule,
         MatExpansionModule,
         MatPaginatorModule,
+        MaterialMobileRowDisplayItemModule
     ],
     exports: [
         MaterialMobileTableComponent

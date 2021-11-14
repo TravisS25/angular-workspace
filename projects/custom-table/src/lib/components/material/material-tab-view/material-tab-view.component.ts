@@ -19,7 +19,7 @@ export class MaterialTabViewComponent extends BaseTabViewComponent implements On
         super.ngOnInit();
     }
 
-    public tabChange(event: MatTabChangeEvent) {
+    public onTabChange(event: MatTabChangeEvent) {
         this.openTab(event.index);
     }
 }

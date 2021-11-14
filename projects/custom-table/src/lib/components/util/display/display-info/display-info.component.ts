@@ -3,7 +3,19 @@ import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angul
 import { DisplayItemEntity, DisplayFormat, PopupFormI } from '../../../../table-api';
 import { Subscription } from 'rxjs';
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
-import { BaseComponentEntity, BaseEventComponent, BaseEventEntity, setTableEvents } from 'projects/custom-table/src/public-api';
+import { ConfigI } from '../../../../table-api';
+import { BaseDisplayInfoActionComponent } from '../base-display-info-action/base-display-info-action.component';
+
+// DisplayInfoEntity is entity used to create dynamic display info action component
+// and apply config settings to component
+export interface DisplayInfoEntity extends DisplayInfoI {
+    component: Type<BaseDisplayInfoActionComponent>;
+}
+
+// DisplayInfoI is config settings to be set by user when generating component
+export interface DisplayInfoI extends ConfigI {
+    processOnClick?: (event: any, componentRef: any) => void;
+}
 
 // DisplayInfoItem is used to render a header and display item entity with some styling
 export interface DisplayInfoItem {
@@ -42,10 +54,10 @@ export interface DisplayInfoConfig {
     header?: DisplayFormat;
 
     // action is dynamic component
-    actionSection?: DisplayItemEntity;
+    actionSection?: DisplayInfoEntity;
 
     // displayItems are items to be dynamically created for component
-    displayItems: DisplayInfoItem[];
+    displayItems: DisplayInfoEntity[];
 }
 
 // DisplayInfoItemDirective is directive used to dynamically generate display items
@@ -75,6 +87,7 @@ export class DisplayInfoActionDirective {
     styleUrls: ['./display-info.component.scss']
 })
 export class DisplayInfoComponent implements OnInit {
+    // _sub is used to add generic subscriptions
     private _sub: Subscription = new Subscription();
 
     // config is config used for component
@@ -87,29 +100,26 @@ export class DisplayInfoComponent implements OnInit {
     @ViewChild(DisplayInfoActionDirective) public actionDir: DisplayInfoActionDirective;
 
     // displayCrs are references to display items
-    public displayCrs: ComponentRef<BaseDisplayItemComponent>[] = [];
+    public displayCrs: ComponentRef<BaseDisplayInfoActionComponent>[] = [];
 
     constructor(
         public cfr: ComponentFactoryResolver,
         public cdr: ChangeDetectorRef,
     ) { }
 
-    private updateCr(cr: ComponentRef<BaseDisplayItemComponent>, item: DisplayItemEntity) {
+    private updateCr(cr: ComponentRef<BaseDisplayInfoActionComponent>, item: DisplayInfoI) {
         cr.instance.config = item.config;
-        cr.instance.value = item.value
-        cr.instance.rowData = this.config.rowData;
-        cr.instance.rowIdx = this.config.rowIdx;
-        cr.instance.colIdx = this.config.colIdx;
-        cr.instance.processRowData = item.processRowData;
-        setTableEvents(cr.instance, item);
+        cr.instance.processOnClick = item.processOnClick;
 
-        this._sub.add(
-            cr.instance.onEvent.subscribe(r => {
-                if (cr.instance.processPopupEvent != undefined) {
-                    cr.instance.processPopupEvent(r, this.config.componentRef || this);
-                }
-            })
-        )
+        if (cr.instance.processOnClick != undefined) {
+            this._sub.add(
+                cr.instance.onEvent.subscribe(r => {
+                    cr.instance.processOnClick(r, this);
+                })
+            )
+        }
+
+        this.displayCrs.push(cr)
     }
 
     private initCRs() {
@@ -118,19 +128,18 @@ export class DisplayInfoComponent implements OnInit {
         for (let i = 0; i < dirArr.length; i++) {
             const item = this.config.displayItems[i];
             const cr = dirArr[i].viewContainerRef.createComponent(
-                this.cfr.resolveComponentFactory(item.displayEntity.component),
+                this.cfr.resolveComponentFactory(item.component),
             )
 
-            this.updateCr(cr, item.displayEntity)
-            this.displayCrs.push(cr);
+            this.updateCr(cr, item);
         }
 
         if (this.config.actionSection != undefined) {
             const cr = this.actionDir.viewContainerRef.createComponent(
                 this.cfr.resolveComponentFactory(this.config.actionSection.component),
             )
+
             this.updateCr(cr, this.config.actionSection);
-            this.displayCrs.push(cr);
         }
     }
 

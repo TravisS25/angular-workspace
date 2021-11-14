@@ -16,7 +16,7 @@ export class PrimengTabViewComponent extends BaseTabViewComponent implements OnI
         super.ngOnInit();
     }
 
-    public tabChange(event: any) {
+    public onTabChange(event: any) {
         this.openTab(event.index);
     }
 }

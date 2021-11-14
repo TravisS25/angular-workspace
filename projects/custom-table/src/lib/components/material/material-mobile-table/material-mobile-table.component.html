@@ -1,13 +1,15 @@
 <div *ngIf="config.outerDataHeader" [innerHTML]="config.outerDataHeader(outerData)"></div>
 <ng-template [libTableCaption]></ng-template>
 <table #table mat-table [dataSource]="filterData.data">
-    <tr mat-row *matRowDef="let row; columns: [''];" (click)="config.rowEvent($event, row)" [style]="config.rowStyle"
-        [ngClass]="config.rowClass">
-        <ng-template></ng-template>
+    <tr mat-row *matRowDef="let row; let i = index; columns: [''];" (click)="onRowClick($event, row)"
+        [style]="config.rowStyle" [ngClass]="config.rowClass">
+        <ng-template [libTableDisplayItem] [rowData]="row" [rowIdx]="i"></ng-template>
     </tr>
     <tr style="height: 0;" mat-row *matRowDef="let row; let i = index; columns: [''];">
         <td mat-cell *matCellDef="let element">
-            <div [@detailExpand]="expandedRows.get(i) ? 'expanded' : 'collapsed'">
+            <div [@rowExpand]="expandRow[i] ? 'expanded' : 'collapsed'"
+                (@rowExpand.start)="onRowExpandAnimation($event, i)"
+                (@rowExpand.done)="onRowExpandAnimation($event, i)">
                 <ng-template [libTableRowExpansion] [rowData]="row" [rowIdx]="i"></ng-template>
             </div>
         </td>

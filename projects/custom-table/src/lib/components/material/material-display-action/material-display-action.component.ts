@@ -1,9 +1,13 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { BaseDisplayItemComponent } from 'projects/custom-table/src/public-api';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { BaseDisplayInfoActionComponent } from '../../util/display/base-display-info-action/base-display-info-action.component';
 import { MaterialButton } from '../material-config';
 
+// MaterialDisplayActionConfig is config for MaterialDisplayActionComponent
 export interface MaterialDisplayActionConfig {
+    // approveBtn is config for approve button
     approveBtn: MaterialButton;
+
+    // denyBtn is config for deny button
     denyBtn: MaterialButton;
 }
 
@@ -14,7 +18,7 @@ export interface MaterialDisplayActionConfig {
     templateUrl: './material-display-action.component.html',
     styleUrls: ['./material-display-action.component.scss']
 })
-export class MaterialDisplayActionComponent extends BaseDisplayItemComponent implements OnInit {
+export class MaterialDisplayActionComponent extends BaseDisplayInfoActionComponent implements OnInit {
     @Input() public config: MaterialDisplayActionConfig;
 
     constructor() { super() }
@@ -22,4 +26,7 @@ export class MaterialDisplayActionComponent extends BaseDisplayItemComponent imp
     public ngOnInit(): void {
     }
 
+    public onClick(btnType: string) {
+        this.onEvent.emit(btnType);
+    }
 }
