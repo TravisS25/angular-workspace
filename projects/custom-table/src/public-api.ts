@@ -133,3 +133,4 @@ export * from './lib/copy-util';
 export * from './lib/default-values';
 export * from './lib/table-api';
 export * from './lib/util';
+export * from './lib/components/table/table-util';

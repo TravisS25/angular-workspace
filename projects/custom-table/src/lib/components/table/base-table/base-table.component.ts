@@ -8,7 +8,8 @@ import { TableCaptionDirective } from '../../../directives/table/table-caption.d
 import { TableBodyCellDirective } from '../../../directives/table/table-body-cell.directive';
 import { TableColumnFilterDirective } from '../../../directives/table/table-column-filter.directive';
 import { HttpService } from '../../../services/http.service';
-import { encodeURIState, setTableEvents } from '../../../util'
+import { encodeURIState } from '../../../util'
+import { setTableEvents } from '../../table/table-util';
 import { BaseTableCaptionComponent } from '../../table/base-table-caption/base-table-caption.component'
 import { BaseTableCellDirective } from '../../../directives/table/base-table-cell.directive'
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';

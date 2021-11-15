@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { setTableEvents } from '../../../../util'
+import { setTableEvents } from '../../../table/table-util'
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
 import { DisplayItemEntity } from '../../../../table-api'
 import { TableDisplayItemDirective } from '../../../../directives/table/table-display-item.directive';

@@ -40,18 +40,6 @@ export function setColumnFilterValue(baseTable: any, fieldMap: Map<string, Selec
     }
 }
 
-export function setTableEvents(cr: BaseEventComponent, eventCfg: BaseEventOptionsI) {
-    cr.processTableCellEvent = eventCfg.processTableCellEvent;
-    cr.processCaptionEvent = eventCfg.processCaptionEvent;
-    cr.processClearFiltersEvent = eventCfg.processClearFiltersEvent;
-    cr.processColumnFilterEvent = eventCfg.processColumnFilterEvent;
-    cr.processDisplayItemEvent = eventCfg.processDisplayItemEvent;
-    cr.processInputTemplateEvent = eventCfg.processInputTemplateEvent;
-    cr.processPopupEvent = eventCfg.processPopupEvent;
-    cr.processSortEvent = eventCfg.processSortEvent;
-    cr.processTableFilterEvent = eventCfg.processTableFilterEvent;
-}
-
 export function defaultProcessError(err: any) {
     let val = err as HttpErrorResponse;
 

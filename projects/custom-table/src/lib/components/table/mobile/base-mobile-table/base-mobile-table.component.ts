@@ -3,7 +3,8 @@ import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, 
 import { getDefaultState } from '../../../../default-values';
 import { Subject, Subscription } from 'rxjs';
 import _ from "lodash" // Import the entire lodash library
-import { encodeURIState, setTableEvents } from '../../../../util';
+import { encodeURIState } from '../../../../util';
+import { setTableEvents } from '../../table-util';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/combineLatest';
 import { take } from 'rxjs/operators';

@@ -3,7 +3,7 @@ import { MaterialRowOptionsComponent } from '../material-row-options/material-ro
 import { BaseDisplayItemI, DisplayItemEntity } from '../../../table-api';
 import { BaseDisplayItemComponent } from '../../table/base-display-item/base-display-item.component';
 import { TableDisplayItemDirective } from '../../../directives/table/table-display-item.directive';
-import { setTableEvents } from '../../../util';
+import { setTableEvents } from '../../table/table-util';
 
 // MaterialMobileRowDisplayItemConfig is config for MaterialMobileRowDisplayItemComponent component
 export interface MaterialMobileRowDisplayItemConfig {

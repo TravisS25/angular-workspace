@@ -5,17 +5,19 @@ import { Subscription } from 'rxjs';
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
 import { ConfigI } from '../../../../table-api';
 import { BaseDisplayInfoActionComponent } from '../base-display-info-action/base-display-info-action.component';
+import { applyDisplayItemSettings } from '../../../table/table-util';
+import { BaseDisplayItemI } from 'projects/custom-table/src/public-api';
 
-// DisplayInfoEntity is entity used to create dynamic display info action component
-// and apply config settings to component
-export interface DisplayInfoEntity extends DisplayInfoI {
-    component: Type<BaseDisplayInfoActionComponent>;
-}
+// // DisplayInfoEntity is entity used to create dynamic display info action component
+// // and apply config settings to component
+// export interface DisplayInfoEntity extends DisplayInfoI {
+//     component: Type<BaseDisplayInfoActionComponent>;
+// }
 
-// DisplayInfoI is config settings to be set by user when generating component
-export interface DisplayInfoI extends ConfigI {
-    processOnClick?: (event: any, componentRef: any) => void;
-}
+// // DisplayInfoI is config settings to be set by user when generating component
+// export interface DisplayInfoI extends ConfigI {
+//     processOnClick?: (event: any, componentRef: any) => void;
+// }
 
 // DisplayInfoItem is used to render a header and display item entity with some styling
 export interface DisplayInfoItem {
@@ -54,10 +56,10 @@ export interface DisplayInfoConfig {
     header?: DisplayFormat;
 
     // action is dynamic component
-    actionSection?: DisplayInfoEntity;
+    actionSection?: DisplayItemEntity;
 
     // displayItems are items to be dynamically created for component
-    displayItems: DisplayInfoEntity[];
+    displayItems: DisplayInfoItem[];
 }
 
 // DisplayInfoItemDirective is directive used to dynamically generate display items
@@ -100,21 +102,22 @@ export class DisplayInfoComponent implements OnInit {
     @ViewChild(DisplayInfoActionDirective) public actionDir: DisplayInfoActionDirective;
 
     // displayCrs are references to display items
-    public displayCrs: ComponentRef<BaseDisplayInfoActionComponent>[] = [];
+    public displayCrs: ComponentRef<BaseDisplayItemComponent>[] = [];
+
+    //public actionCr: ComponentRef<BaseDisplayItemComponent>;
 
     constructor(
         public cfr: ComponentFactoryResolver,
         public cdr: ChangeDetectorRef,
     ) { }
 
-    private updateCr(cr: ComponentRef<BaseDisplayInfoActionComponent>, item: DisplayInfoI) {
-        cr.instance.config = item.config;
-        cr.instance.processOnClick = item.processOnClick;
+    private updateCr(cr: ComponentRef<BaseDisplayItemComponent>, item: BaseDisplayItemI) {
+        applyDisplayItemSettings(cr.instance, item);
 
-        if (cr.instance.processOnClick != undefined) {
+        if (cr.instance.processDisplayItemEvent != undefined) {
             this._sub.add(
                 cr.instance.onEvent.subscribe(r => {
-                    cr.instance.processOnClick(r, this);
+                    cr.instance.processDisplayItemEvent(r, this);
                 })
             )
         }
@@ -128,10 +131,10 @@ export class DisplayInfoComponent implements OnInit {
         for (let i = 0; i < dirArr.length; i++) {
             const item = this.config.displayItems[i];
             const cr = dirArr[i].viewContainerRef.createComponent(
-                this.cfr.resolveComponentFactory(item.component),
+                this.cfr.resolveComponentFactory(item.displayEntity.component),
             )
 
-            this.updateCr(cr, item);
+            this.updateCr(cr, item.displayEntity);
         }
 
         if (this.config.actionSection != undefined) {
