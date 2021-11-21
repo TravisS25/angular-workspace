@@ -63,11 +63,9 @@ export class DropdownSelectComponent extends BaseColumnFilterComponent implement
             let dse: DropdownSelectEvent = {
                 value: val
             }
-            let event: BaseTableEvent = {
-                eventType: TableEvents.columnFilter,
+            this.onEvent.emit({
                 event: dse
-            }
-            this.onEvent.emit(event);
+            });
         }
     }
 }

@@ -72,7 +72,7 @@ export function setJSONFieldValue(field: string, data: Object, val: any) {
 // seperated string that represents access to json object field and get access
 // to value of passed field from passed data object
 export function getJSONFieldValue(field: string, data: Object): any {
-    let fields = field.split(".");
+    const fields = field.split(".");
     let obj = {}
     let val: any;
 

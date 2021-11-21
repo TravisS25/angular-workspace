@@ -1,6 +1,6 @@
 // default values.ts
 
-import { HTTPOptions, APIConfig, Column, FilterData, State, ParamConfig, SelectItem } from './table-api'
+import { HTTPOptions, APIConfig, FilterData, State, ParamConfig, SelectItem } from './table-api'
 import { HttpResponse, HttpErrorResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { BaseTableComponent } from './components/table/base-table/base-table.component';
 import { defaultProcessError } from './util';
@@ -319,7 +319,7 @@ export function getDefaultInputTextConfig(): InputTextConfig {
 }
 
 export function getDefaultTableAPICfg(): APIConfig {
-    let cfg: APIConfig = {
+    return {
         apiURL: (rowData: any): string => {
             throw ('need to implement apiURL!');
         },
@@ -328,19 +328,11 @@ export function getDefaultTableAPICfg(): APIConfig {
             observe: 'response',
             headers: new HttpHeaders(),
         },
-        processResult: (result: any, baseTable: BaseTableComponent) => {
-
-        },
-        processError: (err: HttpErrorResponse) => {
-            defaultProcessError(err);
-        }
     }
-
-    return cfg;
 }
 
 export function getDefaultTableSettingsAPICfg(): APIConfig {
-    let cfg: APIConfig = {
+    return {
         apiURL: (rowData: any): string => {
             throw ('need to implement apiURL!');
         },
@@ -348,24 +340,15 @@ export function getDefaultTableSettingsAPICfg(): APIConfig {
             withCredentials: true,
             observe: 'response',
         },
-        processResult: (result: any, baseTable: BaseTableComponent): any => {
-
-        },
-        processError: (err: HttpErrorResponse) => {
-            defaultProcessError(err);
-        },
     }
-
-    return cfg;
 }
 
 export function getDefaultMaterialDropdownConfig(): MaterialDropdownSelectConfig {
-    let cfg: MaterialDropdownSelectConfig = {
+    return {
         label: '--Select--',
         multipleSelect: true,
         style: { 'width': '90%' },
     }
-    return cfg;
 }
 
 export function getBoolList(): SelectItem[] {

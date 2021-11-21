@@ -41,6 +41,9 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // and any events after that will not be effected
     protected _updateTableCellComponents: boolean = false;
 
+    // _updateDisplayItemComponents is used as a "hack flag" for display item directives as
+    // change events occur with any little change so this is set on initial load
+    // and any events after that will not be effected
     protected _updateDisplayItemComponents: boolean = false;
 
     // _updateColumnFilter is used as a "hack flag" as subscribing to the column filter
@@ -59,16 +62,27 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // There are various variables that depend on this to function
     protected _tableInit: boolean = false;
 
-    // _bodyCellSubs is used to keep reference to explicitly body cell subscriptions
+    // _tableCellSub is used to keep reference to explicitly body cell subscriptions
     // and will properly unsubscribe from them when new data is loaded into table
     protected _tableCellSub: Subscription = new Subscription();
 
+    // _displayItemSub is used to keep reference to explicitly display item subscriptions
+    // and will properly unsubscribe from them when new data is loaded into table
     protected _displayItemSub: Subscription = new Subscription();
 
     // onTableFilterEvent is used by other components of the table like caption,
     // column filter and body cell rows and will be emitted by table whenever
     // new data is loaded into the table via column filter or pagination
     @Output() public onTableFilterEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
+
+    // onTableFilterEvent is used by other components of the table like caption,
+    // column filter and body cell rows and will be emitted by table whenever
+    // new data is loaded into the table via column filter or pagination
+    @Output() public onTableFilterErrorEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
+
+    @Output() public onTableSettingsFilterEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
+
+    @Output() public onTableSettingsFilterErrorEvent: EventEmitter<BaseTableEvent> = new EventEmitter<any>();
 
     // onClearFiltersEvent is used by other components of the table like caption,
     // column filter and body cell rows and will be emitted by table whenever
@@ -122,11 +136,14 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     // component destruction
     public rowExpansionCrs: ComponentRef<BaseComponent>[] = [];
 
-    // tableCellCrs keeps a list of references to dynamically created body cell 
+    // tableCellCrs keeps a list of references to dynamically created table cell 
     // which can be modified through different events and will be destroyed on 
     // component destruction
     public tableCellCrs: ComponentRef<BaseColumnFilterComponent>[] = [];
 
+    // displayItemCrs keeps a list of references to dynamically created display items
+    // which can be modified through different events and will be destroyed on 
+    // component destruction
     public displayItemCrs: ComponentRef<BaseDisplayItemComponent>[] = [];
 
     // visibleColumns keeps track of the total number of visible columns
@@ -390,6 +407,72 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                 }
                 if (this.config.processTableFilterEvent != undefined) {
                     this.config.processTableFilterEvent(r, this);
+                }
+            })
+        );
+
+        this._sub.add(
+            this.onTableFilterErrorEvent.subscribe(r => {
+                for (let i = 0; i < this.columnFilterCrs.length; i++) {
+                    if (this.columnFilterCrs[i].instance.processTableFilterErrorEvent != undefined) {
+                        this.columnFilterCrs[i].instance.processTableFilterErrorEvent(r, this);
+                    }
+                }
+                for (let i = 0; i < this.tableCellCrs.length; i++) {
+                    if (this.tableCellCrs[i].instance.processTableFilterErrorEvent != undefined) {
+                        this.tableCellCrs[i].instance.processTableFilterErrorEvent(r, this);
+                    }
+                }
+
+                if (this.captionCr != undefined && this.captionCr.instance.processTableFilterErrorEvent) {
+                    this.captionCr.instance.processTableFilterErrorEvent(r, this);
+                }
+                if (this.config.processTableFilterErrorEvent != undefined) {
+                    this.config.processTableFilterErrorEvent(r, this);
+                }
+            })
+        );
+
+        this._sub.add(
+            this.onTableSettingsFilterEvent.subscribe(r => {
+                for (let i = 0; i < this.columnFilterCrs.length; i++) {
+                    if (this.columnFilterCrs[i].instance.processTableSettingsFilterEvent != undefined) {
+                        this.columnFilterCrs[i].instance.processTableSettingsFilterEvent(r, this);
+                    }
+                }
+                for (let i = 0; i < this.tableCellCrs.length; i++) {
+                    if (this.tableCellCrs[i].instance.processTableSettingsFilterEvent != undefined) {
+                        this.tableCellCrs[i].instance.processTableSettingsFilterEvent(r, this);
+                    }
+                }
+
+                if (this.captionCr != undefined && this.captionCr.instance.processTableSettingsFilterEvent) {
+                    this.captionCr.instance.processTableSettingsFilterEvent(r, this);
+                }
+                if (this.config.processTableSettingsFilterEvent != undefined) {
+                    this.config.processTableSettingsFilterEvent(r, this);
+                }
+            })
+        );
+
+        this._sub.add(
+            this.onTableSettingsFilterErrorEvent.subscribe(r => {
+                for (let i = 0; i < this.columnFilterCrs.length; i++) {
+                    if (this.columnFilterCrs[i].instance.processTableSettingsFilterErrorEvent != undefined) {
+                        this.columnFilterCrs[i].instance.processTableSettingsFilterErrorEvent(r, this);
+                    }
+                }
+                for (let i = 0; i < this.tableCellCrs.length; i++) {
+                    if (this.tableCellCrs[i].instance.processTableSettingsFilterErrorEvent != undefined) {
+                        this.tableCellCrs[i].instance.processTableSettingsFilterErrorEvent(r, this);
+                    }
+                }
+
+                if (this.captionCr != undefined && this.captionCr.instance.processTableSettingsFilterErrorEvent) {
+                    this.captionCr.instance.processTableSettingsFilterErrorEvent(r, this);
+                }
+                if (this.config.processTableSettingsFilterErrorEvent != undefined) {
+                    this.config.processTableSettingsFilterErrorEvent(r, this);
                 }
             })
         );
@@ -703,17 +786,20 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             this.filterData = res.body;
 
             this.onTableFilterEvent.emit({
-                eventType: TableEvents.tableFilter,
                 event: res
             });
 
-            if (this.config.tableAPIConfig.processResult != undefined) {
-                this.config.tableAPIConfig.processResult(r, this);
-            }
-        }, (err) => {
-            if (this.config.tableAPIConfig.processError != undefined) {
-                this.config.tableAPIConfig.processError(err);
-            }
+            // if (this.config.tableAPIConfig.processResult != undefined) {
+            //     this.config.tableAPIConfig.processResult(r, this);
+            // }
+        }, (err: HttpErrorResponse) => {
+            this.onTableFilterErrorEvent.emit({
+                event: err
+            })
+
+            // if (this.config.tableAPIConfig.processError != undefined) {
+            //     this.config.tableAPIConfig.processError(err);
+            // }
         });
     }
 
@@ -732,7 +818,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         }
 
         this.onClearFiltersEvent.emit({
-            eventType: TableEvents.clearFilters,
+            event: this.state
         });
         this.columnFilterCrs.forEach(item => {
             item.instance.clearFilter();
@@ -789,19 +875,27 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                 this.config.tableSettingsAPIConfig.apiURL(this.outerData) != "" &&
                 this.config.tableSettingsAPIConfig.apiURL(this.outerData) != null
             ) {
-                const config = this.config.tableSettingsAPIConfig;
+                const cfg = this.config.tableSettingsAPIConfig;
 
                 this.http.get(
-                    config.apiURL(this.outerData),
-                    config.apiOptions as any,
+                    cfg.apiURL(this.outerData),
+                    cfg.apiOptions as any,
                 ).subscribe(r => {
-                    if (config.processResult != undefined) {
-                        config.processResult(r, this)
-                    }
-                }, (err: any) => {
-                    if (config.processError != undefined && config.processError != null) {
-                        config.processError(err);
-                    }
+                    this.onTableSettingsFilterEvent.emit({
+                        event: r
+                    })
+
+                    // if (config.processResult != undefined) {
+                    //     config.processResult(r, this)
+                    // }
+                }, (err: HttpErrorResponse) => {
+                    this.onTableSettingsFilterErrorEvent.emit({
+                        event: err
+                    })
+
+                    // if (config.processError != undefined && config.processError != null) {
+                    //     config.processError(err);
+                    // }
                 });
             }
         }

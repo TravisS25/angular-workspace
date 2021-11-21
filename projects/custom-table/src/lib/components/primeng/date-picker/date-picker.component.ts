@@ -96,11 +96,10 @@ export class DatePickerComponent extends BaseColumnFilterComponent implements On
                 value: this.selectedValue,
             }
 
-            let cfg: BaseTableEvent = {
-                eventType: this.field,
-                event: eCfg,
-            }
-            this.onEvent.emit(cfg);
+            this.onEvent.emit({
+                eventFieldName: this.field,
+                event: eCfg
+            });
         }
     }
 }

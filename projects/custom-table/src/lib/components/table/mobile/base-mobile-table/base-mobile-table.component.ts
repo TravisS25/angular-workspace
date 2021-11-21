@@ -71,20 +71,13 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
     // tableRowExpansionDirs is list of directives to dynamically generate row expansion components
     @ViewChildren(TableRowExpansionDirective) public rowExpansionDirs: QueryList<TableRowExpansionDirective>;
 
+    // config is config for table
     @Input() public config: BaseMobileTableConfig;
 
     // onTableFilterEvent is used by other components of the table like caption,
     // column filter and body cell rows and will be emitted by table whenever
     // new data is loaded into the table via column filter or pagination
     @Output() public onTableFilterEvent: EventEmitter<BaseTableEvent> = new EventEmitter<BaseTableEvent>();
-
-    // // onClearFiltersEvent is used by other components of the table like caption,
-    // // column filter and body cell rows and will be emitted by table whenever
-    // // the "Clear Filter Button" is triggered
-    // @Output() public onClearFiltersEvent: EventEmitter<BaseTableEvent> = new EventEmitter<BaseTableEvent>();
-
-    // // onSortEvent is triggered whenever a sort event occurs on a column
-    // @Output() public onSortEvent: EventEmitter<BaseTableEvent> = new EventEmitter<BaseTableEvent>();
 
     constructor(
         public http: HttpService,
@@ -106,22 +99,13 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
             this._updateDisplayItem = true;
             this.filterData = res.body;
 
-            if (this.config.processTableFilterEvent != undefined) {
-                this.config.processTableFilterEvent(r, this);
-            }
-
-            if (this.config.tableAPIConfig.processResult != undefined) {
-                this.config.tableAPIConfig.processResult(r, this);
-            }
-
             this.onTableFilterEvent.emit({
-                eventType: TableEvents.tableFilter,
                 event: res,
             })
         }, (err: HttpErrorResponse) => {
-            if (this.config.tableAPIConfig.processError != undefined) {
-                this.config.tableAPIConfig.processError(err)
-            }
+            this.onTableFilterEvent.emit({
+                event: err
+            });
         })
     }
 
@@ -289,9 +273,7 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
         }
 
         if (this.config.processClearFiltersEvent != undefined) {
-            this.config.processClearFiltersEvent({
-                eventType: TableEvents.clearFilters
-            }, this)
+            this.config.processClearFiltersEvent({}, this)
         }
 
         this.refresh();

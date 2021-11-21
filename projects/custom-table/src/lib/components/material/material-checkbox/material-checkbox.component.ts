@@ -86,7 +86,6 @@ export class MaterialCheckboxComponent extends BaseColumnFilterComponent impleme
         }
 
         const cfg: BaseTableEvent = {
-            eventType: TableEvents.columnFilter,
             eventFieldName: 'checkbox',
             event: cbe,
         }

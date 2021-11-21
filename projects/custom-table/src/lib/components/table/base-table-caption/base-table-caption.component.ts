@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { encodeURIState } from '../../../util';
 import { CoreColumn } from '../../../table-api';
-import { TableEvents, BaseTableCaptionConfig, SelectItem, Column, BaseTableEvent, ExportType, FilterDescriptor } from '../../../table-api';
+import { TableEvents, BaseTableCaptionConfig, SelectItem, BaseTableEvent, ExportType, FilterDescriptor } from '../../../table-api';
 import { BaseComponent } from '../../base/base.component';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BaseEventComponent } from '../base-event/base-event.component';
@@ -45,7 +45,7 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
                 showClearFiltersBtn: true,
                 showCollapseBtn: true,
                 showColumnSelect: true,
-                exportCfg: {
+                exportConfig: {
                     csvURL: '',
                     xlsURL: '',
                     xlsxURL: '',
@@ -104,7 +104,7 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
     public closeRows() {
         this.componentRef.closeRows();
         this.onEvent.emit({
-            eventType: TableEvents.closeRows
+
         });
     }
 
@@ -113,7 +113,7 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         this.componentRef.clearFilters();
         this._idMap.clear();
         this.onEvent.emit({
-            eventType: TableEvents.clearFilters,
+
         });
     }
 
@@ -122,7 +122,7 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         this.componentRef.refresh();
         this._idMap.clear();
         this.onEvent.emit({
-            eventType: TableEvents.refresh,
+
         });
     }
 
@@ -138,7 +138,6 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         }
 
         this.onEvent.emit({
-            eventType: TableEvents.caption,
             event: val
         });
     }
@@ -160,13 +159,13 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         // Determine url
         switch (et) {
             case ExportType.csv:
-                url = this.config.exportCfg.csvURL;
+                url = this.config.exportConfig.csvURL;
                 break;
             case ExportType.xls:
-                url = this.config.exportCfg.xlsURL;
+                url = this.config.exportConfig.xlsURL;
                 break;
             case ExportType.xlsx:
-                url = this.config.exportCfg.xlsxURL;
+                url = this.config.exportConfig.xlsxURL;
                 break;
         }
 
@@ -183,7 +182,7 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         //
         // Else loop through _idMap, get keys, and add to list to use for filtering
         if (this._idMap.size == 0) {
-            url += encodeURIState(this.componentRef.state, this.componentRef.config.paramConfig) + '&' + this.config.exportCfg.columnHeadersParam + '=' +
+            url += encodeURIState(this.componentRef.state, this.componentRef.config.paramConfig) + '&' + this.config.exportConfig.columnHeadersParam + '=' +
                 encodeURI(JSON.stringify(headers));
         } else {
             const ids = [];
@@ -192,21 +191,19 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
             })
 
             const filter: FilterDescriptor = {
-                field: this.config.exportCfg.idFilterParam,
+                field: this.config.exportConfig.idFilterParam,
                 operator: 'eq',
                 value: ids
             }
 
-            url += '?' + this.config.exportCfg.columnHeadersParam + '=' + encodeURI(JSON.stringify(headers)) + '&' +
+            url += '?' + this.config.exportConfig.columnHeadersParam + '=' + encodeURI(JSON.stringify(headers)) + '&' +
                 this.componentRef.config.paramConfig.filters + '=' +
                 encodeURI(JSON.stringify([filter])) + '&' + this.componentRef.config.paramConfig.sorts + '=' +
                 encodeURI(JSON.stringify(this.componentRef.state.sort));
         }
 
-        this.componentRef.exportData(et, url, this.config.exportCfg.fileName);
-        this.onEvent.emit({
-            eventType: TableEvents.export,
-        });
+        this.componentRef.exportData(et, url, this.config.exportConfig.fileName);
+        this.onEvent.emit({});
     }
 
 }

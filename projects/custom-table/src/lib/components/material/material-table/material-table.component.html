@@ -15,14 +15,20 @@
                     {{ col.header }}
                 </th>
             </ng-template>
-            <ng-container *ngIf="col.displayItem; else tableCell">
+            <ng-container *ngIf="col.text; else displayItem">
+                <td mat-cell [style]="col.textStyle" [ngClass]="col.textClass"
+                    *matCellDef="let element; let rowIdx = index">
+                    <div [innerHTML]="col.text(element)"></div>
+                </td>
+            </ng-container>
+            <ng-template *ngIf="col.displayItem; else tableCell" #displayItem>
                 <td mat-cell [style]="col.displayItemStyle" [ngClass]="col.displayItemClass"
                     *matCellDef="let element; let rowIdx = index">
                     <ng-template [libTableDisplayItem] [rowIdx]="rowIdx" [colIdx]="colIdx" [field]="col.field"
                         [rowData]="element"></ng-template>
                 </td>
-            </ng-container>
-            <ng-template #tableCell>
+            </ng-template>
+            <ng-template *ngIf="col.tableCell" #tableCell>
                 <td mat-cell [style]="col.tableCellStyle" [ngClass]="col.tableCellClass" *matCellDef="let element">
                     <ng-template [libTableBodyCell] [rowIdx]="rowIdx" [colIdx]="colIdx" [field]="col.field"
                         [rowData]="element"></ng-template>

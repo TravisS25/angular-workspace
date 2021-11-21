@@ -217,13 +217,13 @@ export interface APIConfig {
     apiURL: (rowData: any) => string
 
     // processResult processes successful response
-    processResult?: (result: any, componentRef?: any) => any;
+    //processResult?: (result: any, componentRef?: any) => any;
 
     // apiOptions is the options to set for HTTPClient#get function
     apiOptions?: HTTPOptions;
 
     // processError processes error response
-    processError?: (err: any) => void
+    //processError?: (err: any) => void
 }
 
 // ParamConfig is config used to determine different param names that will
@@ -368,20 +368,9 @@ export interface BaseTableActionConfig {
 
 // ------------------ TABLE INTERFACES -----------------------
 
-// BaseTableEventConfig is config that should be extended by all component's configs
-// that emit an event
-export interface BaseTableEventConfig {
-    // eventType should be unique name of event that is triggered by table component
-    eventType?: any;
-}
-
 // BaseTableEvent should be the interface that is emitted from every event
 // that occurs in table
-//
-// The eventType that is extended from BaseTableEventConfig can be used
-// as identifier of what kind of event has been emitted and use that to
-// cast our "event" property to appropriate type
-export interface BaseTableEvent extends BaseTableEventConfig {
+export interface BaseTableEvent {
     // eventFieldName is to describe what type of event has occured
     // This is meant to give more meta data about event
     eventFieldName?: string;
@@ -406,9 +395,9 @@ export interface BaseTableCaptionConfig {
     // where users can hide and show certain columns
     showColumnSelect?: boolean;
 
-    // exportCfg is config used to export current table info
+    // exportConfig is config used to export current table info
     // to a file format specific to config
-    exportCfg?: TableCaptionExportConfig;
+    exportConfig?: TableCaptionExportConfig;
 
     // createAction is custom function to be used whenever table
     createAction?: (any) => void;
@@ -637,6 +626,12 @@ export interface BaseEventOptionsI {
     // a column filter change, pagination etc.
     processTableFilterEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
+    processTableFilterErrorEvent?: (event: BaseTableEvent, componentRef: any) => void;
+
+    processTableSettingsFilterEvent?: (event: BaseTableEvent, componentRef: any) => void;
+
+    processTableSettingsFilterErrorEvent?: (event: BaseTableEvent, componentRef: any) => void;
+
     // processClearFiltersEvent activates whenever the "Clear Filters" button
     // is used by user
     processClearFiltersEvent?: (event: BaseTableEvent, componentRef: any) => void;
@@ -732,91 +727,15 @@ export interface CoreColumn {
     // sort allows us to activate the ability to sort on current column
     sort?: SortOperation;
 
-    // tableCellHTML takes in row value for that column and should
-    // return html based on value if set
-    // If neither tableCell or tableCellHTML is set, then the
-    // row data will be displayed if "field" is set
-    tableCellHTML?: (any) => string;
+    // text takes in row value for that column and should return html based on value if set
+    text?: (any) => string;
+
+    // textClass is class to be applied to text cell
+    textClass?: string;
+
+    // textStyle is style to be applied to text cell
+    textStyle?: Object;
 }
-
-// Column is the base settings interface that is used with base table component
-// All settings that deal with columns should be set with this
-export interface Column {
-    // field represents json name of field
-    // WE NEED FIELD FOR ABILITY TO EXPORT COLUMN, DO NOT DELETE
-    field: string;
-
-    // header represents display name of field
-    header?: string;
-
-    // renderColumnContent can be used to determine if the content in the table
-    // cell is even rendered, NOT just hidden
-    // This is used in conjunction with BaseTableAPI#showNoRecordsLabel and set by table api
-    // but can be set manually if one wishes to not render cell content based on some condition
-    //
-    // Default: true
-    renderColumnContent?: boolean;
-
-    // hideColumn will hide column if set true
-    hideColumn?: boolean;
-
-    // showColumnOption will show current column
-    // in the dropdown list in caption
-    //
-    // Default: true
-    showColumnOption?: boolean;
-
-    // hideColumnFilter will hide the filter for current column
-    hideColumnFilter?: boolean;
-
-    // colStyle will style col group if set.  This style should
-    // really only be used to set width of column
-    colStyle?: Object,
-
-    // headerStyle styles header of column if set
-    headerStyle?: Object;
-
-    // headerClass will set CSS class for column header if set
-    headerClass?: string;
-
-    // headerStyle styles header of column if set
-    columnFilterStyle?: Object;
-
-    // headerClass will set CSS class for column header if set
-    columnFilterClass?: string;
-
-    // columnFilter will display column filter and pass along config settings
-    // to component if set
-    columnFilter?: ColumnFilterEntity;
-
-    // tableCellStyle will set style for cell of column if set
-    tableCellStyle?: Object;
-
-    // tableCellClass will set CSS class for column cell if set
-    tableCellClass?: string;
-
-    // displayItem will dynamically generate component that will display
-    // text or html element 
-    displayItem?: DisplayItemEntity;
-
-    // tableCell will display component within cell of table of current column
-    // and pass config if set
-    tableCell?: ColumnFilterEntity;
-
-    // sort allows us to activate the ability to sort on current column
-    sort?: SortOperation;
-
-    // templateConfig is config used to set up inline edting for table
-    // by configuring an input and output template
-    templateConfig?: TemplateConfig;
-
-    // tableCellHTML takes in row value for that column and should
-    // return html based on value if set
-    // If neither tableCell, displayItem or tableCellHTML is set, then the
-    // row data will be displayed if "field" is set
-    // tableCellHTML?: (any) => string;
-}
-
 
 export interface FilterConfig {
     // type determines the icon that will be displayed
@@ -879,7 +798,12 @@ export interface TabViewConfig {
 
 // TabPanelItem is config used for each tab within a collection of tab views
 export interface TabPanelItem {
+    // tabPanelConfig is general config for 
     tabPanelConfig?: any;
+
+    // headerDisplay will display text for panel header with optional styling
+    // This will override headerEntity
+    headerDisplay?: DisplayFormat;
 
     // headerComponent will be dynamically generated component for panel header
     headerEntity?: ConfigEntity;

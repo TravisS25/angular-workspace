@@ -33,7 +33,6 @@ export function onMaterialSortChange(
     }
 
     sortEvent.emit({
-        eventType: TableEvents.sort,
         eventFieldName: sort.active,
     });
 

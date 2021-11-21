@@ -22,6 +22,12 @@ export abstract class BaseEventComponent extends BaseComponent implements OnInit
     // a column filter change, pagination etc.
     @Input() public processTableFilterEvent: (event: BaseTableEvent, componentRef: any) => void;
 
+    @Input() public processTableFilterErrorEvent?: (event: BaseTableEvent, componentRef: any) => void;
+
+    @Input() public processTableSettingsFilterEvent?: (event: BaseTableEvent, componentRef: any) => void;
+
+    @Input() public processTableSettingsFilterErrorEvent?: (event: BaseTableEvent, componentRef: any) => void;
+
     // processClearFiltersEvent activates whenever the "Clear Filters" button
     // is used by user
     @Input() public processClearFiltersEvent: (event: BaseTableEvent, componentRef: any) => void;

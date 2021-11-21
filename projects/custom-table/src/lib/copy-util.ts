@@ -1,5 +1,4 @@
 import {
-    Column,
     ColumnFilterEntity,
     APIConfig,
     State,
@@ -14,43 +13,8 @@ import { MenuItem } from 'primeng/api';
 import { skip } from 'rxjs/operators';
 import { PrimengColumn } from './components/primeng/primeng-table/primeng-table.component';
 
-export function deepCopyColumn(column: Column): Column {
-    let c: Column = _.cloneDeep(column);
-    c.sort = _.cloneDeep(column.sort);
-    c.colStyle = _.cloneDeep(column.colStyle);
-    c.headerStyle = _.cloneDeep(column.headerStyle);
-    c.columnFilterStyle = _.cloneDeep(column.columnFilterStyle);
-    c.tableCellStyle = _.cloneDeep(column.tableCellStyle);
-    c.columnFilter = _.cloneDeepWith(column.columnFilter, function (val1) {
-        if (val1 != undefined && val1 != null) {
-            let cf = val1 as ColumnFilterEntity;
-            let newCF: ColumnFilterEntity = _.cloneDeep(cf);
-            //newCF.component = cf.component;
-            newCF.config = _.cloneDeep(cf.config);
-            newCF.selectedValue = cf.selectedValue;
-            return newCF;
-        }
-    });
-    c.tableCell = _.cloneDeepWith(column.tableCell, function (value) {
-        if (value != undefined && value != null) {
-            let bc = value as ColumnFilterEntity;
-            let newBC: ColumnFilterEntity = _.cloneDeep(bc);
-            newBC.component = _.cloneDeep(bc.component);
-            newBC.config = _.cloneDeep(bc.config);
-            newBC.processRowData = bc.processRowData;
-            //newBC.onEvent = _.cloneDeep(bc.onEvent);
-            return newBC;
-        }
-
-        return null;
-    });
-    //c.tableCellHTML = column.tableCellHTML;
-
-    return c
-}
-
 export function deepCopyCoreColumn(column: CoreColumn): CoreColumn {
-    const c: Column = _.cloneDeep(column);
+    const c: CoreColumn = _.cloneDeep(column);
     c.sort = _.cloneDeep(column.sort);
     c.headerStyle = _.cloneDeep(column.headerStyle);
     c.columnFilterStyle = _.cloneDeep(column.columnFilterStyle);
@@ -90,13 +54,10 @@ export function deepCopyPrimengColumn(column: PrimengColumn): PrimengColumn {
 }
 
 export function deepCopyAPIConfig(c: APIConfig): APIConfig {
-    let config: APIConfig = {
+    return {
         apiURL: c.apiURL,
-        processResult: c.processResult,
         apiOptions: _.cloneDeep(c.apiOptions),
-        processError: c.processError,
     }
-    return config;
 }
 
 export function deepCopyMenuItem(item: MenuItem): MenuItem {

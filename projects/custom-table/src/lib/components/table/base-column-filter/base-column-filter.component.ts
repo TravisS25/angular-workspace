@@ -42,13 +42,11 @@ export abstract class BaseColumnFilterComponent extends BaseDisplayItemComponent
             field: this.field,
             operator: this.operator,
         }
-        const cfg: BaseTableEvent = {
-            eventType: TableEvents.columnFilter,
+
+        this.onEvent.emit({
             eventFieldName: this.field,
             event: filter,
-        }
-
-        this.onEvent.emit(cfg);
+        });
     }
 
     // clearFilter clears the value of current component

@@ -8,16 +8,6 @@ import { BaseDisplayInfoActionComponent } from '../base-display-info-action/base
 import { applyDisplayItemSettings } from '../../../table/table-util';
 import { BaseDisplayItemI } from 'projects/custom-table/src/public-api';
 
-// // DisplayInfoEntity is entity used to create dynamic display info action component
-// // and apply config settings to component
-// export interface DisplayInfoEntity extends DisplayInfoI {
-//     component: Type<BaseDisplayInfoActionComponent>;
-// }
-
-// // DisplayInfoI is config settings to be set by user when generating component
-// export interface DisplayInfoI extends ConfigI {
-//     processOnClick?: (event: any, componentRef: any) => void;
-// }
 
 // DisplayInfoItem is used to render a header and display item entity with some styling
 export interface DisplayInfoItem {
@@ -33,8 +23,12 @@ export interface DisplayInfoItem {
     // displayHeader is header for current display item
     displayHeader?: DisplayFormat;
 
-    // displayItem is dynamic component generated
-    displayEntity: DisplayItemEntity;
+    // displayText is text that will be displayed along with any styling
+    displayText?: DisplayFormat;
+
+    // displayItem is dynamic component generated to display info
+    // Will be overridden if displayText is already set
+    displayEntity?: DisplayItemEntity;
 }
 
 // DisplayInfoConfig is config used in DisplayInfoComponent component

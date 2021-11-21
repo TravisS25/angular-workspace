@@ -121,12 +121,9 @@ export class MultiSelectComponent extends BaseColumnFilterComponent {
             let cfg: MultiSelectEvent = {
                 value: this.select.value
             }
-
-            let event: BaseTableEvent = {
-                eventType: this.field,
+            this.onEvent.emit({
                 event: cfg
-            }
-            this.onEvent.emit(event);
+            });
         }
     }
 }

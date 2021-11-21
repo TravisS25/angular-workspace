@@ -8,7 +8,11 @@
                 <span *ngIf="item.displayHeader" [style]="item.displayHeader.borderStyle"
                     [ngClass]="item.displayHeader.borderClass" [innerHTML]="item.displayHeader.item">
                 </span>
-                <ng-template [libDisplayInfoItem]></ng-template>
+                <ng-container *ngIf="item.displayText; else displayInfoItem">
+                    <div [style]="item.displayText.borderStyle" [ngClass]="item.displayItem.borderClass"
+                        [innerHTML]="item.displayText.item"></div>
+                </ng-container>
+                <ng-template #displayInfoItem [libDisplayInfoItem]></ng-template>
             </div>
         </div>
     </ng-container>

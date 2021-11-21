@@ -35,12 +35,9 @@ export class RowOptionsComponent extends BaseColumnFilterComponent implements On
                 this.initItems(items[i].items);
             } else {
                 items[i].command = (event: any) => {
-                    let cfg: BaseTableEvent = {
-                        eventType: TableEvents.tableCell,
-                        event: event,
-                    }
-
-                    this.onEvent.emit(cfg);
+                    this.onEvent.emit({
+                        event: event
+                    });
                 }
             }
         }

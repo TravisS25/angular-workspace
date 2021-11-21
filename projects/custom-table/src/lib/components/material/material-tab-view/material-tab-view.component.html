@@ -2,6 +2,10 @@
     <ng-container *ngFor="let item of config.panels; let i = index">
         <mat-tab>
             <ng-template mat-tab-label>
+                <ng-container *ngIf="item.headerDisplay">
+                    <div [style]="item.headerDisplay.borderStyle" [ngClass]="item.headerDisplay.borderClass"
+                        [innerHTML]="item.headerDisplay.item"></div>
+                </ng-container>
                 <ng-template *ngIf="item.headerEntity" [libTabPanelHeader] [tabIdx]="i"></ng-template>
             </ng-template>
             <ng-template matTabContent>

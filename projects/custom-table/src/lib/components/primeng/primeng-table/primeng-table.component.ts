@@ -19,7 +19,6 @@ import { Table, SortIcon, SortableColumn } from 'primeng/table'
 import { Message, LazyLoadEvent, MessageService, SortEvent, MenuItem, SelectItem } from 'primeng/api';
 import {
     FilterData,
-    Column,
     BaseTableConfig,
     State,
     FilterDescriptor,
@@ -38,9 +37,6 @@ import {
 } from '../../../table-api';
 import _ from "lodash" // Import the entire lodash library
 import { Subscription, Subscribable, Subject } from 'rxjs';
-import { deepCopyColumn } from '../../../copy-util';
-import { encodeURIState, getJSONFieldValue } from '../../../util';
-import { ThrowStmt } from '@angular/compiler';
 import { TableEvents, TemplateConfig } from '../../../table-api';
 import { getDefaultParamConfig, getDefaultState } from '../../../default-values';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
@@ -54,6 +50,7 @@ import { BaseTableCellDirective } from '../../../directives/table/base-table-cel
 import { PrimengSortIconComponent } from '../primeng-sort-icon/primeng-sort-icon.component';
 import { deepCopyPrimengColumn } from '../../../copy-util';
 import { HttpService } from '../../../services/http.service';
+import { getJSONFieldValue } from 'projects/custom-table/src/public-api';
 
 export interface PrimengTableConfig extends BaseTableConfig {
     // showNoRecordsLabel determines if we show a "No Records" label whenever
@@ -581,16 +578,10 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
             }
 
             this._tableInit = true;
-            // this._onEvent.emit({
-            //     eventType: DefaultTableEvents.TableFilter,
-            //     event: res
-            // });
 
-            const bte: BaseTableEvent = {
+            this.onTableFilterEvent.emit({
                 event: res
-            }
-
-            this.onTableFilterEvent.emit(bte);
+            });
             this._updateTableCellComponents = true;
             this._updateOutputTemplateComponents = true;
             this._updateTableCellDirs = true;
@@ -605,7 +596,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                 this.dt.value = [this.config.showNoRecordsLabel];
                 this.dt.totalRecords = 1;
 
-                let columns: Column[] = this.dt.columns
+                let columns: PrimengColumn[] = this.columns
 
                 for (let i = 0; i < columns.length; i++) {
                     columns[i].renderColumnContent = false;
@@ -614,7 +605,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                 this.showNoRecordsLabel = false;
 
                 if (this.config.showNoRecordsLabel) {
-                    let columns: Column[] = this.dt.columns;
+                    let columns: PrimengColumn[] = this.columns;
 
                     for (let i = 0; i < columns.length; i++) {
                         columns[i].renderColumnContent = true;
@@ -626,17 +617,15 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                 this.dt.totalRecords = res.body.total;
             }
 
-            if (this.config.tableAPIConfig.processResult != undefined) {
-                this.config.tableAPIConfig.processResult(r, this);
-            }
-
             this.dt.loading = false;
+            this.onTableFilterEvent.emit({
+                event: r
+            })
         }, (err) => {
             this.dt.loading = false;
-
-            if (this.config.tableAPIConfig.processError != undefined) {
-                this.config.tableAPIConfig.processError(err);
-            }
+            this.onTableFilterErrorEvent.emit({
+                event: err
+            })
         });
     }
 
@@ -764,7 +753,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
     // sortField is function used in template to simply take in column
     // and if sort is set for that column, return the json field name
-    public sortField(col: Column): string {
+    public sortField(col: PrimengColumn): string {
         if (col.sort != undefined) {
             return col.sort.sortField;
         }
@@ -774,7 +763,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
 
     // isSortDisabled is function used in template to take in column
     // and determine if sort is disabled or not
-    public isSortDisabled(col: Column): boolean {
+    public isSortDisabled(col: PrimengColumn): boolean {
         if (col.sort != undefined) {
             return col.sort.disableSort;
         }
@@ -870,7 +859,6 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
         })
 
         this.onSortEvent.emit({
-            eventType: TableEvents.sort,
             event: event.field
         });
 
@@ -884,7 +872,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // 
     // This function should be used instead of trying to override "visibleColumns" manually
     public addHiddenColumn(field: string) {
-        let columns: Column[] = this.dt.columns;
+        let columns: PrimengColumn[] = this.dt.columns;
 
         for (let i = 0; i < columns.length; i++) {
             if (columns[i].field == field) {
@@ -901,7 +889,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     // 
     // This function should be used instead of trying to override "visibleColumns" manually
     public removeHiddenColumn(field: string) {
-        let columns: Column[] = this.dt.columns;
+        let columns: PrimengColumn[] = this.dt.columns;
 
         for (let k = 0; k < columns.length; k++) {
             if (columns[k].field == field) {
@@ -1045,7 +1033,7 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
     //     this._hiddenColumnFilters = null;
     //     this._hiddenColumns = null;
 
-    //     let columns: Column[] = this.dt.columns
+    //     let columns: PrimengColumn[] = this.dt.columns
 
     //     for (let i = 0; i < columns.length; i++) {
     //         columns[i].hideColumn = false;

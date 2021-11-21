@@ -1,5 +1,5 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { BaseTableEvent, BaseTableEventConfig, CheckboxEvent } from '../../../table-api';
+import { CheckboxEvent } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
@@ -10,7 +10,6 @@ import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-c
 })
 export class CheckboxComponent extends BaseColumnFilterComponent implements OnInit {
     public checked: boolean = false;
-    public _cbCfg: BaseTableEventConfig;
 
     constructor() {
         super()
@@ -45,8 +44,6 @@ export class CheckboxComponent extends BaseColumnFilterComponent implements OnIn
     private initConfig() {
         if (this.config == undefined) {
             throw ('MUST SET CONFIG FOR CHECKBOX')
-        } else {
-            this._cbCfg = this.config
         }
     }
 
@@ -66,11 +63,8 @@ export class CheckboxComponent extends BaseColumnFilterComponent implements OnIn
             isHeaderCheckbox: false,
         }
 
-        let cfg: BaseTableEvent = {
-            eventType: this._cbCfg.eventType,
-            event: cbe,
-        }
-
-        this.onEvent.emit(cfg);
+        this.onEvent.emit({
+            event: cbe
+        });
     }
 }

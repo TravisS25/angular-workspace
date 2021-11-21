@@ -1,7 +1,7 @@
 import { Component, OnInit, ComponentFactoryResolver, ChangeDetectorRef, ViewChild, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Checkbox } from 'primeng/checkbox';
-import { CheckboxEvent, BaseTableEvent, BaseTableEventConfig } from '../../../table-api';
+import { CheckboxEvent } from '../../../table-api';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
 import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component';
 
@@ -12,7 +12,6 @@ import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-c
 })
 export class HeaderCheckboxComponent extends BaseColumnFilterComponent implements OnInit, OnDestroy {
     public checked: boolean = false;
-    private _hcbCfg: BaseTableEventConfig
 
     constructor(
         public cfr: ComponentFactoryResolver,
@@ -24,8 +23,6 @@ export class HeaderCheckboxComponent extends BaseColumnFilterComponent implement
     private initConfig() {
         if (this.config == undefined) {
             throw ('MUST SET CONFIG FOR HEADER CHECKBOX');
-        } else {
-            this._hcbCfg = this.config;
         }
 
         this.excludeFilter = true;
@@ -57,11 +54,8 @@ export class HeaderCheckboxComponent extends BaseColumnFilterComponent implement
             rowData: this.rowData,
             isHeaderCheckbox: true,
         }
-
-        let cfg: BaseTableEvent = {
-            eventType: this._hcbCfg.eventType,
-            event: cbe,
-        }
-        this.onEvent.emit(cfg)
+        this.onEvent.emit({
+            event: cbe
+        })
     }
 }
