@@ -10,8 +10,6 @@ import { BaseComponent } from '../../base/base.component';
     styleUrls: ['./base-event.component.scss']
 })
 export abstract class BaseEventComponent extends BaseComponent implements OnInit {
-    @Output() public onEvent: EventEmitter<BaseTableEvent> = new EventEmitter();
-
     // processCaptionEvent will process any event that is emitted from caption of table
     @Input() public processCaptionEvent: (event: BaseTableEvent, componentRef: any) => void;
 

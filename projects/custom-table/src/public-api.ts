@@ -23,6 +23,7 @@ export * from './lib/components/util/display/display-info/display-info.component
 export * from './lib/components/util/display/display-item-list/display-item-list.component';
 export * from './lib/components/util/display/display-text/display-text.component';
 export * from './lib/components/util/form/base-form/base-form.component';
+export * from './lib/components/util/form/base-form-event/base-form-event.component';
 export * from './lib/components/util/form/base-popup-form/base-popup-form.component';
 export * from './lib/components/util/tab-view/tab-panel-header/tab-panel-header.component';
 
@@ -32,8 +33,10 @@ export * from './lib/components/material/form/material-bottom-sheet-form/materia
 export * from './lib/components/material/material-autocomplete/material-autocomplete.component';
 export * from './lib/components/material/material-checkbox/material-checkbox.component';
 export * from './lib/components/material/material-date-picker/material-date-picker.component';
+export * from './lib/components/material/material-display-action/material-display-action.component';
 export * from './lib/components/material/material-dropdown-select/material-dropdown-select.component';
 export * from './lib/components/material/material-ellipsis-icon/material-ellipsis-icon.component';
+export * from './lib/components/material/material-expand-row/material-expand-row.component';
 export * from './lib/components/material/material-filter-option/material-filter-option.component';
 export * from './lib/components/material/material-input-text/material-input-text.component';
 export * from './lib/components/material/material-menu-item/material-menu-item.component';
@@ -108,8 +111,10 @@ export * from './lib/modules/primeng/primeng-table-expansion.module';
 // Material Modules
 export * from './lib/modules/material/material-checkbox-all.module';
 export * from './lib/modules/material/material-date-picker.module';
+export * from './lib/modules/material/material-display-action.module';
 export * from './lib/modules/material/material-dropdown-select.module';
 export * from './lib/modules/material/material-ellipsis-icon.module';
+export * from './lib/modules/material/material-expand-row.module';
 export * from './lib/modules/material/material-filter-option.module';
 export * from './lib/modules/material/material-input-text.module';
 export * from './lib/modules/material/material-menu-item.module';

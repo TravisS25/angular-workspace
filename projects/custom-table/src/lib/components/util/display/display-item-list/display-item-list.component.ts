@@ -1,8 +1,10 @@
 import { ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { setTableEvents } from '../../../table/table-util'
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
-import { DisplayItemEntity } from '../../../../table-api'
+import { BaseComponentEntity } from '../../../../table-api'
 import { TableDisplayItemDirective } from '../../../../directives/table/table-display-item.directive';
+import { BaseComponent } from '../../../base/base.component';
+
 
 // DisplayItemListComponent is util component that allows user to display multiple display
 // item components with their own styling
@@ -12,13 +14,13 @@ import { TableDisplayItemDirective } from '../../../../directives/table/table-di
     styleUrls: ['./display-item-list.component.scss']
 })
 export class DisplayItemListComponent extends BaseDisplayItemComponent implements OnInit {
-    @Input() public config: DisplayItemEntity[];
+    @Input() public config: BaseComponentEntity[];
 
     // displayItemDirs are directives that will be dynamically generat display item components
     @ViewChildren(TableDisplayItemDirective) public displayItemDirs: QueryList<TableDisplayItemDirective>;
 
     // displayItemCrs are component references to display item components
-    public displayItemCrs: ComponentRef<BaseDisplayItemComponent>[] = []
+    public displayItemCrs: ComponentRef<BaseComponent>[] = []
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -34,20 +36,17 @@ export class DisplayItemListComponent extends BaseDisplayItemComponent implement
                 this.cfr.resolveComponentFactory(this.config[i].component)
             )
 
-            cr.instance.rowData = this.rowData;
-            cr.instance.rowIdx = this.rowIdx;
             cr.instance.outerData = this.outerData;
             cr.instance.componentRef = this;
 
             cr.instance.config = this.config[i].config;
             cr.instance.value = this.config[i].value;
-            cr.instance.processRowData = this.config[i].processRowData;
+            cr.instance.processEvent = this.config[i].processEvent;
 
-            setTableEvents(cr.instance, this.config[i])
             this._sub.add(
                 cr.instance.onEvent.subscribe(r => {
-                    if (cr.instance.processDisplayItemEvent != undefined) {
-                        cr.instance.processDisplayItemEvent({ event: r }, this);
+                    if (cr.instance.processEvent != undefined) {
+                        cr.instance.processEvent({ event: r }, this);
                     }
                 })
             )

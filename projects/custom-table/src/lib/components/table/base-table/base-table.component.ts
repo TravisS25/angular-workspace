@@ -169,16 +169,65 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         public http: HttpService,
     ) { super() }
 
-    public ngOnInit(): void {
+    private initColumnStyles() {
+        for (let i = 0; i < this.columns.length; i++) {
+            if (this.columns[i].getTextClass == undefined) {
+                this.columns[i].getTextClass = (): string => {
+                    return '';
+                }
+            }
+            if (this.columns[i].getDisplayItemClass == undefined) {
+                this.columns[i].getDisplayItemClass = (): string => {
+                    return ''
+                }
+            }
+            if (this.columns[i].getTableCellClass == undefined) {
+                this.columns[i].getTableCellClass = (): string => {
+                    return ''
+                }
+            }
 
+            if (this.columns[i].getTextStyle == undefined) {
+                this.columns[i].getTextStyle = (): Object => {
+                    return {}
+                }
+            }
+            if (this.columns[i].getDisplayItemStyle == undefined) {
+                this.columns[i].getDisplayItemStyle = (): Object => {
+                    return {}
+                }
+            }
+            if (this.columns[i].getTableCellStyle == undefined) {
+                this.columns[i].getTableCellStyle = (): Object => {
+                    return {}
+                }
+            }
+        }
+    }
+
+    public ngOnInit(): void {
+        this.initColumnStyles();
     }
 
     public ngAfterViewInit() {
         this.initAfterView();
     }
 
+    // onPageChange should implement the way a table retrieves data whenever
+    // a user wants to go next page
     public abstract onPageChange(event: any);
+
+    // onSortChange should implement the way a table retrieves data whenever
+    // a user sorts on a column
     public abstract onSortChange(event: any);
+
+    // rowCollapse should implement the way a table collapses selected row
+    public abstract rowCollapse(rowIdx: number);
+
+    // rowExpand should implement the way a table expands selected row
+    public abstract rowExpand(rowIdx: number);
+
+    // closeRows should implement ability to close all expanded rows currently open
     public abstract closeRows();
 
     ///////////////////////////////////////////
@@ -788,18 +837,10 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             this.onTableFilterEvent.emit({
                 event: res
             });
-
-            // if (this.config.tableAPIConfig.processResult != undefined) {
-            //     this.config.tableAPIConfig.processResult(r, this);
-            // }
         }, (err: HttpErrorResponse) => {
             this.onTableFilterErrorEvent.emit({
                 event: err
             })
-
-            // if (this.config.tableAPIConfig.processError != undefined) {
-            //     this.config.tableAPIConfig.processError(err);
-            // }
         });
     }
 

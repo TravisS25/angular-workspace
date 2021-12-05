@@ -9,6 +9,9 @@ import { Subscription } from 'rxjs';
     styleUrls: ['./base.component.scss']
 })
 export abstract class BaseComponent implements OnInit, OnDestroy {
+    @Input() public processEvent: (event: any, componentRef: any) => void;
+    @Output() public onEvent: EventEmitter<BaseTableEvent> = new EventEmitter();
+
     protected _sub: Subscription = new Subscription();
 
     @Input() public config: any;

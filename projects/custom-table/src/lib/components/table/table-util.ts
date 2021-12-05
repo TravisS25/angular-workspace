@@ -7,6 +7,7 @@ export function applyDisplayItemSettings(component: BaseDisplayItemComponent, se
     component.config = settings.config;
     component.value = settings.value;
     component.componentRef = settings.componentRef;
+    component.processRowData = settings.processRowData;
     setTableEvents(component, settings);
 }
 

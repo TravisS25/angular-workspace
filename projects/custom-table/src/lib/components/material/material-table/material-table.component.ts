@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ComponentFactoryResolver, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, Input, OnInit, ViewChild } from '@angular/core';
 import { BaseTableConfig, CoreColumn, DefaultTableEvents } from '../../../table-api';
 import { HttpService } from '../../../services/http.service';
 import { BaseTableComponent } from '../../table/base-table/base-table.component';
@@ -7,7 +7,7 @@ import { Sort } from '@angular/material/sort';
 import { TableEvents } from '../../../table-api';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { PageEvent } from '@angular/material/paginator';
-import { onMaterialPageChange, onMaterialRowExpandAnimation, onMaterialSortChange } from '../material-util';
+import { materialRowCollapse, materialRowExpand, onMaterialPageChange, onMaterialRowExpandAnimation, onMaterialSortChange } from '../material-util';
 
 
 export interface MaterialTableConfig extends BaseTableConfig {
@@ -30,11 +30,24 @@ export interface MaterialColumn extends CoreColumn {
         ]),
     ],
 })
-export class MaterialTableComponent extends BaseTableComponent implements OnInit {
+export class MaterialTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
+    // table is reference to material table
     @ViewChild(MatTable, { static: false }) public table: MatTable<any>;
 
+    // columns is re-declared here for type saftey from "CoreColumn" type to "MaterialColumn"
     public columns: MaterialColumn[];
+
+    // columnHeaders is used to gather all the column header names from MaterialColumn#columns
+    // to be referenced within material table template
     public columnHeaders: string[] = [];
+
+    // expandRows is an array of bools whose length will equal the 
+    // current page size of table
+    //
+    // This is used to determine which rows are expanded or not
+    // but should not be used directly; instead use the expand
+    // and collapse functions to modify
+    public expandRows: boolean[] = []
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -53,6 +66,10 @@ export class MaterialTableComponent extends BaseTableComponent implements OnInit
         this.initValues();
     }
 
+    public ngAfterViewInit() {
+
+    }
+
     public onSortChange(sort: Sort) {
         onMaterialSortChange(
             sort,
@@ -63,12 +80,26 @@ export class MaterialTableComponent extends BaseTableComponent implements OnInit
         )
     }
 
+    // onPageChange event determines how many items to take and
+    // total number of records
     public onPageChange(event: PageEvent) {
         onMaterialPageChange(event, this.state, this.update);
     }
 
-    public closeRows() {
+    // rowCollapse will collapse given row index
+    public rowCollapse(rowIdx: number) {
+        materialRowCollapse(rowIdx, this.expandRows);
+    }
 
+    // rowExpand will expand given row index
+    public rowExpand(rowIdx: number) {
+        materialRowExpand(rowIdx, this.expandRows);
+    }
+
+    public closeRows() {
+        for (let i = 0; i < this.expandRows.length; i++) {
+            this.rowCollapse(i);
+        }
     }
 
     // onRowExpandAnimation will activate when table row either expands or collapses

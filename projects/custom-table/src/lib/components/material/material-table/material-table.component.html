@@ -16,20 +16,21 @@
                 </th>
             </ng-template>
             <ng-container *ngIf="col.text; else displayItem">
-                <td mat-cell [style]="col.textStyle" [ngClass]="col.textClass"
+                <td mat-cell [style]="col.getTextStyle(element)" [ngClass]="col.getTextClass(element)"
                     *matCellDef="let element; let rowIdx = index">
                     <div [innerHTML]="col.text(element)"></div>
                 </td>
             </ng-container>
             <ng-template *ngIf="col.displayItem; else tableCell" #displayItem>
-                <td mat-cell [style]="col.displayItemStyle" [ngClass]="col.displayItemClass"
+                <td mat-cell [style]="col.getDisplayItemStyle(element)" [ngClass]="col.getDisplayItemClass(element)"
                     *matCellDef="let element; let rowIdx = index">
                     <ng-template [libTableDisplayItem] [rowIdx]="rowIdx" [colIdx]="colIdx" [field]="col.field"
                         [rowData]="element"></ng-template>
                 </td>
             </ng-template>
             <ng-template *ngIf="col.tableCell" #tableCell>
-                <td mat-cell [style]="col.tableCellStyle" [ngClass]="col.tableCellClass" *matCellDef="let element">
+                <td mat-cell [style]="col.getTableCellStyle(element)" [ngClass]="col.getTableCellClass(element)"
+                    *matCellDef="let element">
                     <ng-template [libTableBodyCell] [rowIdx]="rowIdx" [colIdx]="colIdx" [field]="col.field"
                         [rowData]="element"></ng-template>
                 </td>
@@ -62,7 +63,7 @@
     </tr>
     <tr style="height: 0;" mat-row *matRowDef="let row; let i = index; columns: [''];">
         <td mat-cell *matCellDef="let element" [attr.colspan]="visibleColumns">
-            <div [@rowExpand]="element == expandedElement ? 'expanded' : 'collapsed'"
+            <div [@rowExpand]="expandRows[i] ? 'expanded' : 'collapsed'"
                 (@rowExpand.start)="onRowExpandAnimation($event, i)"
                 (@rowExpand.done)="onRowExpandAnimation($event, i)">
                 <ng-template [libTableRowExpansion] [rowData]="row" [rowIdx]="i"></ng-template>

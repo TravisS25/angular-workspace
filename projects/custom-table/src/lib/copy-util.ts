@@ -7,6 +7,7 @@ import {
     GroupDescriptor,
     SortDescriptor,
     CoreColumn,
+    AggregateDescriptor,
 } from './table-api';
 import _ from "lodash" // Import the entire lodash library
 import { MenuItem } from 'primeng/api';
@@ -18,7 +19,7 @@ export function deepCopyCoreColumn(column: CoreColumn): CoreColumn {
     c.sort = _.cloneDeep(column.sort);
     c.headerStyle = _.cloneDeep(column.headerStyle);
     c.columnFilterStyle = _.cloneDeep(column.columnFilterStyle);
-    c.tableCellStyle = _.cloneDeep(column.tableCellStyle);
+    //c.tableCellStyle = _.cloneDeep(column.tableCellStyle);
     //c.tableCellHTML = column.tableCellHTML;
     c.columnFilter = _.cloneDeepWith(column.columnFilter, function (val1) {
         if (val1 != undefined && val1 != null) {
@@ -112,24 +113,68 @@ export function deepCopyMenuItem(item: MenuItem): MenuItem {
     return copyItem;
 }
 
-// export function deepCopyState(item: State): State {
-//     let state: State = item;
-//     let filters: FilterDescriptor[] = [];
-//     let groups: GroupDescriptor[] = [];
-//     let sorts: SortDescriptor[] = [];
+export function deepCopyState(item: State): State {
+    const state: State = {
+        take: item.take,
+        skip: item.skip,
+    };
 
-//     if(item.filter){
-//         let vals = item.filter.filters as FilterDescriptor[];
-//         vals.forEach(x => {
-//             filters.push(x);
-//         })
-//     }
+    const sorts: SortDescriptor[] = [];
 
-//     let filter: CompositeFilterDescriptor = {
+    if (item.filter != undefined) {
+        const filters: FilterDescriptor[] = [];
 
-//     }
+        item.filter.filters.forEach(x => {
+            filters.push({
+                field: x.field,
+                operator: x.operator,
+                value: x.value,
+                ignoreCase: x.ignoreCase,
+            });
+        })
+        state.filter = {
+            logic: 'and',
+            filters: filters
+        }
+    }
 
-//     state.filter
+    if (item.group != undefined) {
+        const groups: GroupDescriptor[] = [];
 
+        item.group.forEach(x => {
+            const aggDes: AggregateDescriptor[] = [];
 
-// }
+            if (x.aggregates != undefined) {
+                x.aggregates.forEach(t => {
+                    aggDes.push({
+                        field: t.field,
+                        aggregate: t.aggregate
+                    })
+                })
+            }
+
+            groups.push({
+                field: x.field,
+                dir: x.dir,
+                aggregates: aggDes
+            })
+        })
+
+        state.group = groups;
+    }
+
+    if (item.sort != undefined) {
+        const sorts: SortDescriptor[] = [];
+
+        item.sort.forEach(x => {
+            sorts.push({
+                field: x.field,
+                dir: x.dir,
+            })
+        })
+
+        state.sort = sorts;
+    }
+
+    return state;
+}

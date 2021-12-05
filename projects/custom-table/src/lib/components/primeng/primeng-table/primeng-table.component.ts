@@ -50,7 +50,7 @@ import { BaseTableCellDirective } from '../../../directives/table/base-table-cel
 import { PrimengSortIconComponent } from '../primeng-sort-icon/primeng-sort-icon.component';
 import { deepCopyPrimengColumn } from '../../../copy-util';
 import { HttpService } from '../../../services/http.service';
-import { getJSONFieldValue } from 'projects/custom-table/src/public-api';
+import { getJSONFieldValue } from '../../../util';
 
 export interface PrimengTableConfig extends BaseTableConfig {
     // showNoRecordsLabel determines if we show a "No Records" label whenever
@@ -778,6 +778,14 @@ export class PrimengTableComponent extends BaseTableComponent implements OnInit 
                 this.dt.toggleRow(this.dt.value[i]);
             }
         }
+    }
+
+    public rowExpand(rowIdx: number) {
+        this.dt.toggleRow(this.dt.value[rowIdx]);
+    }
+
+    public rowCollapse(rowIdx: number) {
+        this.dt.toggleRow(this.dt.value[rowIdx]);
     }
 
     // expandRows listens for the callback from the inner table

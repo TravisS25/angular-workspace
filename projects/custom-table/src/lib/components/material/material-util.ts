@@ -5,6 +5,8 @@ import { BaseTableEvent, SortDescriptor, State, TableEvents, BaseComponentEntity
 import { BaseComponent } from '../base/base.component'
 import { TableRowExpansionDirective } from "../../directives/table/table-row-expansion.directive";
 
+// onMaterialSortChange is util function that performs default actions when user
+// clicks on column to sort
 export function onMaterialSortChange(
     sort: Sort,
     sortEvent: EventEmitter<BaseTableEvent>,
@@ -41,12 +43,15 @@ export function onMaterialSortChange(
     }
 }
 
+// onMaterialPageChange is util function that performs default pagination
+// actions when user selects new list of items
 export function onMaterialPageChange(event: PageEvent, state: State, update: () => void) {
     state.skip = event.pageSize * event.pageIndex;
     state.take = event.pageSize;
     update();
 }
 
+// onMaterialRowExpandAnimation is util function that will expand and collapse material row
 export function onMaterialRowExpandAnimation(
     event: AnimationEvent,
     rowIdx: number,
@@ -69,5 +74,17 @@ export function onMaterialRowExpandAnimation(
     } else {
         rowExpansionCrs[rowIdx].destroy();
         rowExpansionCrs.splice(rowIdx, 1);
+    }
+}
+
+export function materialRowExpand(rowIdx: number, expandRows: boolean[]) {
+    if (rowIdx > -1 && rowIdx < expandRows.length) {
+        expandRows[rowIdx] = true;
+    }
+}
+
+export function materialRowCollapse(rowIdx: number, expandRows: boolean[]) {
+    if (rowIdx > -1 && rowIdx < expandRows.length) {
+        expandRows[rowIdx] = false;
     }
 }

@@ -287,4 +287,5 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
     public abstract rowCollapse(rowIdx: number, rowKeyMap: string);
     public abstract rowExpand(rowIdx: number, rowKeyMap: string);
     public abstract onPageChange(event: any);
+    public abstract closeRows();
 }

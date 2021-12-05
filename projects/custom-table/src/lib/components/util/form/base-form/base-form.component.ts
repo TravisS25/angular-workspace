@@ -4,8 +4,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { getDefaultCSRFHeader } from '../../../../default-values';
-import { FormEvents } from '../../../../table-api';
+import { FormEvents, PopupFormI } from '../../../../table-api';
 import { HttpService } from '../../../../services/http.service';
+import { BaseFormEventComponent } from '../base-form-event/base-form-event.component';
+
+export class TableFormBuilder extends FormBuilder { }
 
 // BaseFormComponent is component form should extend to get basic form functions
 @Component({
@@ -13,7 +16,7 @@ import { HttpService } from '../../../../services/http.service';
     templateUrl: './base-form.component.html',
     styleUrls: ['./base-form.component.scss']
 })
-export abstract class BaseFormComponent implements OnInit {
+export abstract class BaseFormComponent extends BaseFormEventComponent implements PopupFormI, OnInit {
     // _apiURL is the url that will make a GET request and 
     // a POST/PUT request for the form
     protected _apiURL: string;
@@ -25,21 +28,8 @@ export abstract class BaseFormComponent implements OnInit {
     // to keep track of to destroy when component is destroyed
     protected _sub: Subscription = new Subscription();
 
-    // _responseType is expected response type that
-    // we will get from server
+    // _responseType is expected response type that we will get from server
     protected _responseType: any = 'json';
-
-    // _processBeforeSubmit allows user to process form group before
-    // it is submitted without having to override "onSubmit" function
-    protected _processBeforeSubmit: () => Promise<boolean>;
-
-    // _processSuccessSubmit allows user to process form group
-    // after successful submission which can be used to do
-    // things like reset form group
-    protected _processSuccessSubmit: (r: any) => void;
-
-    // _processErrorSubmit allows user to process HttpErrorResponse error
-    protected _processErrorSubmit: (err: HttpErrorResponse) => void;
 
     // formSubmitted will set when the "onSubmit" function is activated
     // This can be used to display error message in form if this is true
@@ -56,24 +46,45 @@ export abstract class BaseFormComponent implements OnInit {
     // a new entry or not
     public isCreate: boolean = false;
 
-    @Input() public config: any;
-    @Output() public onEvent: EventEmitter<any> = new EventEmitter();
-
     constructor(
-        public fb: FormBuilder,
         public http: HttpService,
     ) {
-        this.initBeforeSubmit();
+        super()
     }
 
-    private initBeforeSubmit() {
-        this._processBeforeSubmit = (): Promise<boolean> => {
-            return Promise.resolve(true);
+    private initSubs() {
+        if (this.processError != undefined) {
+            this._sub.add(
+                this.onError.subscribe(r => {
+                    this.processError(r, this);
+                })
+            )
+        }
+        if (this.processSuccess != undefined) {
+            this._sub.add(
+                this.onSuccess.subscribe(r => {
+                    this.processSuccess(this);
+                })
+            )
+        }
+        if (this.processClose != undefined) {
+            this._sub.add(
+                this.onClose.subscribe(r => {
+                    this.processClose(this);
+                })
+            )
+        }
+        if (this.processLoadingComplete != undefined) {
+            this._sub.add(
+                this.onLoadingComplete.subscribe(r => {
+                    this.processLoadingComplete(this);
+                })
+            )
         }
     }
 
     public ngOnInit(): void {
-
+        this.initSubs();
     }
 
     public ngOnDestroy() {
@@ -82,7 +93,7 @@ export abstract class BaseFormComponent implements OnInit {
     }
 
     public close() {
-        this.onEvent.emit(FormEvents.close)
+        this.onClose.emit();
     }
 
     public async onSubmit() {
@@ -94,8 +105,8 @@ export abstract class BaseFormComponent implements OnInit {
         if (this.formGroup.valid) {
             let con: boolean = true;
 
-            if (this._processBeforeSubmit != undefined) {
-                con = await this._processBeforeSubmit()
+            if (this.processBeforeSubmit != undefined) {
+                con = await this.processBeforeSubmit(this.formGroup, this);
             }
 
             if (con == null || !con) {
@@ -126,17 +137,9 @@ export abstract class BaseFormComponent implements OnInit {
                     responseType: this._responseType,
                 }
             ).subscribe(r => {
-                if (this._processSuccessSubmit != undefined) {
-                    this._processSuccessSubmit(r);
-                }
-
-                this.onEvent.emit(FormEvents.submitSuccess);
+                this.onSuccess.emit(r);
             }, (err: HttpErrorResponse) => {
-                if (this._processErrorSubmit != undefined) {
-                    this._processErrorSubmit(err);
-                }
-
-                this.onEvent.emit(FormEvents.submitError);
+                this.onError.emit(err);
             });
         } else {
             console.log(this.formGroup);

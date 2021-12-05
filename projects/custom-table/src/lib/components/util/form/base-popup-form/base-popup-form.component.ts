@@ -3,6 +3,7 @@ import { BaseFormComponent } from '../base-form/base-form.component'
 import { PopupFormEntity, PopupFormI, ConfigI } from '../../../../table-api';
 import { PopupDirective } from '../../../../directives/popup.directive';
 import { Subscription } from 'rxjs';
+import { BaseFormEventComponent } from '../../../util/form/base-form-event/base-form-event.component';
 
 // BasePopupFormComponent should be extended by dialog/popup component
 @Component({
@@ -10,13 +11,11 @@ import { Subscription } from 'rxjs';
     templateUrl: './base-popup-form.component.html',
     styleUrls: ['./base-popup-form.component.scss']
 })
-export abstract class BasePopupFormComponent implements OnInit {
+export abstract class BasePopupFormComponent implements OnInit, OnDestroy {
     private _sub: Subscription = new Subscription();
 
-    @Output() public onEvent: EventEmitter<any> = new EventEmitter();
-
     @ViewChild(PopupDirective) public formDir: PopupDirective;
-    public formCr: ComponentRef<PopupFormI>;
+    public formCr: ComponentRef<BaseFormEventComponent>;
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -52,5 +51,10 @@ export abstract class BasePopupFormComponent implements OnInit {
 
     public ngOnInit(): void {
 
+    }
+
+    public ngOnDestroy(): void {
+        this._sub.unsubscribe();
+        this._sub = null;
     }
 }

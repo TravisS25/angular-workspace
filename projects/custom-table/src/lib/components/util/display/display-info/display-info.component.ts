@@ -1,12 +1,11 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Directive, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, QueryList, Type, ViewChild, ViewChildren, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { DisplayItemEntity, DisplayFormat, PopupFormI } from '../../../../table-api';
+import { DisplayFormat, BaseComponentI, BaseComponentEntity, } from '../../../../table-api';
 import { Subscription } from 'rxjs';
-import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
-import { ConfigI } from '../../../../table-api';
-import { BaseDisplayInfoActionComponent } from '../base-display-info-action/base-display-info-action.component';
-import { applyDisplayItemSettings } from '../../../table/table-util';
-import { BaseDisplayItemI } from 'projects/custom-table/src/public-api';
+import { BaseComponent } from '../../../base/base.component'
+import { BaseFormComponent } from '../../../util/form/base-form/base-form.component';
+import { HttpService } from '../../../../services/http.service';
+import { BaseFormEventComponent } from '../../../util/form/base-form-event/base-form-event.component';
 
 
 // DisplayInfoItem is used to render a header and display item entity with some styling
@@ -26,9 +25,9 @@ export interface DisplayInfoItem {
     // displayText is text that will be displayed along with any styling
     displayText?: DisplayFormat;
 
-    // displayItem is dynamic component generated to display info
+    // displayEntity is dynamic component generated to display info
     // Will be overridden if displayText is already set
-    displayEntity?: DisplayItemEntity;
+    displayEntity?: BaseComponentEntity;
 }
 
 // DisplayInfoConfig is config used in DisplayInfoComponent component
@@ -50,7 +49,7 @@ export interface DisplayInfoConfig {
     header?: DisplayFormat;
 
     // action is dynamic component
-    actionSection?: DisplayItemEntity;
+    actionSection?: BaseComponentEntity;
 
     // displayItems are items to be dynamically created for component
     displayItems: DisplayInfoItem[];
@@ -82,8 +81,7 @@ export class DisplayInfoActionDirective {
     templateUrl: './display-info.component.html',
     styleUrls: ['./display-info.component.scss']
 })
-export class DisplayInfoComponent implements OnInit {
-    // _sub is used to add generic subscriptions
+export class DisplayInfoComponent extends BaseFormEventComponent implements OnInit, OnDestroy {
     private _sub: Subscription = new Subscription();
 
     // config is config used for component
@@ -96,25 +94,27 @@ export class DisplayInfoComponent implements OnInit {
     @ViewChild(DisplayInfoActionDirective) public actionDir: DisplayInfoActionDirective;
 
     // displayCrs are references to display items
-    public displayCrs: ComponentRef<BaseDisplayItemComponent>[] = [];
-
-    //public actionCr: ComponentRef<BaseDisplayItemComponent>;
+    public displayCrs: ComponentRef<BaseComponent>[] = [];
 
     constructor(
+        public http: HttpService,
         public cfr: ComponentFactoryResolver,
         public cdr: ChangeDetectorRef,
-    ) { }
+    ) { super() }
 
-    private updateCr(cr: ComponentRef<BaseDisplayItemComponent>, item: BaseDisplayItemI) {
-        applyDisplayItemSettings(cr.instance, item);
+    private updateCr(cr: ComponentRef<BaseComponent>, item: BaseComponentI) {
+        cr.instance.componentRef = item.componentRef;
+        cr.instance.config = item.config;
+        cr.instance.processEvent = item.processEvent;
+        cr.instance.value = item.value;
 
-        if (cr.instance.processDisplayItemEvent != undefined) {
-            this._sub.add(
-                cr.instance.onEvent.subscribe(r => {
-                    cr.instance.processDisplayItemEvent(r, this);
-                })
-            )
-        }
+        this._sub.add(
+            cr.instance.onEvent.subscribe(r => {
+                if (this.processEvent != undefined) {
+                    this.processEvent(this);
+                }
+            })
+        )
 
         this.displayCrs.push(cr)
     }
@@ -150,13 +150,10 @@ export class DisplayInfoComponent implements OnInit {
     }
 
     public ngOnDestroy() {
-        this._sub.unsubscribe();
         this.displayCrs.forEach(x => {
             x.destroy()
         })
 
         this.displayCrs = null;
-        this._sub = null;
     }
-
 }

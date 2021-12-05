@@ -1,14 +1,16 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Input, OnInit, ViewChild } from '@angular/core';
 import { MaterialRowOptionsComponent } from '../material-row-options/material-row-options.component';
-import { BaseDisplayItemI, DisplayItemEntity } from '../../../table-api';
+import { BaseDisplayItemI, DisplayItemEntity, DisplayFormat } from '../../../table-api';
 import { BaseDisplayItemComponent } from '../../table/base-display-item/base-display-item.component';
 import { TableDisplayItemDirective } from '../../../directives/table/table-display-item.directive';
-import { setTableEvents } from '../../table/table-util';
+import { setTableEvents, applyDisplayItemSettings } from '../../table/table-util';
 
 // MaterialMobileRowDisplayItemConfig is config for MaterialMobileRowDisplayItemComponent component
 export interface MaterialMobileRowDisplayItemConfig {
-    // displayItem is entity that will be dynamically generated to display text/icon 
-    displayItem: DisplayItemEntity;
+    displayText?: DisplayFormat;
+
+    // displayItem is entity that will be dynamically generated to display entity
+    displayItem?: DisplayItemEntity;
 
     // displayItemBorderClass is css class around dynamically generated component
     displayItemBorderClass?: string;
@@ -33,7 +35,7 @@ export interface MaterialMobileRowDisplayItemConfig {
 })
 export class MaterialMobileRowDisplayItemComponent extends BaseDisplayItemComponent implements OnInit {
     // rowOptions represents MaterialRowOptionsComponent component and is referenced to apply settings
-    @ViewChild('rowOptions') public rowOptions: MaterialRowOptionsComponent;
+    @ViewChild(MaterialRowOptionsComponent) public rowOptions: MaterialRowOptionsComponent;
 
     // displayItemDir is directive that will dynamically generate display item
     @ViewChild(TableDisplayItemDirective) public displayItemDir: TableDisplayItemDirective;
@@ -68,14 +70,7 @@ export class MaterialMobileRowDisplayItemComponent extends BaseDisplayItemCompon
         this.displayItemCr = this.displayItemDir.viewContainerRef.createComponent(
             this.cfr.resolveComponentFactory(this.config.displayItem.component)
         );
-        this.displayItemCr.instance.config = this.config.displayItem.config;
-        this.displayItemCr.instance.outerData = this.outerData;
-        this.displayItemCr.instance.componentRef = this;
-        this.displayItemCr.instance.colIdx = this.colIdx;
-        this.displayItemCr.instance.rowIdx = this.rowIdx;
-        this.displayItemCr.instance.rowData = this.rowData;
-        this.displayItemCr.instance.value = this.value;
-        setTableEvents(this.displayItemCr.instance, this.config.displayItem);
+        applyDisplayItemSettings(this.displayItemCr.instance, this.config.displayItem);
 
         this._sub.add(
             this.displayItemCr.instance.onEvent.subscribe(r => {

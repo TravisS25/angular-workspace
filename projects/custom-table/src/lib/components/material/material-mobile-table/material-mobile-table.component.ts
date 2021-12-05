@@ -10,7 +10,8 @@ import { BaseMobileTableComponent } from '../../table/mobile/base-mobile-table/b
 import { MatTable } from '@angular/material/table';
 import { HttpService } from '../../../services/http.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { onMaterialRowExpandAnimation } from '../material-util';
+import { materialRowCollapse, materialRowExpand, onMaterialPageChange, onMaterialRowExpandAnimation } from '../material-util';
+import { BaseMobileTableConfig } from '../../../table-api';
 
 
 @Component({
@@ -35,21 +36,18 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
     // This will be set to true after the first table filter event is activated
     private _isFilterInit = false;
 
-    // table is reference to table
+    // table is reference to material table
     @ViewChild(MatTable) public table: MatTable<any>;
 
-    // expandRow is an array of bools whose length will equal the 
+    @Input() public config: BaseMobileTableConfig
+
+    // expandRows is an array of bools whose length will equal the 
     // current page size of table
     //
     // This is used to determine which rows are expanded or not
     // but should not be used directly; instead use the expand
     // and collapse functions to modify
-    public expandRow: boolean[] = []
-
-    // expandedRows keeps track of rows that have already been expanded
-    // This is used so we don't have to re-generate expansion rows that 
-    // have already been created
-    public expandedRows: number[] = [];
+    public expandRows: boolean[] = []
 
     constructor(
         public http: HttpService,
@@ -59,17 +57,29 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
         super(http, cfr, cdr);
     }
 
+    private initStyles() {
+        if (this.config.rowClass == undefined) {
+            this.config.rowClass = (): string => {
+                return '';
+            }
+        }
+        if (this.config.rowStyle == undefined) {
+            this.config.rowStyle = (): Object => {
+                return {}
+            }
+        }
+    }
+
     private initSubs() {
         this._sub.add(
             this.onTableFilterEvent.subscribe(r => {
                 if (this._isFilterInit) {
                     this.table.renderRows();
-                    this.expandRow = [];
-                    this.expandedRows = [];
+                    this.expandRows = [];
                 }
 
                 for (let i = 0; this.filterData.data.length; i++) {
-                    this.expandRow.push(false);
+                    this.expandRows.push(false);
                 }
 
                 this._isFilterInit = true;
@@ -79,15 +89,14 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
 
     public ngOnInit(): void {
         super.ngOnInit();
+        this.initStyles();
         this.initSubs();
     }
 
     // onPageChange event determines how many items to take and
     // total number of records
     public onPageChange(event: PageEvent) {
-        this.state.take = event.pageSize;
-        this.state.skip = event.pageIndex * event.pageSize;
-        this.refresh();
+        onMaterialPageChange(event, this.state, this.refresh);
     }
 
     // onRowExpandAnimation will activate when table row either expands or collapses
@@ -104,14 +113,12 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
         )
     }
 
-    // collapse will collapse given row index
+    // rowCollapse will collapse given row index
     public rowCollapse(rowIdx: number) {
-        if (rowIdx > -1 && rowIdx < this.expandRow.length) {
-            this.expandRow[rowIdx] = false;
-        }
+        materialRowCollapse(rowIdx, this.expandRows)
     }
 
-    // expand will expand given row index
+    // rowExpand will expand given row index
     public rowExpand(rowIdx: number, rowMapKey: string) {
         if (this.config.rowExpansion == undefined) {
             throw ('ROWEXPANSION NOT SET IN CONFIG; CAN NOT EXPAND!');
@@ -119,10 +126,13 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
             throw ('KEY "' + rowMapKey + '" DOES NOT EXIST!');
         }
 
+        materialRowExpand(rowIdx, this.expandRows);
         this._currentRowMapKey = rowMapKey;
+    }
 
-        if (rowIdx > -1 && rowIdx < this.expandRow.length) {
-            this.expandRow[rowIdx] = true;
+    public closeRows() {
+        for (let i = 0; i < this.expandRows.length; i++) {
+            this.rowCollapse(i);
         }
     }
 }

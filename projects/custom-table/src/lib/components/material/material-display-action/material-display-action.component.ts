@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { BaseDisplayInfoActionComponent } from '../../util/display/base-display-info-action/base-display-info-action.component';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { BaseComponent } from '../../base/base.component';
+import { BaseDisplayItemComponent } from '../../../components/table/base-display-item/base-display-item.component';
 import { MaterialButton } from '../material-config';
 
 // MaterialDisplayActionConfig is config for MaterialDisplayActionComponent
@@ -11,6 +12,10 @@ export interface MaterialDisplayActionConfig {
     denyBtn: MaterialButton;
 }
 
+export interface MaterialDisplayActionEvent {
+    btnType: 'approve' | 'deny',
+}
+
 // MaterialDisplayActionComponent is component used to display action buttons
 // for the DisplayInfoComponent with material styling
 @Component({
@@ -18,15 +23,36 @@ export interface MaterialDisplayActionConfig {
     templateUrl: './material-display-action.component.html',
     styleUrls: ['./material-display-action.component.scss']
 })
-export class MaterialDisplayActionComponent extends BaseDisplayInfoActionComponent implements OnInit {
+export class MaterialDisplayActionComponent extends BaseComponent implements OnInit, OnDestroy {
     @Input() public config: MaterialDisplayActionConfig;
 
     constructor() { super() }
 
-    public ngOnInit(): void {
+    private initSubs() {
+        if (this.processEvent != undefined) {
+            this._sub.add(
+                this.onEvent.subscribe(r => {
+                    this.processEvent(r, this);
+                })
+            )
+        }
     }
 
-    public onClick(btnType: string) {
-        this.onEvent.emit(btnType);
+    public ngOnInit(): void {
+        this.initSubs();
+    }
+
+    public onClick(btnType: 'approve' | 'deny') {
+        const e: MaterialDisplayActionEvent = {
+            btnType: btnType,
+        }
+        this.onEvent.emit({
+            event: e
+        });
+    }
+
+    public ngOnDestroy() {
+        this._sub.unsubscribe()
+        this._sub = null;
     }
 }

@@ -9,6 +9,9 @@ import { BaseColumnFilterComponent } from './components/table/base-column-filter
 import { BaseDisplayItemComponent } from './components/table/base-display-item/base-display-item.component';
 import { BaseComponent } from './components/base/base.component';
 import { BaseEventComponent } from './components/table/base-event/base-event.component';
+import { BaseFormComponent } from './components/util/form/base-form/base-form.component';
+import { FormGroup } from '@angular/forms';
+import { BaseFormEventComponent } from '../public-api';
 
 //---------------- EVENT ENUMS ----------------------- 
 
@@ -399,7 +402,8 @@ export interface BaseTableCaptionConfig {
     // to a file format specific to config
     exportConfig?: TableCaptionExportConfig;
 
-    // createAction is custom function to be used whenever table
+    // createAction is custom function to be used whenever user
+    // wants to create an entity
     createAction?: (any) => void;
 }
 
@@ -459,10 +463,10 @@ export interface BaseMobileTableConfig extends BaseEventOptionsI, baseConfig {
     rowEvent?: (event: any, rowData: any, componentRef: any) => void;
 
     // panelHeaderStyle is styling to be used for panel header of mobile stable
-    rowStyle?: Object;
+    rowStyle?: (rowData: any) => Object;
 
     // panelHeaderClass is classes to be used for panel header of mobile stable
-    rowClass?: string;
+    rowClass?: (rowData: any) => string;
 
     // rowExpansion is config used to expand an inner table with current mobile table
     rowExpansion?: Map<string, BaseComponentEntity>;
@@ -499,11 +503,16 @@ export interface ConfigI {
 export interface BaseComponentI extends ConfigI {
     componentRef?: any;
     value?: any;
+    processEvent?: (event: any, componentRef: any) => void;
 }
 
 export interface PopupFormI extends ConfigI {
-    onSuccess?: EventEmitter<any>;
-    onClose?: EventEmitter<any>;
+    processEvent?: (err: any, formRef: any) => void;
+    processError?: (err: any, formRef: any) => void;
+    processSuccess?: (formRef: any) => void;
+    processClose?: (formRef: any) => void;
+    processLoadingComplete?: (formRef: any) => void;
+    processBeforeSubmit?: (form: FormGroup, formRef: any) => Promise<boolean>;
     successDismiss?: any;
 }
 
@@ -521,11 +530,6 @@ export interface BaseColumnFilterI extends BaseMobileFilterI, ProcessRowDataI, B
 export interface BaseDisplayItemI extends BaseComponentI, ProcessRowDataI, BaseEventOptionsI { }
 
 
-export interface BaseMobileRowExpansionI extends BaseComponentI {
-    //rowExpansionMap: Map<string,>
-}
-
-
 // ---------------- TABLE CONFIGURATION ------------------
 
 export interface IndexTableI extends ConfigI {
@@ -539,7 +543,7 @@ export interface BaseIndexTableEntity extends IndexTableI {
 }
 
 export interface PopupFormEntity extends PopupFormI {
-    component: Type<PopupFormI>;
+    component: Type<BaseFormEventComponent>;
 }
 
 // CaptionEntity is used to display caption component in caption part of table
@@ -568,12 +572,6 @@ export interface BaseEventEntity extends BaseComponentI {
 
 /////// Table /////////
 
-// // RowExpansionEntity is used to display expansion component of table
-// export interface RowExpansionEntity extends BaseComponentI {
-//     // component is component to use for expansion of table
-//     component: Type<BaseComponent>;
-// }
-
 export interface ColumnFilterEntity extends BaseColumnFilterI {
     component: Type<BaseColumnFilterComponent>;
 }
@@ -581,12 +579,6 @@ export interface ColumnFilterEntity extends BaseColumnFilterI {
 export interface DisplayItemEntity extends BaseDisplayItemI {
     component: Type<BaseDisplayItemComponent>;
 }
-
-/////// Mobile /////////
-
-// export interface MobileRowExpansionEntity extends BaseMobileRowExpansionI {
-//     component: Type<BaseComponent>;
-// }
 
 
 // ------------------ COLUMN CONFIGS -----------------------
@@ -632,8 +624,7 @@ export interface BaseEventOptionsI {
 
     processTableSettingsFilterErrorEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
-    // processClearFiltersEvent activates whenever the "Clear Filters" button
-    // is used by user
+    // processClearFiltersEvent activates whenever the "Clear Filters" button is used by user
     processClearFiltersEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
     processInputTemplateEvent?: (event: BaseTableEvent, componentRef: any) => void;
@@ -702,21 +693,36 @@ export interface CoreColumn {
     // to component if set
     columnFilter?: ColumnFilterEntity;
 
+    // sort allows us to activate the ability to sort on current column
+    sort?: SortOperation;
+
     // tableCellStyle will set style for cell of column if set
-    tableCellStyle?: Object;
+    getTableCellStyle?: (rowData: any) => Object;
 
     // tableCellClass will set CSS class for column cell if set
-    tableCellClass?: string;
+    getTableCellClass?: (rowData: any) => string;
+
+    // // tableCellStyle will set style for cell of column if set
+    // tableCellStyle?: Object
+
+    // // tableCellClass will set CSS class for column cell if set
+    // tableCellClass?: string;
 
     // tableCell will display component within cell of table of current column
     // and pass config if set
     tableCell?: ColumnFilterEntity;
 
     // displayItemStyle will set style for cell of column if set
-    displayItemStyle?: Object;
+    getDisplayItemStyle?: (rowData: any) => Object;
 
     // displayItemClass will set CSS class for column cell if set
-    displayItemClass?: string;
+    getDisplayItemClass?: (rowData: any) => string;
+
+    // // displayItemStyle will set style for cell of column if set
+    // displayItemStyle?: Object
+
+    // // displayItemClass will set CSS class for column cell if set
+    // displayItemClass?: string;
 
     // displayItem will display dynamically generated component within table cell
     //
@@ -724,17 +730,20 @@ export interface CoreColumn {
     // display something like text or a button instead of a form field
     displayItem?: DisplayItemEntity;
 
-    // sort allows us to activate the ability to sort on current column
-    sort?: SortOperation;
+    // textStyle is style to be applied to text cell
+    getTextStyle?: (rowData: any) => Object;
+
+    // textClass is class to be applied to text cell
+    getTextClass?: (rowData: any) => string;
+
+    // // textStyle is style to be applied to text cell
+    // textStyle?: Object;
+
+    // // textClass is class to be applied to text cell
+    // textClass?: string;
 
     // text takes in row value for that column and should return html based on value if set
     text?: (any) => string;
-
-    // textClass is class to be applied to text cell
-    textClass?: string;
-
-    // textStyle is style to be applied to text cell
-    textStyle?: Object;
 }
 
 export interface FilterConfig {

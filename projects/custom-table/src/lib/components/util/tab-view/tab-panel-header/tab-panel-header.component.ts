@@ -12,8 +12,7 @@ export interface TabPanelHeaderConfig {
     rightIcon?: string;
 }
 
-// TabPanelHeaderComponent is component to be used in a tab panel header
-// of a tab view
+// TabPanelHeaderComponent is component to be used in a tab panel header of a tab view
 @Component({
     selector: 'lib-tab-panel-header',
     templateUrl: './tab-panel-header.component.html',

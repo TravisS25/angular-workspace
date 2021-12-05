@@ -1,0 +1,4 @@
+<mat-icon matRipple (click)="onClick()" *ngIf="expand; else block">keyboard_arrow_down</mat-icon>
+<ng-template #block>
+    <mat-icon matRipple (click)="onClick()">keyboard_arrow_right</mat-icon>
+</ng-template>
