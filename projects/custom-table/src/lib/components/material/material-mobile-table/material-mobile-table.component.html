@@ -2,7 +2,7 @@
 <ng-template [libTableCaption]></ng-template>
 <table #table mat-table [dataSource]="filterData.data">
     <tr mat-row *matRowDef="let row; let i = index; columns: [''];" (click)="onRowClick($event, row)"
-        [style]="config.rowStyle" [ngClass]="config.rowClass">
+        [style]="config.getRowStyle" [ngClass]="config.getRowClass">
         <ng-template [libTableDisplayItem] [rowData]="row" [rowIdx]="i"></ng-template>
     </tr>
     <tr style="height: 0;" mat-row *matRowDef="let row; let i = index; columns: [''];">

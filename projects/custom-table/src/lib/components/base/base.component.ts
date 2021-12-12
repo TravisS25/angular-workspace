@@ -9,7 +9,10 @@ import { Subscription } from 'rxjs';
     styleUrls: ['./base.component.scss']
 })
 export abstract class BaseComponent implements OnInit, OnDestroy {
+    // processEvent should process generic events that "onEvent" emits
     @Input() public processEvent: (event: any, componentRef: any) => void;
+
+    // onEvent will activate whenever an event occurs with component
     @Output() public onEvent: EventEmitter<BaseTableEvent> = new EventEmitter();
 
     protected _sub: Subscription = new Subscription();

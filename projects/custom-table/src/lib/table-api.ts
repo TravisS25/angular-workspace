@@ -11,7 +11,7 @@ import { BaseComponent } from './components/base/base.component';
 import { BaseEventComponent } from './components/table/base-event/base-event.component';
 import { BaseFormComponent } from './components/util/form/base-form/base-form.component';
 import { FormGroup } from '@angular/forms';
-import { BaseFormEventComponent } from '../public-api';
+import { BaseFormEventComponent } from './components/util/form/base-form-event/base-form-event.component';
 
 //---------------- EVENT ENUMS ----------------------- 
 
@@ -295,7 +295,8 @@ export enum ExportType {
     xlsx
 }
 
-// TableCaptionExportConfig is config 
+// TableCaptionExportConfig is config used in any table caption
+// to determine settings for exporting current data
 export interface TableCaptionExportConfig {
     // url for csv file
     csvURL?: string;
@@ -456,17 +457,17 @@ export interface BaseMobileTableConfig extends BaseEventOptionsI, baseConfig {
     caption?: MobileCaptionEntity;
 
     // displayItem is config used to generate dynamic component in mobile table row
-    displayItem?: DisplayItemEntity;
+    rowEntity?: DisplayItemEntity;
 
     // panelHeaderEvent is function that will be called whenever panel header of mobile is clicked
     // The event parameter can be used to determine what to do with event
-    rowEvent?: (event: any, rowData: any, componentRef: any) => void;
+    rowEvent?: (event: BaseTableEvent, componentRef: any) => void;
 
     // panelHeaderStyle is styling to be used for panel header of mobile stable
-    rowStyle?: (rowData: any) => Object;
+    getRowStyle?: (rowData: any) => Object;
 
     // panelHeaderClass is classes to be used for panel header of mobile stable
-    rowClass?: (rowData: any) => string;
+    getRowClass?: (rowData: any) => string;
 
     // rowExpansion is config used to expand an inner table with current mobile table
     rowExpansion?: Map<string, BaseComponentEntity>;
@@ -492,56 +493,103 @@ export interface BaseTableConfig extends BaseEventOptionsI, baseConfig {
 
 // ------------------ COLUMN CONFIGURATION -----------------------
 
+// 
+// The below interfaces are essentially configuration settings that can
+// be passed to various parts of a table and will NOT be directly implemented by classes
+//
+
+// ProcessRowDataI interface should be used for any component that can process row data
 export interface ProcessRowDataI {
+    // processRowData function allows user to process row data given to
+    // current component with a reference to itself so based on rowData value
+    // a user can update the component 
     processRowData?: (rowData: any, componentRef: any) => void;
 }
 
+// ConfigI interface should be apply to any component that has config
 export interface ConfigI {
+    // config is generic config for current component
     config?: any;
 }
 
+// BaseComponentI interface is repsonsible for giving value and process events
 export interface BaseComponentI extends ConfigI {
+    // componentRef should be reference to component that called current component
     componentRef?: any;
+
+    // value is the value for current component
     value?: any;
+
+    // processEvent is function that should process generic events
     processEvent?: (event: any, componentRef: any) => void;
 }
 
+// PopupFormI interface allows user to process various events that occur in popup form
 export interface PopupFormI extends ConfigI {
+    // processEvent is function that should process generic events from modal form
     processEvent?: (err: any, formRef: any) => void;
+
+    // processError is function that should process error from modal form
     processError?: (err: any, formRef: any) => void;
+
+    // processSuccess is function that should process success from modal form
     processSuccess?: (formRef: any) => void;
+
+    // processClose is function that should process when modal form closes
     processClose?: (formRef: any) => void;
+
+    // processLoadingComplete is function that should process when form is
+    // complete initializing, usually when api calls are complete
     processLoadingComplete?: (formRef: any) => void;
+
+    // processBeforeSubmit is function that should process form before submitting to server
     processBeforeSubmit?: (form: FormGroup, formRef: any) => Promise<boolean>;
+
+    // successDismiss is marker using to indicate when modal is successfully dismissed
     successDismiss?: any;
 }
 
+// BaseMobileFilterI interface is settings for any mobile component that contains a form field
 export interface BaseMobileFilterI extends BaseComponentI {
+    // field is the name of the form field
     field?: string;
+
+    // selectedValue is value user wants form field to be initialized with
     selectedValue?: any;
+
+    // operator is filter operator for form field ie. 'eq', 'neq', 'contains' etc.
     operator?: string;
 }
 
+// BaseColumnFilterI interface is settings for any component that contains a form field
 export interface BaseColumnFilterI extends BaseMobileFilterI, ProcessRowDataI, BaseEventOptionsI {
+    // getSelectedValue is function that takes in rowData and returns selected value  based on rowData
     getSelectedValue?: (rowData: any) => any;
+
+    // excludeFilter will exclude field from being sent to server if set
     excludeFilter?: boolean;
 }
 
+// BaseDisplayItemI interface is settings for any component that wants to display DOM element
 export interface BaseDisplayItemI extends BaseComponentI, ProcessRowDataI, BaseEventOptionsI { }
 
 
 // ---------------- TABLE CONFIGURATION ------------------
 
+// IndexTableI interface should be implemented by all table types
 export interface IndexTableI extends ConfigI {
+    // state represents current filter state for table
     state?: State;
 }
 
 // ---------------- TABLE IMPLEMENTATION ------------------
 
+// BaseIndexTableEntity is table entity
 export interface BaseIndexTableEntity extends IndexTableI {
     component: Type<IndexTableI>;
 }
 
+// PopupFormEntity is entity used for popup form
 export interface PopupFormEntity extends PopupFormI {
     component: Type<BaseFormEventComponent>;
 }
@@ -551,12 +599,10 @@ export interface CaptionEntity extends BaseComponentI, BaseEventOptionsI {
     component: Type<BaseTableCaptionComponent>;
 }
 
+// MobileCaptionEntity is used to display caption component for mobile table
 export interface MobileCaptionEntity extends BaseComponentI, BaseEventOptionsI {
     component: Type<BaseEventComponent>;
 }
-
-
-// ---------------- COLUMN IMPLEMENTATION ------------------
 
 export interface ConfigEntity extends ConfigI {
     component: Type<ConfigI>;
@@ -570,7 +616,7 @@ export interface BaseEventEntity extends BaseComponentI {
     component: Type<BaseEventComponent>;
 }
 
-/////// Table /////////
+// ---------------- COLUMN IMPLEMENTATION ------------------
 
 export interface ColumnFilterEntity extends BaseColumnFilterI {
     component: Type<BaseColumnFilterComponent>;
@@ -657,6 +703,18 @@ export interface EditEvent {
     // foundDiff will be set true if the rowData has changed between
     // the activation of the onEditInit and onEditComplete functions
     foundDiff?: boolean;
+}
+
+// MobileTableRowEvent is event config that should be triggered whenever
+// any type of event occurs to row of mobile table
+export interface MobileTableRowEvent {
+    // actionEvent is event that occurs when an action is triggered on row
+    // mobile table and is up to user to implement what actions to trigger
+    // ie. mouse click, hover, etc
+    actionEvent: any;
+
+    // rowData is the data for current mobile row
+    rowData: any;
 }
 
 export interface CoreColumn {
@@ -755,7 +813,7 @@ export interface FilterConfig {
     options: FilterOptions;
 }
 
-// FilterOptions display filter options and ability to choose default option
+// FilterOptions displays filter options and ability to choose default option
 export interface FilterOptions {
     // values is list of values to display
     values: SelectItem[];
@@ -773,21 +831,34 @@ export interface CheckboxEvent {
     isHeaderCheckbox?: boolean;
 }
 
+// MaskConfig is config used for input fields to manipulate what characters 
+// can be entered into field
+//
+// This config is used in conjunction with ngx-mask library
 export interface MaskConfig extends IConfig {
+    // maskTemplate is template used to format output of input field
     maskTemplate: string;
 }
 
-// BasePagination is base pangination settings for any table to extend
+// BasePagination is base pagination settings for any table to extend
 export interface BasePagination {
+    // pageSize is number of entries to retrieve from datasource
     pageSize?: number;
+
+    // pageSizeOptions is array of numbers that allows user to change
+    // the number of entries per page
     pageSizeOptions?: number[];
 }
 
-
 // DisplayFormat is config used style a display item
 export interface DisplayFormat {
+    // item is element that should be displayed
     item: string;
+
+    // borderClass should be css class surrounding item
     borderClass?: string;
+
+    // borderStyle should be object style surrounding item
     borderStyle?: Object;
 }
 
@@ -810,9 +881,9 @@ export interface TabPanelItem {
     // tabPanelConfig is general config for 
     tabPanelConfig?: any;
 
-    // headerDisplay will display text for panel header with optional styling
+    // header will display text for panel header with optional styling
     // This will override headerEntity
-    headerDisplay?: DisplayFormat;
+    header?: DisplayFormat;
 
     // headerComponent will be dynamically generated component for panel header
     headerEntity?: ConfigEntity;

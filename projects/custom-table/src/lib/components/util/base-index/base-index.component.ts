@@ -74,7 +74,8 @@ export class BaseIndexComponent implements OnInit {
 
     // mobileTableEntity is settings to dynamically generate mobile table
     @Input() public mobileTableEntity: BaseIndexTableEntity;
-    @Output() public onWindowChange: EventEmitter<number> = new EventEmitter();
+
+    @Output() public windowChange: EventEmitter<void> = new EventEmitter();
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -146,6 +147,7 @@ export class BaseIndexComponent implements OnInit {
     // to change table views based on tableChangeWidth
     private subscribeWindow() {
         window.onresize = () => {
+            this.windowChange.emit()
             this.setCurrentState();
             this.setTableFlag();
 

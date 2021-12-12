@@ -8,7 +8,7 @@ import { setTableEvents } from '../../table-util';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/combineLatest';
 import { take } from 'rxjs/operators';
-import { BaseMobileTableConfig, DisplayItemEntity, State, FilterData } from '../../../../table-api';
+import { BaseMobileTableConfig, DisplayItemEntity, State, FilterData, MobileTableRowEvent, DefaultTableEvents, DefaultEvents } from '../../../../table-api';
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
 import { MatTable } from '@angular/material/table';
 import { HttpService } from '../../../../services/http.service';
@@ -18,7 +18,6 @@ import { TableRowExpansionDirective } from '../../../../directives/table/table-r
 import { BaseEventComponent } from '../../base-event/base-event.component';
 import { TableDisplayItemDirective } from '../../../../directives/table/table-display-item.directive';
 import { TableCaptionDirective } from '../../../../directives/table/table-caption.directive'
-
 
 @Component({
     selector: 'lib-base-mobile-table',
@@ -198,7 +197,7 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
             this.captionCr.instance.outerData = this.outerData;
         }
 
-        if (this.config.displayItem != undefined) {
+        if (this.config.rowEntity != undefined) {
             this._sub.add(
                 this.displayItemDirs.changes.subscribe(val => {
                     if (this._updateDisplayItem) {
@@ -206,19 +205,19 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
                         results.forEach((item) => {
                             const cr = item.viewContainerRef.createComponent(
                                 this.cfr.resolveComponentFactory(
-                                    this.config.displayItem.component
+                                    this.config.rowEntity.component
                                 )
                             );
 
-                            cr.instance.config = this.config.displayItem.config;
+                            cr.instance.config = this.config.rowEntity.config;
                             cr.instance.componentRef = this;
                             cr.instance.outerData = this.outerData;
-                            cr.instance.value = this.config.displayItem.value;
+                            cr.instance.value = this.config.rowEntity.value;
                             cr.instance.colIdx = 0;
                             cr.instance.rowData = item.rowData;
                             cr.instance.rowIdx = 0;
-                            cr.instance.processRowData = this.config.displayItem.processRowData;
-                            setTableEvents(cr.instance, this.config.displayItem);
+                            cr.instance.processRowData = this.config.rowEntity.processRowData;
+                            setTableEvents(cr.instance, this.config.rowEntity);
 
                             this.displayItemCrs.push(cr);
                         });
@@ -252,9 +251,19 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
     }
 
     // onRowClick will only work when config#rowEvent is initialized
-    public onRowClick(event: any, item: any) {
+    public onRowClick(event: any, rowData: any) {
         if (this.config.rowEvent != undefined) {
-            this.config.rowEvent(event, item, this);
+            const cfg: MobileTableRowEvent = {
+                actionEvent: event,
+                rowData: rowData,
+            }
+            this.config.rowEvent(
+                {
+                    eventFieldName: DefaultEvents.Click,
+                    event: cfg,
+                },
+                this
+            );
         }
     }
 

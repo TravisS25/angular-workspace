@@ -39,8 +39,6 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
     // table is reference to material table
     @ViewChild(MatTable) public table: MatTable<any>;
 
-    @Input() public config: BaseMobileTableConfig
-
     // expandRows is an array of bools whose length will equal the 
     // current page size of table
     //
@@ -58,13 +56,13 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
     }
 
     private initStyles() {
-        if (this.config.rowClass == undefined) {
-            this.config.rowClass = (): string => {
+        if (this.config.getRowClass == undefined) {
+            this.config.getRowClass = (): string => {
                 return '';
             }
         }
-        if (this.config.rowStyle == undefined) {
-            this.config.rowStyle = (): Object => {
+        if (this.config.getRowStyle == undefined) {
+            this.config.getRowStyle = (): Object => {
                 return {}
             }
         }

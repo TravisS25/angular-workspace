@@ -1,6 +1,13 @@
-<div [ngClass]="config.displayItemBorderClass" [style]="config.displayItemBorderStyle" class="row-display-item">
-    <ng-template [libTableDisplayItem]></ng-template>
+<div *ngIf="config.text; else block" class="row-display-item" [ngClass]="config.getTextClass(rowData)"
+    [innerHTML]="config.text(rowData)">
 </div>
-<div [ngClass]="config.rowOptionsBorderClass" [style]="config.rowOptionsBorderStyle" class="row-display-options">
+<ng-template #block>
+    <div *ngIf="config.displayItem" [ngClass]="config.getDisplayItemClass(rowData)"
+        [style]="config.getDisplayItemStyle(rowData)" class="row-display-item">
+        <ng-template [libTableDisplayItem]></ng-template>
+    </div>
+</ng-template>
+<div *ngIf="config.rowOptions" [ngClass]="config.getRowOptionsClass(rowData)"
+    [style]="config.getRowOptionsStyle(rowData)" class="row-display-options">
     <lib-material-row-options #rowOptions></lib-material-row-options>
 </div>

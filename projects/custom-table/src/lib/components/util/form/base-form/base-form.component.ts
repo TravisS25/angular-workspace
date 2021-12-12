@@ -8,6 +8,10 @@ import { FormEvents, PopupFormI } from '../../../../table-api';
 import { HttpService } from '../../../../services/http.service';
 import { BaseFormEventComponent } from '../base-form-event/base-form-event.component';
 
+// TableFormBuilder is purley to extend FormBuilder so any class that extends
+// BaseFormComponent will use this instead of FormBuilder itself in their component as we 
+// get import errors when trying to import FormBuilder in extended components when
+// working with BaseFormComponent#formGroup variable
 export class TableFormBuilder extends FormBuilder { }
 
 // BaseFormComponent is component form should extend to get basic form functions

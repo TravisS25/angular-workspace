@@ -18,7 +18,6 @@ export * from './lib/components/table/mobile/base-mobile-table/base-mobile-table
 
 // Util Components
 export * from './lib/components/util/base-index/base-index.component';
-export * from './lib/components/util/display/base-display-info-action/base-display-info-action.component';
 export * from './lib/components/util/display/display-info/display-info.component';
 export * from './lib/components/util/display/display-item-list/display-item-list.component';
 export * from './lib/components/util/display/display-text/display-text.component';

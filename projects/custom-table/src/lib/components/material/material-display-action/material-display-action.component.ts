@@ -12,6 +12,8 @@ export interface MaterialDisplayActionConfig {
     denyBtn: MaterialButton;
 }
 
+// MaterialDisplayActionEvent is the event interface that is emitted
+// when a button is clicked
 export interface MaterialDisplayActionEvent {
     btnType: 'approve' | 'deny',
 }

@@ -6,7 +6,7 @@ import { BaseColumnFilterComponent } from "../table/base-column-filter/base-colu
 export function applyDisplayItemSettings(component: BaseDisplayItemComponent, settings: BaseDisplayItemI) {
     component.config = settings.config;
     component.value = settings.value;
-    component.componentRef = settings.componentRef;
+    //component.componentRef = settings.componentRef;
     component.processRowData = settings.processRowData;
     setTableEvents(component, settings);
 }

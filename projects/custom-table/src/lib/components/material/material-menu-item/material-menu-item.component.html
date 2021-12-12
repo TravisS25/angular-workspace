@@ -5,8 +5,11 @@
             <button (mouseleave)="onMouseLeaveEvent(child)" (mouseenter)="onMouseEnterEvent(child)"
                 (click)="onClickEvent(child)" mat-menu-item #menuTrigger="matMenuTrigger" [value]="child.value"
                 [matMenuTriggerFor]="menu.childMenu">
-                <i class="{{ child.iconClass }}">{{ child.iconLabel }}</i>
+                <mat-icon *ngIf="child.leftMatIcon">{{ child.leftMatIcon }}</mat-icon>
+                <i *ngIf="child.leftIcon" class="{{ child.leftIcon }}"></i>
                 {{ child.label }}
+                <mat-icon *ngIf="child.rightMatIcon">{{ child.rightMatIcon }}</mat-icon>
+                <i *ngIf="child.rightIcon" class="{{ child.rightIcon }}"></i>
             </button>
             <lib-material-menu-item #menu (onEvent)="submenuEvent($event)" [items]="child.childMenu"
                 [rowData]="child.rowData" [field]="child.field" [xPosition]="child.xPosition"
@@ -15,8 +18,11 @@
         <!-- Handle leaf node menu items -->
         <ng-container *ngIf="!child.childMenu || child.childMenu.length === 0">
             <button [value]="child.value" (click)="onClickEvent(child)" mat-menu-item>
-                <i class="{{ child.iconClass }}">{{ child.iconLabel }}</i>
+                <mat-icon *ngIf="child.leftMatIcon">{{ child.leftMatIcon }}</mat-icon>
+                <i *ngIf="child.leftIcon" class="{{ child.leftIcon }}"></i>
                 {{ child.label }}
+                <mat-icon *ngIf="child.rightMatIcon">{{ child.rightMatIcon }}</mat-icon>
+                <i *ngIf="child.rightIcon" class="{{ child.rightIcon }}"></i>
             </button>
         </ng-container>
     </ng-container>

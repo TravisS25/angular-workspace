@@ -124,11 +124,14 @@ export class DisplayInfoComponent extends BaseFormEventComponent implements OnIn
 
         for (let i = 0; i < dirArr.length; i++) {
             const item = this.config.displayItems[i];
-            const cr = dirArr[i].viewContainerRef.createComponent(
-                this.cfr.resolveComponentFactory(item.displayEntity.component),
-            )
 
-            this.updateCr(cr, item.displayEntity);
+            if (item.displayEntity != undefined) {
+                const cr = dirArr[i].viewContainerRef.createComponent(
+                    this.cfr.resolveComponentFactory(item.displayEntity.component),
+                )
+
+                this.updateCr(cr, item.displayEntity);
+            }
         }
 
         if (this.config.actionSection != undefined) {

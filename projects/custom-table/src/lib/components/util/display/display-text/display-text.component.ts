@@ -10,6 +10,10 @@ export interface DisplayTextConfig {
     class?: string;
 }
 
+export interface DisplayTextEvent {
+    rowData?: any;
+}
+
 // DisplayTextComponent is util component that simply displays text with optional styling
 @Component({
     selector: 'lib-display-text',
@@ -27,5 +31,14 @@ export class DisplayTextComponent extends BaseDisplayItemComponent implements On
 
     public ngOnInit(): void {
         this.initValues();
+    }
+
+    public onClick() {
+        const dte: DisplayTextEvent = {
+            rowData: this.rowData
+        }
+        this.onEvent.emit({
+            event: dte
+        })
     }
 }

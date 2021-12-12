@@ -1,7 +1,7 @@
-import { ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { setTableEvents } from '../../../table/table-util'
+import { ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { applyDisplayItemSettings } from '../../../table/table-util'
 import { BaseDisplayItemComponent } from '../../../table/base-display-item/base-display-item.component';
-import { BaseComponentEntity } from '../../../../table-api'
+import { DisplayItemEntity } from '../../../../table-api'
 import { TableDisplayItemDirective } from '../../../../directives/table/table-display-item.directive';
 import { BaseComponent } from '../../../base/base.component';
 
@@ -13,14 +13,14 @@ import { BaseComponent } from '../../../base/base.component';
     templateUrl: './display-item-list.component.html',
     styleUrls: ['./display-item-list.component.scss']
 })
-export class DisplayItemListComponent extends BaseDisplayItemComponent implements OnInit {
-    @Input() public config: BaseComponentEntity[];
+export class DisplayItemListComponent extends BaseDisplayItemComponent implements OnInit, OnDestroy {
+    @Input() public config: DisplayItemEntity[];
 
     // displayItemDirs are directives that will be dynamically generat display item components
     @ViewChildren(TableDisplayItemDirective) public displayItemDirs: QueryList<TableDisplayItemDirective>;
 
     // displayItemCrs are component references to display item components
-    public displayItemCrs: ComponentRef<BaseComponent>[] = []
+    public displayItemCrs: ComponentRef<BaseDisplayItemComponent>[] = []
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -36,20 +36,18 @@ export class DisplayItemListComponent extends BaseDisplayItemComponent implement
                 this.cfr.resolveComponentFactory(this.config[i].component)
             )
 
+            applyDisplayItemSettings(cr.instance, this.config[i]);
+
             cr.instance.outerData = this.outerData;
             cr.instance.componentRef = this;
 
-            cr.instance.config = this.config[i].config;
-            cr.instance.value = this.config[i].value;
-            cr.instance.processEvent = this.config[i].processEvent;
-
-            this._sub.add(
-                cr.instance.onEvent.subscribe(r => {
-                    if (cr.instance.processEvent != undefined) {
-                        cr.instance.processEvent({ event: r }, this);
-                    }
-                })
-            )
+            if (cr.instance.processDisplayItemEvent != undefined) {
+                this._sub.add(
+                    cr.instance.onEvent.subscribe(r => {
+                        cr.instance.processDisplayItemEvent(r, this);
+                    })
+                )
+            }
 
             this.displayItemCrs.push(cr);
         }
@@ -65,6 +63,7 @@ export class DisplayItemListComponent extends BaseDisplayItemComponent implement
     }
 
     public ngOnDestroy() {
+        super.ngOnDestroy();
         this.displayItemCrs.forEach(x => {
             x.destroy();
         })

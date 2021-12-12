@@ -6,8 +6,10 @@ export interface MaterialMenuItem {
     label: string;
     field?: string;
     value?: any;
-    iconClass?: string;
-    iconLabel?: string;
+    leftIcon?: string;
+    leftMatIcon?: string;
+    rightIcon?: string;
+    rightMatIcon?: string;
     rowIdx?: number;
     rowData?: any;
     xPosition?: MenuPositionX
