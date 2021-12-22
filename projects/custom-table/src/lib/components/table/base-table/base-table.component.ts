@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { BaseTableEvent, State, CoreColumn, ExportType, FilterData, FilterDescriptor, BaseTableConfig, ColumnFilterEntity, DisplayItemEntity, BaseEventOptionsI } from '../../../table-api';
+import { BaseTableEvent, State, CoreColumn, ExportType, FilterData, FilterDescriptor, BaseTableConfig, ColumnFilterEntity, DisplayItemEntity, BaseEventOptionsI, CheckboxEvent } from '../../../table-api';
 import { Subscription } from 'rxjs';
 import { BaseComponent } from '../../base/base.component';
 import { BaseColumnFilterComponent } from '../../table/base-column-filter/base-column-filter.component'
@@ -8,7 +8,7 @@ import { TableCaptionDirective } from '../../../directives/table/table-caption.d
 import { TableBodyCellDirective } from '../../../directives/table/table-body-cell.directive';
 import { TableColumnFilterDirective } from '../../../directives/table/table-column-filter.directive';
 import { HttpService } from '../../../services/http.service';
-import { encodeURIState } from '../../../util'
+import { encodeURIState, instanceOfCheckboxEvent } from '../../../util'
 import { setTableEvents } from '../../table/table-util';
 import { BaseTableCaptionComponent } from '../../table/base-table-caption/base-table-caption.component'
 import { BaseTableCellDirective } from '../../../directives/table/base-table-cell.directive'
@@ -620,59 +620,111 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                         this.config.processColumnFilterEvent(r, this);
                     }
 
+                    if (this.columnFilterCrs[i].instance.processColumnFilterEvent != undefined) {
+                        this.columnFilterCrs[i].instance.processColumnFilterEvent(r, this);
+                    }
+
                     if (!this.columnFilterCrs[i].instance.excludeFilter) {
-                        const cfg = r as BaseTableEvent;
-                        const event = cfg.event as FilterDescriptor;
+                        const e = r as BaseTableEvent;
+                        const filters = this.state.filter.filters as FilterDescriptor[];
 
-                        // console.log('event filter')
-                        // console.log(event)
+                        if (instanceOfCheckboxEvent(r.event)) {
+                            const cbe = e.event as CheckboxEvent;
+                            const filter: FilterDescriptor = {
+                                field: cbe.field,
+                                operator: 'eq',
+                                value: cbe.checked
+                            }
 
-                        if (event.field !== '' && event.field !== undefined && event.field !== null) {
-                            let filterIdx = -1;
-                            const filters = this.state.filter.filters as FilterDescriptor[];
-
-                            // console.log('filter before stuff')
-                            // console.log(filters)
-
-                            for (let i = 0; i < filters.length; i++) {
-                                if (filters[i].field == event.field) {
-                                    filterIdx = i;
+                            for (let t = 0; t < filters.length; t++) {
+                                if (filters[t].field == cbe.field) {
+                                    filters.splice(t, 1)
                                 }
                             }
 
-                            if (filterIdx > -1) {
-                                filters.splice(filterIdx, 1);
+                            filters.push(filter);
+                        } else {
+                            const filter: FilterDescriptor = e.event;
+
+                            for (let t = 0; t < filters.length; t++) {
+                                if (filters[t].field == filter.field) {
+                                    filters.splice(t, 1);
+                                }
                             }
 
-                            // console.log('filter after splice')
-                            // console.log(filters)
-
-                            if (Array.isArray(event.value)) {
-                                const arrayVal = event.value as any[];
+                            if (Array.isArray(filter.value)) {
+                                const arrayVal = filter.value as any[];
 
                                 if (arrayVal.length != 0) {
-                                    filters.push(event);
+                                    filters.push(filter);
                                 }
                             } else {
-                                if (event.value !== undefined && event.value !== null && event.value !== "") {
-                                    filters.push(event);
+                                if (filter.value !== undefined && filter.value !== null && filter.value !== "") {
+                                    filters.push(filter);
                                 } else {
-                                    if (event.operator == 'isnull' || event.operator == 'isnotnull') {
+                                    if (filter.operator == 'isnull' || filter.operator == 'isnotnull') {
                                         filters.push({
-                                            field: event.field,
-                                            operator: event.operator,
+                                            field: filter.field,
+                                            operator: filter.operator,
                                         });
                                     }
                                 }
                             }
-
-                            // console.log('filter at the end')
-                            // console.log(filters)
-
-                            if (this.config.autoSearch) {
-                                this.update();
-                            }
                         }
+
+                        if (this.config.autoSearch) {
+                            this.update();
+                        }
+
+                        // console.log('event filter')
+                        // console.log(event)
+
+                        // if (event.field !== '' && event.field !== undefined && event.field !== null) {
+                        //     let filterIdx = -1;
+                        //     const filters = this.state.filter.filters as FilterDescriptor[];
+
+                        //     // console.log('filter before stuff')
+                        //     // console.log(filters)
+
+                        //     for (let i = 0; i < filters.length; i++) {
+                        //         if (filters[i].field == event.field) {
+                        //             filterIdx = i;
+                        //         }
+                        //     }
+
+                        //     if (filterIdx > -1) {
+                        //         filters.splice(filterIdx, 1);
+                        //     }
+
+                        //     // console.log('filter after splice')
+                        //     // console.log(filters)
+
+                        //     if (Array.isArray(event.value)) {
+                        //         const arrayVal = event.value as any[];
+
+                        //         if (arrayVal.length != 0) {
+                        //             filters.push(event);
+                        //         }
+                        //     } else {
+                        //         if (event.value !== undefined && event.value !== null && event.value !== "") {
+                        //             filters.push(event);
+                        //         } else {
+                        //             if (event.operator == 'isnull' || event.operator == 'isnotnull') {
+                        //                 filters.push({
+                        //                     field: event.field,
+                        //                     operator: event.operator,
+                        //                 });
+                        //             }
+                        //         }
+                        //     }
+
+                        //     // console.log('filter at the end')
+                        //     // console.log(filters)
+
+                        //     if (this.config.autoSearch) {
+                        //         this.update();
+                        //     }
+                        // }
                     }
                 })
             );

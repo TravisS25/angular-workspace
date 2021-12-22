@@ -21,7 +21,7 @@ export abstract class BaseFormEventComponent implements OnInit, PopupFormI {
 
     // processSuccess is function that should process any type of success event
     // within form, such a successful api call
-    @Input() public processSuccess: (formRef: any) => void;
+    @Input() public processSuccess: (event: any, formRef: any) => void;
 
     // processClose is function that should process whenever modal form is closed
     @Input() public processClose: (formRef: any) => void;

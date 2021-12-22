@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { encodeURIState } from '../../../util';
-import { CoreColumn } from '../../../table-api';
+import { CoreColumn, DefaultTableEvents } from '../../../table-api';
 import { TableEvents, BaseTableCaptionConfig, SelectItem, BaseTableEvent, ExportType, FilterDescriptor } from '../../../table-api';
 import { BaseComponent } from '../../base/base.component';
 import { BaseTableComponent } from '../base-table/base-table.component';
@@ -104,7 +104,7 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
     public closeRows() {
         this.componentRef.closeRows();
         this.onEvent.emit({
-
+            eventFieldName: DefaultTableEvents.CloseRows,
         });
     }
 
@@ -113,7 +113,7 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         this.componentRef.clearFilters();
         this._idMap.clear();
         this.onEvent.emit({
-
+            eventFieldName: DefaultTableEvents.ClearFilters,
         });
     }
 
@@ -122,12 +122,13 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         this.componentRef.refresh();
         this._idMap.clear();
         this.onEvent.emit({
-
+            eventFieldName: DefaultTableEvents.Refresh,
         });
     }
 
     // columnFilterChange should activate when a column dropdown list is activated
-    // It takes the 
+    // It takes the value of dropdown and either adds or removes value from map
+    // depending if it already exists in map or not
     public columnFilterChange(val: string) {
         if (this._selectedColsMap.get(val)) {
             this.componentRef.addHiddenColumn(val);

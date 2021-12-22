@@ -124,8 +124,8 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
             throw ('KEY "' + rowMapKey + '" DOES NOT EXIST!');
         }
 
-        materialRowExpand(rowIdx, this.expandRows);
         this._currentRowMapKey = rowMapKey;
+        materialRowExpand(rowIdx, this.expandRows);
     }
 
     public closeRows() {

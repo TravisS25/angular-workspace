@@ -8,24 +8,16 @@ import { BaseEventComponent } from "./components/table/base-event/base-event.com
 
 // setColumnFilterValue sets the column filter reference values in table passed with
 // the values found in map passed
-//
-// This is intended to mainly be used in BaseTableConfig#tableSettingsAPIConfig#processResult function
-export function setColumnFilterValue(baseTable: any, fieldMap: Map<string, SelectItem[]>, state?: State) {
+export function setColumnFilterValue(baseTable: BaseTableComponent, fieldMap: Map<string, SelectItem[]>, state?: State) {
     for (let i = 0; i < baseTable.columnFilterCrs.length; i++) {
-        // fieldMap.forEach((v, k) => {
-        //     if (baseTable.columnFilterCrs[i].instance.field == k) {
-        //         baseTable.columnFilterCrs[i].instance.value = v;
-        //     }
-        // });
-
-        let columnField = baseTable.columnFilterCrs[i].instance.field;
+        const columnField = baseTable.columnFilterCrs[i].instance.field;
 
         if (fieldMap.has(columnField)) {
             baseTable.columnFilterCrs[i].instance.value = fieldMap.get(columnField);
         }
 
         if (state) {
-            let filters = state.filter.filters as FilterDescriptor[];
+            const filters = state.filter.filters as FilterDescriptor[];
 
             filters.forEach(x => {
                 if (x.field == columnField) {

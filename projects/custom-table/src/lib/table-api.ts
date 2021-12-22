@@ -527,13 +527,13 @@ export interface BaseComponentI extends ConfigI {
 // PopupFormI interface allows user to process various events that occur in popup form
 export interface PopupFormI extends ConfigI {
     // processEvent is function that should process generic events from modal form
-    processEvent?: (err: any, formRef: any) => void;
+    processEvent?: (event: any, formRef: any) => void;
 
     // processError is function that should process error from modal form
     processError?: (err: any, formRef: any) => void;
 
     // processSuccess is function that should process success from modal form
-    processSuccess?: (formRef: any) => void;
+    processSuccess?: (event: any, formRef: any) => void;
 
     // processClose is function that should process when modal form closes
     processClose?: (formRef: any) => void;
@@ -585,7 +585,7 @@ export interface IndexTableI extends ConfigI {
 // ---------------- TABLE IMPLEMENTATION ------------------
 
 // BaseIndexTableEntity is table entity
-export interface BaseIndexTableEntity extends IndexTableI {
+export interface BaseIndexTableEntity extends ConfigI {
     component: Type<IndexTableI>;
 }
 
@@ -878,7 +878,7 @@ export interface TabViewConfig {
 
 // TabPanelItem is config used for each tab within a collection of tab views
 export interface TabPanelItem {
-    // tabPanelConfig is general config for 
+    // tabPanelConfig is general config for tabview
     tabPanelConfig?: any;
 
     // header will display text for panel header with optional styling

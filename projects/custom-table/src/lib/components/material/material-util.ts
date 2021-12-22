@@ -51,7 +51,8 @@ export function onMaterialPageChange(event: PageEvent, state: State, update: () 
     update();
 }
 
-// onMaterialRowExpandAnimation is util function that will expand and collapse material row
+// onMaterialRowExpandAnimation is util function that will either create component
+// when expanding row or destroy component when collapsing row based on animation event
 export function onMaterialRowExpandAnimation(
     event: AnimationEvent,
     rowIdx: number,
@@ -77,12 +78,14 @@ export function onMaterialRowExpandAnimation(
     }
 }
 
+// materialRowExpand is util function to expand row of table
 export function materialRowExpand(rowIdx: number, expandRows: boolean[]) {
     if (rowIdx > -1 && rowIdx < expandRows.length) {
         expandRows[rowIdx] = true;
     }
 }
 
+// materialRowCollapse is util function to collapse row of table
 export function materialRowCollapse(rowIdx: number, expandRows: boolean[]) {
     if (rowIdx > -1 && rowIdx < expandRows.length) {
         expandRows[rowIdx] = false;

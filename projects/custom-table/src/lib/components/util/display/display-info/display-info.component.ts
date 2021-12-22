@@ -25,6 +25,8 @@ export interface DisplayInfoItem {
     // displayText is text that will be displayed along with any styling
     displayText?: DisplayFormat;
 
+    processTextClick?: (event: any, DisplayInfoComponent) => void;
+
     // displayEntity is dynamic component generated to display info
     // Will be overridden if displayText is already set
     displayEntity?: BaseComponentEntity;
@@ -145,6 +147,12 @@ export class DisplayInfoComponent extends BaseFormEventComponent implements OnIn
 
     public ngOnInit(): void {
 
+    }
+
+    public textClick(event: any, idx: number) {
+        if (this.config.displayItems[idx].processTextClick != undefined) {
+            this.config.displayItems[idx].processTextClick(event, this)
+        }
     }
 
     public ngAfterViewInit() {

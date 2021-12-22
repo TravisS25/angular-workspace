@@ -2,17 +2,19 @@
     [innerHTML]="config.header">
 </div>
 <div class="row">
-    <ng-container *ngFor="let item of config.displayItems">
+    <ng-container *ngFor="let item of config.displayItems; let i = index">
         <div [ngClass]="item.colClass">
             <div [style]="item.borderStyle" [ngClass]="item.borderClass">
                 <span *ngIf="item.displayHeader" [style]="item.displayHeader.borderStyle"
                     [ngClass]="item.displayHeader.borderClass" [innerHTML]="item.displayHeader.item">
                 </span>
                 <ng-container *ngIf="item.displayText; else displayInfoItem">
-                    <div [style]="item.displayText.borderStyle" [ngClass]="item.displayItem.borderClass"
-                        [innerHTML]="item.displayText.item"></div>
+                    <span (click)="textClick($event, i)" [style]="item.displayText.borderStyle"
+                        [ngClass]="item.displayItem.borderClass" [innerHTML]="item.displayText.item"></span>
                 </ng-container>
-                <ng-template #displayInfoItem [libDisplayInfoItem]></ng-template>
+                <ng-template #displayInfoItem>
+                    <ng-template [libDisplayInfoItem]></ng-template>
+                </ng-template>
             </div>
         </div>
     </ng-container>

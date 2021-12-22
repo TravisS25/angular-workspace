@@ -14,6 +14,8 @@ import { BaseFormEventComponent } from '../base-form-event/base-form-event.compo
 // working with BaseFormComponent#formGroup variable
 export class TableFormBuilder extends FormBuilder { }
 
+export class TableFormGroup extends FormGroup { }
+
 // BaseFormComponent is component form should extend to get basic form functions
 @Component({
     selector: 'lib-base-form',
@@ -67,7 +69,7 @@ export abstract class BaseFormComponent extends BaseFormEventComponent implement
         if (this.processSuccess != undefined) {
             this._sub.add(
                 this.onSuccess.subscribe(r => {
-                    this.processSuccess(this);
+                    this.processSuccess(r, this);
                 })
             )
         }
