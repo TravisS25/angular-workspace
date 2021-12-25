@@ -89,7 +89,7 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
     // getTableInfo makes request to server for table records and total
     // number of records based off of current filter
     private getTableInfo() {
-        this.http.get<any>(
+        this.http.getJSONResponse<any>(
             this.config.tableAPIConfig.apiURL(this.outerData) +
             encodeURIState(this.state, this.config.paramConfig),
             this.config.tableAPIConfig.apiOptions as any

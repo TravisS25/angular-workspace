@@ -876,7 +876,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
     //
     // url: The encoded url to call against server
     protected getGridInfo(url: string) {
-        this.http.get<any>(
+        this.http.getJSONResponse<any>(
             url,
             this.config.tableAPIConfig.apiOptions,
         ).subscribe(r => {
@@ -970,7 +970,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
             ) {
                 const cfg = this.config.tableSettingsAPIConfig;
 
-                this.http.get(
+                this.http.getJSONResponse(
                     cfg.apiURL(this.outerData),
                     cfg.apiOptions as any,
                 ).subscribe(r => {
@@ -1043,7 +1043,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         }
 
         // Make request with proper url for particular file type
-        this.http.get<any>(
+        this.http.getJSONResponse<any>(
             url,
             { withCredentials: true, observe: 'response', responseType: 'blob' }
         ).subscribe(r => {

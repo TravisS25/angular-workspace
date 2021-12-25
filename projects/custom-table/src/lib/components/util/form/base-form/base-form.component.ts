@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angu
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { getDefaultCSRFHeader } from '../../../../default-values';
 import { FormEvents, PopupFormI } from '../../../../table-api';
 import { HttpService } from '../../../../services/http.service';
@@ -27,15 +27,12 @@ export abstract class BaseFormComponent extends BaseFormEventComponent implement
     // a POST/PUT request for the form
     protected _apiURL: string;
 
-    // _token should be set when making a GET request for csrf
-    protected _token: string;
-
-    // _subs is used to push any subscriptions used within form
+    // _sub is used to push any subscriptions used within form
     // to keep track of to destroy when component is destroyed
     protected _sub: Subscription = new Subscription();
 
-    // _responseType is expected response type that we will get from server
-    protected _responseType: any = 'json';
+    // _httpHeaders is used for adding any type of headers to post/put request
+    protected _httpHeaders: HttpHeaders = new HttpHeaders();
 
     // formSubmitted will set when the "onSubmit" function is activated
     // This can be used to display error message in form if this is true
@@ -52,6 +49,7 @@ export abstract class BaseFormComponent extends BaseFormEventComponent implement
     // a new entry or not
     public isCreate: boolean = false;
 
+
     constructor(
         public http: HttpService,
     ) {
@@ -59,34 +57,37 @@ export abstract class BaseFormComponent extends BaseFormEventComponent implement
     }
 
     private initSubs() {
-        if (this.processError != undefined) {
-            this._sub.add(
-                this.onError.subscribe(r => {
+        this._sub.add(
+            this.onError.subscribe(r => {
+                if (this.processError != undefined) {
                     this.processError(r, this);
-                })
-            )
-        }
-        if (this.processSuccess != undefined) {
-            this._sub.add(
-                this.onSuccess.subscribe(r => {
+                }
+            })
+        )
+
+        this._sub.add(
+            this.onSuccess.subscribe(r => {
+                if (this.processSuccess != undefined) {
                     this.processSuccess(r, this);
-                })
-            )
-        }
-        if (this.processClose != undefined) {
-            this._sub.add(
-                this.onClose.subscribe(r => {
+                }
+            })
+        )
+
+        this._sub.add(
+            this.onClose.subscribe(r => {
+                if (this.processClose != undefined) {
                     this.processClose(this);
-                })
-            )
-        }
-        if (this.processLoadingComplete != undefined) {
-            this._sub.add(
-                this.onLoadingComplete.subscribe(r => {
+                }
+            })
+        )
+
+        this._sub.add(
+            this.onLoadingComplete.subscribe(r => {
+                if (this.processLoadingComplete != undefined) {
                     this.processLoadingComplete(this);
-                })
-            )
-        }
+                }
+            })
+        )
     }
 
     public ngOnInit(): void {
@@ -132,15 +133,15 @@ export abstract class BaseFormComponent extends BaseFormEventComponent implement
             console.log(this._apiURL)
             console.log(this.formGroup.value)
 
-            this.http.request(
+            this.http.requestJSONResponse(
                 request,
                 this._apiURL,
                 {
                     body: this.formGroup.value,
                     withCredentials: true,
                     observe: 'response',
-                    headers: getDefaultCSRFHeader(this._token),
-                    responseType: this._responseType,
+                    headers: this._httpHeaders,
+                    responseType: 'json',
                 }
             ).subscribe(r => {
                 this.onSuccess.emit(r);
