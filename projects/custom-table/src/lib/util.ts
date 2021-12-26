@@ -82,23 +82,23 @@ export function getJSONFieldValue(field: string, data: Object): any {
 export function encodeURIState(state: State, cfg: ParamConfig): string {
     let url = '?'
 
-    if (state.take != undefined && cfg.take) {
+    if (state.take != undefined && cfg.take != undefined) {
         url += cfg.take + '=' + state.take.toString() + '&';
     }
-    if (state.skip != undefined && cfg.skip) {
+    if (state.skip != undefined && cfg.skip != undefined) {
         url += cfg.skip + '=' + state.skip.toString() + '&';
     }
     if (state.filter != undefined) {
-        const filters = state.filter.filters as FilterDescriptor[];
+        const filters = state.filter.filters;
 
-        if (filters && cfg.filters) {
+        if (filters != undefined && cfg.filters != undefined) {
             url += cfg.filters + '=' + encodeURI(JSON.stringify(filters)) + '&';
         }
     }
-    if (state.group != undefined && cfg.groups) {
+    if (state.group != undefined && cfg.groups != undefined) {
         url += cfg.groups + '=' + encodeURI(JSON.stringify(state.group)) + '&';
     }
-    if (state.sort != undefined && cfg.sorts) {
+    if (state.sort != undefined && cfg.sorts != undefined) {
         url += cfg.sorts + '=' + encodeURI(JSON.stringify(state.sort)) + '&';
     }
 

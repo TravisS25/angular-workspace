@@ -47,7 +47,10 @@ export abstract class BaseMobileTableComponent extends BaseComponent implements 
     protected _updateDisplayItem: boolean = true;
 
     // filterData is the data and total records that is retrieved from server
-    public filterData: FilterData
+    public filterData: FilterData = {
+        data: [],
+        total: 0
+    }
 
     // state is current filter state of table
     public state: State;

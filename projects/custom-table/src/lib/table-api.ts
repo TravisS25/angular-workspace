@@ -414,14 +414,20 @@ interface baseConfig {
     // first call to server
     getState?: (outerData: any) => State;
 
+    // panelHeaderStyle is styling to be used for panel header of mobile stable
+    getRowStyle?: (rowData: any) => Object;
+
+    // panelHeaderClass is classes to be used for panel header of mobile stable
+    getRowClass?: (rowData: any) => string;
+
     // customSearch will override default search of mobile table to implement own
     // request to server
     customTableSearch?: (table: any) => void;
 
     // autosearch enables/disables ability for table to automatically update
     // whenever user changes any column filters without having to explicitly
-    // hit a search button
     //
+    // hit a search button
     // Default: true
     autoSearch?: boolean;
 
@@ -462,12 +468,6 @@ export interface BaseMobileTableConfig extends BaseEventOptionsI, baseConfig {
     // panelHeaderEvent is function that will be called whenever panel header of mobile is clicked
     // The event parameter can be used to determine what to do with event
     rowEvent?: (event: BaseTableEvent, componentRef: any) => void;
-
-    // panelHeaderStyle is styling to be used for panel header of mobile stable
-    getRowStyle?: (rowData: any) => Object;
-
-    // panelHeaderClass is classes to be used for panel header of mobile stable
-    getRowClass?: (rowData: any) => string;
 
     // rowExpansion is config used to expand an inner table with current mobile table
     rowExpansion?: Map<string, BaseComponentEntity>;

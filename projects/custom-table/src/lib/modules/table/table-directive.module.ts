@@ -22,9 +22,9 @@ import { MobileTableDirectiveModule } from '../../modules/table/mobile/mobile-ta
     ],
     imports: [
         CommonModule,
-        MobileTableDirectiveModule,
     ],
     exports: [
+        MobileTableDirectiveModule,
         TableBodyCellDirective,
         TableCellDirective,
         TableColumnFilterDirective,

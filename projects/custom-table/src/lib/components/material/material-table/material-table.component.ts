@@ -30,16 +30,16 @@ export interface MaterialColumn extends CoreColumn {
         ]),
     ],
 })
-export class MaterialTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
+export class MaterialTableComponent extends BaseTableComponent implements OnInit {
     // table is reference to material table
     @ViewChild(MatTable, { static: false }) public table: MatTable<any>;
 
     // columns is re-declared here for type saftey from "CoreColumn" type to "MaterialColumn"
     public columns: MaterialColumn[];
 
-    // columnHeaders is used to gather all the column header names from MaterialColumn#columns
+    // columnsToDisplay is used to gather all the column header names from MaterialColumn#columns
     // to be referenced within material table template
-    public columnHeaders: string[] = [];
+    public columnsToDisplay: string[] = [];
 
     // expandRows is an array of bools whose length will equal the 
     // current page size of table
@@ -55,19 +55,16 @@ export class MaterialTableComponent extends BaseTableComponent implements OnInit
         public http: HttpService,
     ) { super(cdr, cfr, http) }
 
-    private initValues() {
-        this.config.columns.forEach(item => {
-            this.columnHeaders.push(item.header);
+    private initColumnHeaders() {
+        this.columns.forEach(item => {
+            this.columnsToDisplay.push(item.field);
         })
     }
 
     public ngOnInit(): void {
         super.ngOnInit();
-        this.initValues();
-    }
-
-    public ngAfterViewInit() {
-
+        this.initColumnHeaders();
+        console.log()
     }
 
     public onSortChange(sort: Sort) {

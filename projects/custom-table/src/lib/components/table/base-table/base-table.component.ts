@@ -153,7 +153,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
 
     // state keeps track of the current table's filter state and is the info that is 
     // sent to the server whenever a column filter is used or pagination occurs
-    public state: State;
+    public state: State = {};
 
     // columns represents the columns of table and various config for each column
     // including column filter, body cell etc.
@@ -161,7 +161,10 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
 
     // filterData represents the data that will be retrieved from server which is 
     // an array of objects and the total number of records based on current filter
-    public filterData: FilterData
+    public filterData: FilterData = {
+        data: [],
+        total: 0
+    }
 
     constructor(
         public cdr: ChangeDetectorRef,
@@ -169,44 +172,13 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         public http: HttpService,
     ) { super() }
 
-    private initColumnStyles() {
-        for (let i = 0; i < this.columns.length; i++) {
-            if (this.columns[i].getTextClass == undefined) {
-                this.columns[i].getTextClass = (): string => {
-                    return '';
-                }
-            }
-            if (this.columns[i].getDisplayItemClass == undefined) {
-                this.columns[i].getDisplayItemClass = (): string => {
-                    return ''
-                }
-            }
-            if (this.columns[i].getTableCellClass == undefined) {
-                this.columns[i].getTableCellClass = (): string => {
-                    return ''
-                }
-            }
-
-            if (this.columns[i].getTextStyle == undefined) {
-                this.columns[i].getTextStyle = (): Object => {
-                    return {}
-                }
-            }
-            if (this.columns[i].getDisplayItemStyle == undefined) {
-                this.columns[i].getDisplayItemStyle = (): Object => {
-                    return {}
-                }
-            }
-            if (this.columns[i].getTableCellStyle == undefined) {
-                this.columns[i].getTableCellStyle = (): Object => {
-                    return {}
-                }
-            }
-        }
-    }
 
     public ngOnInit(): void {
-        this.initColumnStyles();
+        this.columns = this.config.columns;
+
+        if (this.config.getState != undefined) {
+            this.state = this.config.getState(this.outerData);
+        }
     }
 
     public ngAfterViewInit() {
@@ -905,7 +877,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         } else {
             this.state.filter = {
                 logic: 'and',
-                filters: []
+                filters: [],
             };
             this.state.sort = [];
         }
@@ -950,6 +922,9 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                 this.config.tableAPIConfig.apiURL(this.outerData) != "" &&
                 this.config.tableAPIConfig.apiURL(this.outerData) != null
             ) {
+                console.log('state at this point')
+                console.log(this.state)
+
                 this.getGridInfo(
                     this.config.tableAPIConfig.apiURL(this.outerData) +
                     encodeURIState(this.state, this.config.paramConfig)
@@ -977,18 +952,10 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                     this.onTableSettingsFilterEvent.emit({
                         event: r
                     })
-
-                    // if (config.processResult != undefined) {
-                    //     config.processResult(r, this)
-                    // }
                 }, (err: HttpErrorResponse) => {
                     this.onTableSettingsFilterErrorEvent.emit({
                         event: err
                     })
-
-                    // if (config.processError != undefined && config.processError != null) {
-                    //     config.processError(err);
-                    // }
                 });
             }
         }
