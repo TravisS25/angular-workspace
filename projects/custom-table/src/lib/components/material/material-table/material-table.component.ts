@@ -64,7 +64,6 @@ export class MaterialTableComponent extends BaseTableComponent implements OnInit
     public ngOnInit(): void {
         super.ngOnInit();
         this.initColumnHeaders();
-        console.log()
     }
 
     public onSortChange(sort: Sort) {
@@ -80,7 +79,8 @@ export class MaterialTableComponent extends BaseTableComponent implements OnInit
     // onPageChange event determines how many items to take and
     // total number of records
     public onPageChange(event: PageEvent) {
-        onMaterialPageChange(event, this.state, this.update);
+        onMaterialPageChange(event, this.state);
+        this.update();
     }
 
     // rowCollapse will collapse given row index
@@ -96,6 +96,30 @@ export class MaterialTableComponent extends BaseTableComponent implements OnInit
     public closeRows() {
         for (let i = 0; i < this.expandRows.length; i++) {
             this.rowCollapse(i);
+        }
+    }
+
+    public addHiddenColumn(field: string): void {
+        let i = this.columnsToDisplay.length;
+
+        while (i--) {
+            if (this.columnsToDisplay[i] == field) {
+                this.visibleColumns--;
+                this.columnsToDisplay.splice(i, 1);
+                console.log('display cols')
+                console.log(this.columnsToDisplay)
+            }
+        }
+    }
+
+    public removeHiddenColumn(field: string): void {
+        let i = this.columnsToDisplay.length;
+
+        while (i--) {
+            if (this.columnsToDisplay[i] == field) {
+                this.visibleColumns++;
+                this.columnsToDisplay.push(field)
+            }
         }
     }
 

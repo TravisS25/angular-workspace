@@ -153,7 +153,7 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
 
     // state keeps track of the current table's filter state and is the info that is 
     // sent to the server whenever a column filter is used or pagination occurs
-    public state: State = {};
+    public state: State;
 
     // columns represents the columns of table and various config for each column
     // including column filter, body cell etc.
@@ -172,13 +172,70 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
         public http: HttpService,
     ) { super() }
 
-
-    public ngOnInit(): void {
+    private initCols() {
         this.columns = this.config.columns;
 
+        for (let i = 0; i < this.columns.length; i++) {
+            if (this.columns[i].showColumnOption == undefined) {
+                this.columns[i].showColumnOption = true;
+            }
+
+            if (this.columns[i].text != undefined) {
+                if (this.columns[i].getTextClass == undefined) {
+                    this.columns[i].getTextClass = (rowData: any): string => {
+                        return '';
+                    }
+                }
+                if (this.columns[i].getTextStyle == undefined) {
+                    this.columns[i].getTextStyle = (rowData: any): Object => {
+                        return {};
+                    }
+                }
+            } else if (this.columns[i].displayItem != undefined) {
+                if (this.columns[i].getDisplayItemClass == undefined) {
+                    this.columns[i].getDisplayItemClass = (rowData: any): string => {
+                        return '';
+                    }
+                }
+                if (this.columns[i].getDisplayItemStyle == undefined) {
+                    this.columns[i].getDisplayItemStyle = (rowData: any): Object => {
+                        return {};
+                    }
+                }
+            } else if (this.columns[i].tableCell != undefined) {
+                if (this.columns[i].getTableCellClass == undefined) {
+                    this.columns[i].getTableCellClass = (rowData: any): string => {
+                        return '';
+                    }
+                }
+                if (this.columns[i].getTableCellStyle == undefined) {
+                    this.columns[i].getTableCellStyle = (rowData: any): Object => {
+                        return {};
+                    }
+                }
+            }
+        }
+    }
+
+    private initCfg() {
         if (this.config.getState != undefined) {
             this.state = this.config.getState(this.outerData);
         }
+        if (this.config.getRowClass == undefined) {
+            this.config.getRowClass = (rowData: any): string => {
+                return '';
+            }
+        }
+        if (this.config.getRowStyle == undefined) {
+            this.config.getRowStyle = (rowData: any): Object => {
+                return {};
+            }
+        }
+    }
+
+    public ngOnInit(): void {
+        this.initCols();
+        this.initCfg();
     }
 
     public ngAfterViewInit() {
@@ -789,8 +846,6 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                 columns[i].hideColumn = true;
             }
         }
-
-        console.log('add visible columns: ' + this.visibleColumns);
     }
 
     // removeHiddenColumn increases our "visibleColumns" variable which is used for
@@ -806,8 +861,6 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                 this.visibleColumns++;
             }
         }
-
-        console.log('remove visible columns: ' + this.visibleColumns);
     }
 
     // saveHiddenColumnFilters is used to gather initial hidden column filters on table init
@@ -922,9 +975,6 @@ export abstract class BaseTableComponent extends BaseComponent implements OnInit
                 this.config.tableAPIConfig.apiURL(this.outerData) != "" &&
                 this.config.tableAPIConfig.apiURL(this.outerData) != null
             ) {
-                console.log('state at this point')
-                console.log(this.state)
-
                 this.getGridInfo(
                     this.config.tableAPIConfig.apiURL(this.outerData) +
                     encodeURIState(this.state, this.config.paramConfig)

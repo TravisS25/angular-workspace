@@ -111,6 +111,7 @@ export class BaseIndexComponent implements OnInit {
         }
     }
 
+
     // destroyCr looks at table flag and determines what table view to destroy
     private destroyCr() {
         if (this.isMobileTable && this._tableCR != undefined) {

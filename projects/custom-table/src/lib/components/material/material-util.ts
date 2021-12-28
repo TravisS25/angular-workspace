@@ -45,10 +45,10 @@ export function onMaterialSortChange(
 
 // onMaterialPageChange is util function that performs default pagination
 // actions when user selects new list of items
-export function onMaterialPageChange(event: PageEvent, state: State, update: () => void) {
+export function onMaterialPageChange(event: PageEvent, state: State) {
     state.skip = event.pageSize * event.pageIndex;
     state.take = event.pageSize;
-    update();
+    //update();
 }
 
 // onMaterialRowExpandAnimation is util function that will either create component

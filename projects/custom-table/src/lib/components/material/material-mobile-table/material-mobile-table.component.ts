@@ -94,7 +94,8 @@ export class MaterialMobileTableComponent extends BaseMobileTableComponent imple
     // onPageChange event determines how many items to take and
     // total number of records
     public onPageChange(event: PageEvent) {
-        onMaterialPageChange(event, this.state, this.refresh);
+        onMaterialPageChange(event, this.state);
+        this.refresh();
     }
 
     // onRowExpandAnimation will activate when table row either expands or collapses

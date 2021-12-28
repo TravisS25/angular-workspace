@@ -183,7 +183,8 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         //
         // Else loop through _idMap, get keys, and add to list to use for filtering
         if (this._idMap.size == 0) {
-            url += encodeURIState(this.componentRef.state, this.componentRef.config.paramConfig) + '&' + this.config.exportConfig.columnHeadersParam + '=' +
+            url += encodeURIState(this.componentRef.state, this.componentRef.config.paramConfig) + '&' +
+                this.config.exportConfig.columnHeadersParam + '=' +
                 encodeURI(JSON.stringify(headers));
         } else {
             const ids = [];
@@ -204,7 +205,9 @@ export abstract class BaseTableCaptionComponent extends BaseEventComponent imple
         }
 
         this.componentRef.exportData(et, url, this.config.exportConfig.fileName);
-        this.onEvent.emit({});
+        this.onEvent.emit({
+            eventFieldName: DefaultTableEvents.Export
+        });
     }
 
 }

@@ -410,8 +410,7 @@ export interface BaseTableCaptionConfig {
 
 interface baseConfig {
     // getState is the filter state of the table that will be sent to server
-    // Setting this will set the table with initial state when making
-    // first call to server
+    // Setting this will set the table with initial state when making first call to server
     getState?: (outerData: any) => State;
 
     // panelHeaderStyle is styling to be used for panel header of mobile stable
@@ -420,14 +419,13 @@ interface baseConfig {
     // panelHeaderClass is classes to be used for panel header of mobile stable
     getRowClass?: (rowData: any) => string;
 
-    // customSearch will override default search of mobile table to implement own
-    // request to server
+    // customSearch will override default search of mobile table to implement own request to server
     customTableSearch?: (table: any) => void;
 
     // autosearch enables/disables ability for table to automatically update
     // whenever user changes any column filters without having to explicitly
-    //
     // hit a search button
+    // 
     // Default: true
     autoSearch?: boolean;
 
@@ -760,12 +758,6 @@ export interface CoreColumn {
     // tableCellClass will set CSS class for column cell if set
     getTableCellClass?: (rowData: any) => string;
 
-    // // tableCellStyle will set style for cell of column if set
-    // tableCellStyle?: Object
-
-    // // tableCellClass will set CSS class for column cell if set
-    // tableCellClass?: string;
-
     // tableCell will display component within cell of table of current column
     // and pass config if set
     tableCell?: ColumnFilterEntity;
@@ -776,14 +768,6 @@ export interface CoreColumn {
     // displayItemClass will set CSS class for column cell if set
     getDisplayItemClass?: (rowData: any) => string;
 
-    // // displayItemStyle will set style for cell of column if set
-    // displayItemStyle?: Object
-
-    // // displayItemClass will set CSS class for column cell if set
-    // displayItemClass?: string;
-
-    // displayItem will display dynamically generated component within table cell
-    //
     // displayItem is a "subset" of tableCell property, as in, the intention is to
     // display something like text or a button instead of a form field
     displayItem?: DisplayItemEntity;
@@ -793,12 +777,6 @@ export interface CoreColumn {
 
     // textClass is class to be applied to text cell
     getTextClass?: (rowData: any) => string;
-
-    // // textStyle is style to be applied to text cell
-    // textStyle?: Object;
-
-    // // textClass is class to be applied to text cell
-    // textClass?: string;
 
     // text takes in row value for that column and should return html based on value if set
     text?: (any) => string;

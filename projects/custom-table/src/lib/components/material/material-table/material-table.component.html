@@ -1,5 +1,47 @@
-<table *ngIf="filterData" #table mat-table [dataSource]="filterData.data" multiTemplateDataRows matSort
+<table *ngIf="filterData" #table mat-table [dataSource]="filterData.data" multiTemplateDataRows matSort cdkDropList
+    cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropColumn($event)"
     (matSortChange)="onSortChange($event)">
+
+    <ng-container *ngIf="config.outerDataHeader" matColumnDef="header">
+        <th *matHeaderCellDef [attr.colspan]="visibleColumns">
+            <div [innerHTML]="config.outerDataHeader(outerData)"></div>
+        </th>
+    </ng-container>
+
+    <ng-container *ngIf="config.caption" matColumnDef="caption">
+        <th *matHeaderCellDef [attr.colspan]="visibleColumns">
+            <ng-template [libTableCaption]></ng-template>
+        </th>
+    </ng-container>
+
+    <ng-container *ngFor="let col of columns; let colIdx = index">
+        <ng-container *ngIf="col.header == ''">
+
+        </ng-container>
+
+        <ng-container matColumnDef="{{ col.field }}">
+            <th mat-header-cell *matHeaderCellDef> {{ col.header }} </th>
+            <td mat-cell *matCellDef="let element">
+                <div [style]="col.getTextStyle(element)" [ngClass]="col.getTextClass(element)"
+                    [innerHTML]="col.text(element)"></div>
+            </td>
+        </ng-container>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnsToDisplay;" [style]="config.getRowStyle(row)"
+        [ngClass]="config.getRowClass(row)">
+    </tr>
+    <!-- <tr style="height: 0;" mat-row *matRowDef="let row; let i = index; columns: [''];">
+        <td mat-cell *matCellDef="let element" [attr.colspan]="visibleColumns">
+            <div [@rowExpand]="expandRows[i] ? 'expanded' : 'collapsed'"
+                (@rowExpand.start)="onRowExpandAnimation($event, i)"
+                (@rowExpand.done)="onRowExpandAnimation($event, i)">
+                <ng-template [libTableRowExpansion] [rowData]="row" [rowIdx]="i"></ng-template>
+            </div>
+        </td>
+    </tr> -->
+
     <!-- <ng-container *ngFor="let col of columns; let colIdx = index">
         <ng-container [hidden]="col.hideColumn" matColumnDef="{{ col.field }}">
             <th [hidden]="col.hideColumnFilter" mat-header-cell>
@@ -36,68 +78,7 @@
                 </td>
             </ng-template>
         </ng-container>
-    </ng-container>
-
-    <ng-container *ngIf="config.outerDataHeader" matColumnDef="header">
-        <th *matHeaderCellDef [attr.colspan]="visibleColumns">
-            <div [innerHTML]="config.outerDataHeader(outerData)"></div>
-        </th>
-    </ng-container>
-
-    <ng-container *ngIf="config.caption" matColumnDef="caption">
-        <th *matHeaderCellDef [attr.colspan]="visibleColumns">
-            <ng-template [libTableCaption]></ng-template>
-        </th>
-    </ng-container>
-
-    <ng-container *ngIf="config.outerDataHeader">
-        <tr mat-header-row *matHeaderRowDef="['header']"></tr>
-    </ng-container>
-
-    <ng-container *ngIf="config.caption">
-        <tr mat-header-row *matHeaderRowDef="['caption']"></tr>
     </ng-container> -->
-
-    <ng-container *ngIf="config.outerDataHeader" matColumnDef="header">
-        <th *matHeaderCellDef [attr.colspan]="visibleColumns">
-            <div [innerHTML]="config.outerDataHeader(outerData)"></div>
-        </th>
-    </ng-container>
-
-    <ng-container *ngIf="config.caption" matColumnDef="caption">
-        <th *matHeaderCellDef [attr.colspan]="visibleColumns">
-            <ng-template [libTableCaption]></ng-template>
-        </th>
-    </ng-container>
-
-    <ng-container *ngIf="config.outerDataHeader">
-        <tr mat-header-row *matHeaderRowDef="['header']"></tr>
-    </ng-container>
-
-    <ng-container *ngIf="config.caption">
-        <tr mat-header-row *matHeaderRowDef="['caption']"></tr>
-    </ng-container>
-
-    <ng-container *ngFor="let col of columns; let colIdx = index">
-        <ng-container matColumnDef="{{ col.field }}">
-            <th mat-header-cell *matHeaderCellDef> {{ col.header }} </th>
-            <!-- <td mat-cell *matCellDef="let element"> {{element.position}} </td> -->
-        </ng-container>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsToDisplay;" [style]="config.getRowStyle(row)"
-        [ngClass]="config.getRowClass(row)">
-    </tr>
-    <tr style="height: 0;" mat-row *matRowDef="let row; let i = index; columns: [''];">
-        <td mat-cell *matCellDef="let element" [attr.colspan]="visibleColumns">
-            <div [@rowExpand]="expandRows[i] ? 'expanded' : 'collapsed'"
-                (@rowExpand.start)="onRowExpandAnimation($event, i)"
-                (@rowExpand.done)="onRowExpandAnimation($event, i)">
-                <ng-template [libTableRowExpansion] [rowData]="row" [rowIdx]="i"></ng-template>
-            </div>
-        </td>
-    </tr>
 </table>
 <mat-paginator *ngIf="config.pagination" (page)="onPageChange($event)" [length]="filterData.total"
     [pageSize]="config.pagination.pageSize" [pageSizeOptions]="config.pagination.pageSizeOptions"
